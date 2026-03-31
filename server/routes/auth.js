@@ -73,17 +73,28 @@ router.post('/register', [
                         }
 
                         const sent = await sendVerificationCode(email, userName, verificationCode);
+                        
                         if (!sent) {
-                            console.warn('Failed to send verification code');
+                            // If email fails, auto-verify the user
+                            console.warn('Email sending failed, auto-verifying user');
+                            db.run('UPDATE users SET email_verified = 1 WHERE id = ?', [this.lastID]);
+                            res.json({
+                                success: true,
+                                message: 'Регистрация успешна!',
+                                emailSent: false,
+                                autoVerified: true,
+                                userId: this.lastID,
+                                email: email
+                            });
+                        } else {
+                            res.json({
+                                success: true,
+                                message: 'Код отправлен на email!',
+                                emailSent: sent,
+                                userId: this.lastID,
+                                email: email
+                            });
                         }
-
-                        res.json({
-                            success: true,
-                            message: 'Код отправлен на email!',
-                            emailSent: sent,
-                            userId: this.lastID,
-                            email: email
-                        });
                     }
                 );
             });
