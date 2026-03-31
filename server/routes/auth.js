@@ -4,7 +4,6 @@ const { body, validationResult } = require('express-validator');
 const db = require('../database');
 const { authenticateToken, generateToken } = require('../middleware/auth');
 const { sendVerificationCode, generateVerificationCode } = require('../utils/email');
-const { getScanLimit } = require('../database');
 
 const router = express.Router();
 
@@ -35,56 +34,36 @@ router.post('/register', [
     const userName = name || email.split('@')[0];
 
     try {
-        db.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
-            if (err) {
-                return res.status(500).json({ success: false, error: 'Database error' });
-            }
-            if (row) {
-                return res.status(400).json({ success: false, error: 'Пользователь с таким email уже существует' });
-            }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationCode = generateVerificationCode();
+        const verificationExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-            db.get('SELECT id FROM users WHERE name = ?', [userName], async (err, nameRow) => {
+        db.run(
+            'INSERT INTO users (email, password, name, plan, scans_used, verification_code, verification_expires, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [email, hashedPassword, userName, 'free', 0, verificationCode, verificationExpires, 0],
+            function(err) {
                 if (err) {
-                    return res.status(500).json({ success: false, error: 'Database error' });
-                }
-                if (nameRow) {
-                    return res.status(400).json({ success: false, error: 'Это имя пользователя уже занято' });
-                }
-
-                const hashedPassword = await bcrypt.hash(password, 10);
-                const verificationCode = generateVerificationCode();
-                const verificationExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-                const initialScansLeft = getScanLimit('free');
-
-                db.run(
-                    'INSERT INTO users (email, password, name, plan, scans_used, verification_code, verification_expires, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    [email, hashedPassword, userName, 'free', 0, verificationCode, verificationExpires, 0],
-                    async function(err) {
-                        if (err) {
-                            if (err.message.includes('UNIQUE constraint failed')) {
-                                if (err.message.includes('email')) {
-                                    return res.status(400).json({ success: false, error: 'Пользователь с таким email уже существует' });
-                                }
-                                if (err.message.includes('name')) {
-                                    return res.status(400).json({ success: false, error: 'Это имя пользователя уже занято' });
-                                }
-                            }
-                            return res.status(500).json({ success: false, error: 'Failed to create user' });
-                        }
-
-                        const sent = await sendVerificationCode(email, userName, verificationCode);
-                        
-                        res.json({
-                            success: true,
-                            message: sent ? 'Код отправлен на email!' : 'Ошибка отправки email. Попробуйте позже.',
-                            emailSent: sent,
-                            userId: this.lastID,
-                            email: email
-                        });
+                    console.error('Registration error:', err.message);
+                    if (err.message.includes('UNIQUE constraint failed: email')) {
+                        return res.status(400).json({ success: false, error: 'Пользователь с таким email уже существует' });
                     }
-                );
-            });
-        });
+                    if (err.message.includes('UNIQUE constraint failed: name')) {
+                        return res.status(400).json({ success: false, error: 'Это имя пользователя уже занято' });
+                    }
+                    return res.status(500).json({ success: false, error: 'Failed to create user: ' + err.message });
+                }
+
+                sendVerificationCode(email, userName, verificationCode).then(sent => {
+                    res.json({
+                        success: true,
+                        message: sent ? 'Код отправлен на email!' : 'Ошибка отправки email. Попробуйте позже.',
+                        emailSent: sent,
+                        userId: this.lastID,
+                        email: email
+                    });
+                });
+            }
+        );
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
