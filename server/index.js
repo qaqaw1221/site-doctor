@@ -12,21 +12,9 @@ const paymentRoutes = require('./routes/payment');
 const compareRoutes = require('./routes/compare');
 const exportRoutes = require('./routes/export');
 const schedulerRoutes = require('./routes/scheduler');
-const { testConnection } = require('./utils/email');
 
 // Import database (SQLite)
 require('./database');
-
-// Test SMTP connection on startup
-testConnection().then(ok => {
-    if (ok) {
-        console.log('SMTP connection: OK');
-    } else {
-        console.warn('SMTP connection: FAILED - Email sending may not work');
-    }
-}).catch(err => {
-    console.warn('SMTP connection test error:', err.message);
-});
 
 const app = express();
 

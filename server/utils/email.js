@@ -3,33 +3,17 @@ const crypto = require('crypto');
 
 // Try multiple SMTP configurations
 function createTransporter() {
-    // Yandex configuration
-    const configs = [
-        {
-            host: 'smtp.yandex.ru',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        },
-        {
-            host: 'smtp.yandex.ru',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        }
-    ];
-    
     return nodemailer.createTransport({
-        ...configs[0],
-        debug: true,
-        logger: true
+        host: 'smtp.yandex.ru',
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000
     });
 }
 
@@ -86,15 +70,10 @@ Site Doctor
     };
 
     try {
-        console.log(`Attempting to send verification code to ${email}...`);
-        console.log(`SMTP Config: host=${process.env.SMTP_HOST}, port=${process.env.SMTP_PORT || 587}`);
-        const result = await transporter.sendMail(mailOptions);
-        console.log(`Verification code sent successfully to ${email}`);
-        console.log(`Message ID: ${result.messageId}`);
+        await transporter.sendMail(mailOptions);
         return true;
     } catch (error) {
-        console.error('Error sending email:', error.message);
-        console.error('SMTP Error details:', error);
+        console.error('Email error:', error.message);
         return false;
     }
 }
@@ -102,7 +81,6 @@ Site Doctor
 async function testConnection() {
     try {
         await transporter.verify();
-        console.log('SMTP connection verified');
         return true;
     } catch (error) {
         console.error('SMTP connection failed:', error.message);
@@ -190,10 +168,9 @@ ${process.env.BASE_URL || 'https://sitedoctor.io'}
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Payment confirmation sent to ${email}`);
         return true;
     } catch (error) {
-        console.error('Error sending payment email:', error.message);
+        console.error('Payment email error:', error.message);
         return false;
     }
 }
