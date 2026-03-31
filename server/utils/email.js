@@ -1,15 +1,39 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.yandex.ru',
-    port: parseInt(process.env.SMTP_PORT) || 465,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
-});
+// Try multiple SMTP configurations
+function createTransporter() {
+    // Yandex configuration
+    const configs = [
+        {
+            host: 'smtp.yandex.ru',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        },
+        {
+            host: 'smtp.yandex.ru',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        }
+    ];
+    
+    return nodemailer.createTransport({
+        ...configs[0],
+        debug: true,
+        logger: true
+    });
+}
+
+const transporter = createTransporter();
 
 function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -62,11 +86,15 @@ Site Doctor
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Verification code sent to ${email}`);
+        console.log(`Attempting to send verification code to ${email}...`);
+        console.log(`SMTP Config: host=${process.env.SMTP_HOST}, port=${process.env.SMTP_PORT || 587}`);
+        const result = await transporter.sendMail(mailOptions);
+        console.log(`Verification code sent successfully to ${email}`);
+        console.log(`Message ID: ${result.messageId}`);
         return true;
     } catch (error) {
         console.error('Error sending email:', error.message);
+        console.error('SMTP Error details:', error);
         return false;
     }
 }
