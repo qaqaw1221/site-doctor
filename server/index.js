@@ -65,6 +65,18 @@ app.get('/api/test-email', async (req, res) => {
     }
 });
 
+// Debug: get database schema
+app.get('/api/debug/db', (req, res) => {
+    const db = require('./database');
+    db.all("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'", (err, rows) => {
+        if (err) {
+            res.json({ error: err.message });
+        } else {
+            res.json({ usersSchema: rows[0]?.sql });
+        }
+    });
+});
+
 // Serve index.html for root route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
