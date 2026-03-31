@@ -7,111 +7,102 @@ const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     } else {
-        console.log('Connected to SQLite database');
+        console.log('Connected to SQLite database at:', dbPath);
         initializeDatabase();
     }
 });
 
 function initializeDatabase() {
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            name TEXT UNIQUE,
-            password TEXT NOT NULL,
-            plan TEXT DEFAULT 'free',
-            scans_used INTEGER DEFAULT 0,
-            scans_reset_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            last_login DATETIME
-        )
-    `, (err) => {
-        if (err) console.error('Error creating users table:', err.message);
-        else console.log('Users table ready');
-    });
+    db.serialize(() => {
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                name TEXT UNIQUE,
+                password TEXT NOT NULL,
+                plan TEXT DEFAULT 'free',
+                scans_used INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                last_login DATETIME,
+                subscription_end TEXT,
+                subscription_cancelled INTEGER DEFAULT 0,
+                email_verified INTEGER DEFAULT 0,
+                verification_code TEXT,
+                verification_expires TEXT,
+                comparisons_used INTEGER DEFAULT 0
+            )
+        `, (err) => {
+            if (err) console.error('Error creating users table:', err.message);
+            else console.log('Users table ready');
+        });
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS scan_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            url TEXT NOT NULL,
-            results TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    `, (err) => {
-        if (err) console.error('Error creating scan_history table:', err.message);
-        else console.log('Scan history table ready');
-    });
+        db.run(`
+            CREATE TABLE IF NOT EXISTS scan_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                url TEXT NOT NULL,
+                results TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `, (err) => {
+            if (err) console.error('Error creating scan_history table:', err.message);
+            else console.log('Scan history table ready');
+        });
 
-    // Add missing columns if they don't exist (for existing databases)
-    db.run(`ALTER TABLE users ADD COLUMN scans_reset_at TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN subscription_end TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN subscription_cancelled INTEGER DEFAULT 0`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN verification_code TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN verification_expires TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN comparisons_used INTEGER DEFAULT 0`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN comparisons_reset_at TEXT`, () => {});
+        db.run(`
+            CREATE TABLE IF NOT EXISTS payments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                payment_id TEXT UNIQUE NOT NULL,
+                user_id INTEGER NOT NULL,
+                plan TEXT NOT NULL,
+                period TEXT NOT NULL,
+                amount REAL NOT NULL,
+                currency TEXT NOT NULL,
+                method TEXT,
+                status TEXT DEFAULT 'pending',
+                external_id TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                completed_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `, (err) => {
+            if (err) console.error('Error creating payments table:', err.message);
+            else console.log('Payments table ready');
+        });
 
-    // Create payments table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            payment_id TEXT UNIQUE NOT NULL,
-            user_id INTEGER NOT NULL,
-            plan TEXT NOT NULL,
-            period TEXT NOT NULL,
-            amount REAL NOT NULL,
-            currency TEXT NOT NULL,
-            method TEXT,
-            status TEXT DEFAULT 'pending',
-            external_id TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            completed_at DATETIME,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    `, (err) => {
-        if (err) console.error('Error creating payments table:', err.message);
-        else console.log('Payments table ready');
-    });
+        db.run(`
+            CREATE TABLE IF NOT EXISTS comparison_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                main_url TEXT NOT NULL,
+                competitors TEXT NOT NULL,
+                results TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `, (err) => {
+            if (err) console.error('Error creating comparison_history table:', err.message);
+            else console.log('Comparison history table ready');
+        });
 
-    // Add missing columns to existing tables
-    db.run(`ALTER TABLE payments ADD COLUMN external_id TEXT`, () => {});
-
-    // Create comparisons history table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS comparison_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            main_url TEXT NOT NULL,
-            competitors TEXT NOT NULL,
-            results TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    `, (err) => {
-        if (err) console.error('Error creating comparison_history table:', err.message);
-        else console.log('Comparison history table ready');
-    });
-
-    // Create scheduled scans table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS scheduled_scans (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            url TEXT NOT NULL,
-            name TEXT,
-            frequency TEXT DEFAULT 'daily',
-            last_scan_at DATETIME,
-            next_scan_at DATETIME,
-            is_active INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    `, (err) => {
-        if (err) console.error('Error creating scheduled_scans table:', err.message);
-        else console.log('Scheduled scans table ready');
+        db.run(`
+            CREATE TABLE IF NOT EXISTS scheduled_scans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                url TEXT NOT NULL,
+                name TEXT,
+                frequency TEXT DEFAULT 'daily',
+                last_scan_at DATETIME,
+                next_scan_at DATETIME,
+                is_active INTEGER DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `, (err) => {
+            if (err) console.error('Error creating scheduled_scans table:', err.message);
+            else console.log('Scheduled scans table ready');
+        });
     });
 }
 
