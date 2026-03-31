@@ -57,8 +57,8 @@ router.post('/register', [
                 const initialScansLeft = getScanLimit('free');
 
                 db.run(
-                    'INSERT INTO users (email, password, name, plan, scans_left, verification_code, verification_expires, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    [email, hashedPassword, userName, 'free', initialScansLeft, verificationCode, verificationExpires, 0],
+                    'INSERT INTO users (email, password, name, plan, scans_used, verification_code, verification_expires, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    [email, hashedPassword, userName, 'free', 0, verificationCode, verificationExpires, 0],
                     async function(err) {
                         if (err) {
                             if (err.message.includes('UNIQUE constraint failed')) {
