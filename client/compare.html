@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сравнение сайтов - Site Doctor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 100: '#1a1a1a', 200: '#141414', 300: '#0f0f0f' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #0a0a0a; color: #fff; font-family: system-ui, sans-serif; }
+        .card { background: #141414; border: 1px solid #222; border-radius: 16px; transition: all 0.3s; }
+        .card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
+        .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #7c3aed); transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3); }
+        .progress-bar { height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .winner { border-color: #22c55e !important; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), transparent) !important; }
+        .loser { border-color: #ef4444 !important; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), transparent) !important; }
+        .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s forwards; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        .score-card { transition: all 0.3s; }
+        .score-card:hover { transform: scale(1.05); }
+        .trophy { animation: bounce 1s ease infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .skeleton { background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <nav class="border-b border-white/5 px-6 py-4 sticky top-0 z-50 backdrop-blur-xl bg-black/50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="text-xl font-bold">Site Doctor</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="/" class="text-gray-400 hover:text-white transition-colors">Главная</a>
+                <a href="/compare.html" class="text-white font-medium">Сравнение</a>
+                <a href="/dashboard.html" class="text-gray-400 hover:text-white transition-colors logged-in hidden">Дашборд</a>
+                <a href="/account.html" class="text-gray-400 hover:text-white transition-colors logged-in hidden">Аккаунт</a>
+                <button onclick="openLoginModal()" class="logged-out px-4 py-2 rounded-lg border border-[#333] hover:border-indigo-500 transition-colors logged-out">Войти</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <!-- Hero -->
+        <div class="text-center mb-10 fade-up">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                <span class="gradient-text">Узнайте</span> кто сильнее
+            </h1>
+            <p class="text-gray-400 text-lg max-w-xl mx-auto">
+                Сравните свой сайт с конкурентами по SEO, скорости и доступности за минуту
+            </p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="card p-8 mb-8 fade-up" style="animation-delay: 0.1s">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Main Site -->
+                <div class="relative">
+                    <div class="absolute -top-3 left-4 px-3 py-1 bg-indigo-500 rounded-full text-xs font-semibold text-white z-10">
+                        ВАШ САЙТ
+                    </div>
+                    <div class="pt-4">
+                        <div class="relative">
+                            <i data-lucide="globe" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400"></i>
+                            <input type="url" id="mainUrl" placeholder="https://yoursite.com" 
+                                   class="w-full pl-12 pr-4 py-4 rounded-xl bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none transition-colors">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Competitors -->
+                <div class="relative">
+                    <div class="absolute -top-3 left-4 px-3 py-1 bg-gray-500 rounded-full text-xs font-semibold text-white z-10">
+                        КОНКУРЕНТЫ
+                    </div>
+                    <div class="pt-4">
+                        <div class="flex gap-2">
+                            <input type="url" id="competitorInput" placeholder="https://competitor.com" 
+                                   class="flex-1 pl-4 pr-4 py-4 rounded-xl bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none transition-colors"
+                                   onkeypress="if(event.key==='Enter'){addCompetitor();event.preventDefault()}">
+                            <button onclick="addCompetitor()" class="px-6 py-4 rounded-xl bg-[#222] border border-[#333] hover:border-indigo-500 transition-colors">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div id="competitorsList" class="flex flex-wrap gap-2 mt-4"></div>
+                        <p class="text-gray-500 text-sm mt-2">Добавьте 2-5 конкурентов для полного сравнения</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Limits indicator -->
+            <div id="limitsIndicator" class="mt-6 p-4 rounded-lg bg-[#1a1a1a] border border-[#333]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-400"></i>
+                        <span class="text-sm text-gray-400">Сравнений:</span>
+                        <span id="comparisonsRemaining" class="font-bold text-indigo-400">—</span>
+                    </div>
+                    <button onclick="loadLimits()" class="text-xs text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> Обновить
+                    </button>
+                </div>
+                <div class="mt-2 progress-bar h-2">
+                    <div id="comparisonsProgress" class="progress-fill bg-gradient-to-r from-indigo-500 to-purple-500" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <button onclick="startComparison()" id="compareBtn" class="w-full mt-4 btn-primary py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2">
+                <i data-lucide="git-compare" class="w-5 h-5"></i>
+                Сравнить сайты
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <!-- Summary Header -->
+            <div class="text-center mb-8 fade-up">
+                <h2 class="text-3xl font-bold mb-2">Результаты сравнения</h2>
+                <p class="text-gray-400" id="comparisonDate"></p>
+            </div>
+
+            <!-- Main Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="card p-6 text-center score-card" id="positionCard">
+                    <div class="text-4xl font-bold gradient-text mb-1" id="positionBadge">-</div>
+                    <div class="text-gray-500 text-sm">Место из <span id="totalCount">-</span></div>
+                </div>
+                <div class="card p-6 text-center score-card">
+                    <div class="text-4xl font-bold text-white mb-1" id="yourScore">-</div>
+                    <div class="text-gray-500 text-sm">Ваш балл</div>
+                </div>
+                <div class="card p-6 text-center score-card">
+                    <div class="text-4xl font-bold text-green-400 mb-1" id="avgScore">-</div>
+                    <div class="text-gray-500 text-sm">Среднее конкурентов</div>
+                </div>
+                <div class="card p-6 text-center score-card">
+                    <div class="text-4xl font-bold text-yellow-400 mb-1" id="bestScore">-</div>
+                    <div class="text-gray-500 text-sm">Лучший результат</div>
+                </div>
+            </div>
+
+            <!-- Winner/Loser Banner -->
+            <div id="resultBanner" class="card p-8 mb-8 text-center fade-up">
+                <!-- Filled dynamically -->
+            </div>
+
+            <!-- Category Comparisons -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- SEO -->
+                <div class="card p-6 fade-up">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                            <i data-lucide="search" class="w-6 h-6 text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">SEO</h3>
+                            <p class="text-gray-500 text-sm">Поисковая оптимизация</p>
+                        </div>
+                    </div>
+                    <div id="seoComparison" class="space-y-4"></div>
+                </div>
+                
+                <!-- Performance -->
+                <div class="card p-6 fade-up" style="animation-delay: 0.1s">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                            <i data-lucide="zap" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Скорость</h3>
+                            <p class="text-gray-500 text-sm">Производительность</p>
+                        </div>
+                    </div>
+                    <div id="perfComparison" class="space-y-4"></div>
+                </div>
+                
+                <!-- Accessibility -->
+                <div class="card p-6 fade-up" style="animation-delay: 0.2s">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                            <i data-lucide="eye" class="w-6 h-6 text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Доступность</h3>
+                            <p class="text-gray-500 text-sm">Удобство для всех</p>
+                        </div>
+                    </div>
+                    <div id="a11yComparison" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="card p-8 fade-up">
+                <h3 class="font-bold text-xl mb-6 flex items-center gap-2">
+                    <i data-lucide="table" class="w-5 h-5 text-indigo-400"></i>
+                    Детальное сравнение
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-[#333]">
+                                <th class="py-3 px-4 text-left text-gray-400 font-medium">Показатель</th>
+                                <th class="py-3 px-4 text-center text-indigo-400 font-medium">Вы</th>
+                                <th class="py-3 px-4 text-center text-gray-400 font-medium">Конкуренты (ср.)</th>
+                                <th class="py-3 px-4 text-center text-gray-400 font-medium">Лучший</th>
+                                <th class="py-3 px-4 text-center text-gray-400 font-medium">Разница</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="card p-8 mt-8 fade-up" id="recommendationsSection">
+                <h3 class="font-bold text-xl mb-6 flex items-center gap-2">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-400"></i>
+                    Что улучшить
+                </h3>
+                <div id="recommendations" class="space-y-3"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-center gap-4 mt-8">
+                <button onclick="shareResults()" class="px-6 py-3 rounded-xl border border-[#333] hover:border-indigo-500 transition-colors flex items-center gap-2">
+                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                    Поделиться
+                </button>
+                <button onclick="newComparison()" class="px-6 py-3 rounded-xl border border-[#333] hover:border-indigo-500 transition-colors flex items-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    Новое сравнение
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden">
+            <div class="card p-12 text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-indigo-500/10 flex items-center justify-center">
+                    <i data-lucide="loader-2" class="w-10 h-10 text-indigo-400 animate-spin"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">Анализируем сайты...</h3>
+                <p class="text-gray-400 mb-6" id="loadingText">Сканируем SEO</p>
+                <div class="max-w-md mx-auto">
+                    <div class="progress-bar">
+                        <div id="loadingProgress" class="progress-fill bg-gradient-to-r from-indigo-500 to-purple-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mt-4">Это может занять 30-60 секунд</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Вход</h2>
+                <button onclick="closeModals()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold">&times;</button>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Пароль</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">Войти</button>
+            </form>
+            <p class="text-center text-gray-400 mt-4">
+                Нет аккаунта? <a href="/" class="text-indigo-400 hover:underline">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        const API_URL = 'http://localhost:3002';
+        let competitors = [];
+        let comparisonData = null;
+        
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+        
+        function isLoggedIn() {
+            return !!localStorage.getItem('auth_token');
+        }
+        
+        function updateAuthUI() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            document.querySelectorAll('.logged-in').forEach(el => el.classList.toggle('hidden', !user));
+            document.querySelectorAll('.logged-out').forEach(el => el.classList.toggle('hidden', !!user));
+        }
+        
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+        
+        function closeModals() {
+            document.querySelectorAll('[id$="Modal"]').forEach(modal => modal.classList.add('hidden'));
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('auth_token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    closeModals();
+                    updateAuthUI();
+                    showNotification('Добро пожаловать!', 'success');
+                } else {
+                    showNotification(result.error || 'Ошибка входа', 'error');
+                }
+            } catch (err) {
+                showNotification('Ошибка соединения', 'error');
+            }
+        }
+        
+        function addCompetitor() {
+            const input = document.getElementById('competitorInput');
+            let url = input.value.trim();
+            
+            if (!url) return;
+            if (!url.startsWith('http')) url = 'https://' + url;
+            
+            try { new URL(url); } catch {
+                showNotification('Некорректный URL', 'error');
+                return;
+            }
+            
+            if (competitors.includes(url)) {
+                showNotification('Этот сайт уже добавлен', 'warning');
+                return;
+            }
+            
+            if (competitors.length >= 5) {
+                showNotification('Максимум 5 конкурентов', 'warning');
+                return;
+            }
+            
+            competitors.push(url);
+            renderCompetitors();
+            input.value = '';
+        }
+        
+        function removeCompetitor(url) {
+            competitors = competitors.filter(c => c !== url);
+            renderCompetitors();
+        }
+        
+        function renderCompetitors() {
+            const container = document.getElementById('competitorsList');
+            container.innerHTML = competitors.map((url, idx) => {
+                const hostname = new URL(url).hostname;
+                return `
+                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#222] border border-[#333] text-sm animate-scale-in">
+                        <span class="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold">${idx + 1}</span>
+                        <span class="truncate max-w-[150px]">${hostname}</span>
+                        <button onclick="removeCompetitor('${url}')" class="hover:text-red-400 transition-colors">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </span>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+        
+        async function startComparison() {
+            let mainUrl = document.getElementById('mainUrl').value.trim();
+            
+            if (!mainUrl) { showNotification('Введите ваш сайт', 'error'); return; }
+            if (!mainUrl.startsWith('http')) mainUrl = 'https://' + mainUrl;
+            try { new URL(mainUrl); } catch { showNotification('Некорректный URL', 'error'); return; }
+            if (competitors.length === 0) { showNotification('Добавьте хотя бы 1 конкурента', 'error'); return; }
+            if (!isLoggedIn()) { showNotification('Войдите для сравнения', 'info'); openLoginModal(); return; }
+            
+            // Check limits first
+            try {
+                const limitsRes = await fetch(`${API_URL}/api/compare/limits`, { headers: getAuthHeaders() });
+                const limitsData = await limitsRes.json();
+                if (limitsData.success && limitsData.remaining <= 0) {
+                    showNotification('Лимит сравнений исчерпан. Улучшите план!', 'error');
+                    showUpgradeModal('comparisons');
+                    return;
+                }
+            } catch (e) {}
+            
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            
+            const stages = ['Сканируем SEO', 'Проверяем скорость', 'Анализируем доступность', 'Сравниваем'];
+            let currentStage = 0;
+            
+            const progressInterval = setInterval(() => {
+                currentStage = (currentStage + 1) % stages.length;
+                document.getElementById('loadingText').textContent = stages[currentStage];
+                document.getElementById('loadingProgress').style.width = ((currentStage + 1) / stages.length * 100) + '%';
+            }, 2500);
+            
+            try {
+                const response = await fetch(`${API_URL}/api/compare/compare`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify({ mainUrl, competitors })
+                });
+                
+                const result = await response.json();
+                clearInterval(progressInterval);
+                
+                if (result.success) {
+                    comparisonData = { ...result, mainUrl };
+                    displayResults(result);
+                    // Update remaining comparisons
+                    if (result.remaining !== undefined) {
+                        updateComparisonsRemaining(result.remaining, result.limit);
+                    }
+                } else {
+                    if (result.upgrade) {
+                        showNotification(result.error || 'Лимит исчерпан', 'error');
+                        showUpgradeModal('comparisons');
+                    } else {
+                        showNotification(result.error || 'Ошибка сравнения', 'error');
+                    }
+                }
+            } catch (err) {
+                clearInterval(progressInterval);
+                showNotification('Ошибка соединения', 'error');
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+        
+        function displayResults(data) {
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            
+            document.getElementById('comparisonDate').textContent = `Сравнение: ${document.getElementById('mainUrl').value}`;
+            
+            console.log('[Compare] Full response:', data);
+            
+            const summary = data.summary || {};
+            const validResults = data.results.filter(r => !r.error);
+            const failedResults = data.results.filter(r => r.error);
+            
+            if (validResults.length > 0) {
+                console.log('[Compare] Main result seoDetails:', validResults.find(r => r.isMain)?.seoDetails);
+                console.log('[Compare] Main result performanceDetails:', validResults.find(r => r.isMain)?.performanceDetails);
+            }
+            
+            document.getElementById('positionBadge').textContent = summary.position || '-';
+            document.getElementById('totalCount').textContent = validResults.length;
+            document.getElementById('yourScore').textContent = summary.mainScore || '-';
+            document.getElementById('avgScore').textContent = summary.avgCompetitor || '-';
+            document.getElementById('bestScore').textContent = summary.bestScore || '-';
+            
+            // Show failed sites warning
+            if (failedResults.length > 0) {
+                const failedMsg = failedResults.map(r => {
+                    try { return new URL(r.url).hostname; } catch { return r.url; }
+                }).join(', ');
+                showNotification(`Не удалось просканировать: ${failedMsg}`, 'warning');
+            }
+            
+            // Winner/Loser banner
+            const banner = document.getElementById('resultBanner');
+            if (summary.position === 1) {
+                banner.className = 'card p-8 mb-8 text-center winner';
+                banner.innerHTML = `
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h3 class="text-3xl font-bold text-green-400 mb-2">Поздравляем! Вы лидер!</h3>
+                    <p class="text-gray-400">Ваш сайт обходит конкурентов по всем показателям</p>
+                `;
+            } else if (summary.position === summary.total) {
+                banner.className = 'card p-8 mb-8 text-center loser';
+                banner.innerHTML = `
+                    <div class="text-6xl mb-4">📈</div>
+                    <h3 class="text-3xl font-bold text-red-400 mb-2">Есть что улучшить</h3>
+                    <p class="text-gray-400">Используйте рекомендации ниже чтобы обойти конкурентов</p>
+                `;
+            } else {
+                banner.className = 'card p-8 mb-8 text-center';
+                banner.innerHTML = `
+                    <div class="text-6xl mb-4">⚡</div>
+                    <h3 class="text-3xl font-bold text-yellow-400 mb-2">Хороший результат!</h3>
+                    <p class="text-gray-400">Вы на ${summary.position} месте из ${summary.total || validResults.length}. Немного усилий и будете первым!</p>
+                `;
+            }
+            
+            // Category comparisons
+            renderCategoryComparison('seo', data.comparison?.seo, validResults);
+            renderCategoryComparison('perf', data.comparison?.performance, validResults);
+            renderCategoryComparison('a11y', data.comparison?.accessibility, validResults);
+            
+            // Metrics table
+            renderMetricsTable({ ...data, results: validResults });
+            
+            // Recommendations
+            renderRecommendations(summary.recommendation);
+            
+            lucide.createIcons();
+        }
+        
+        function renderCategoryComparison(id, comparison, results) {
+            const container = document.getElementById(id + 'Comparison');
+            if (!results) { container.innerHTML = '<p class="text-gray-500">Нет данных</p>'; return; }
+            
+            const scoreKey = id === 'a11y' ? 'accessibility' : id === 'perf' ? 'performance' : id;
+            
+            const sorted = [...results]
+                .filter(r => !r.error)
+                .sort((a, b) => (b.scores?.[scoreKey] || 0) - (a.scores?.[scoreKey] || 0));
+            
+            container.innerHTML = sorted.map((site, idx) => {
+                const score = site.scores?.[scoreKey] || 0;
+                const isMain = site.isMain;
+                const gradient = isMain ? 'from-indigo-500 to-purple-500' : 'from-gray-600 to-gray-700';
+                const hostname = (() => { try { return new URL(site.url).hostname.replace('www.', ''); } catch { return site.url; }})();
+                
+                return `
+                    <div class="${isMain ? 'bg-indigo-500/10 rounded-lg p-3 -mx-3 border border-indigo-500/30' : ''}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                ${idx === 0 ? '<span class="text-lg">🥇</span>' : idx === sorted.length - 1 ? '<span class="text-lg">📉</span>' : ''}
+                                <span class="text-sm font-medium ${isMain ? 'text-white' : 'text-gray-400'}">
+                                    ${isMain ? 'Вы' : hostname}
+                                </span>
+                            </div>
+                            <span class="font-bold text-lg ${isMain ? 'text-indigo-400' : ''}">${score}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-gradient-to-r ${gradient}" style="width: ${score}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderMetricsTable(data) {
+            console.log('[MetricsTable] data.results:', data.results);
+            const mainResult = data.results.find(r => r.isMain);
+            const competitorsList = data.results.filter(r => !r.isMain);
+            
+            console.log('[MetricsTable] mainResult:', mainResult);
+            console.log('[MetricsTable] competitorsList:', competitorsList.length);
+            
+            if (!mainResult) {
+                document.getElementById('metricsTable').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-500">Нет данных</td></tr>';
+                return;
+            }
+            
+            console.log('[MetricsTable] mainResult.scores:', mainResult.scores);
+            console.log('[MetricsTable] mainResult.seoDetails:', mainResult.seoDetails);
+            console.log('[MetricsTable] mainResult.performanceDetails:', mainResult.performanceDetails);
+            
+            const metrics = [
+                { key: 'seo', label: 'SEO балл', icon: 'search', format: 'score' },
+                { key: 'performance', label: 'Скорость', icon: 'zap', format: 'score' },
+                { key: 'accessibility', label: 'Доступность', icon: 'eye', format: 'score' },
+                { key: 'links', label: 'Ссылки', icon: 'link', format: 'score' },
+                { key: 'titleLength', label: 'Title (симв.)', icon: 'type', nested: 'seoDetails', format: 'number' },
+                { key: 'descriptionLength', label: 'Description (симв.)', icon: 'align-left', nested: 'seoDetails', format: 'number' },
+                { key: 'hasViewport', label: 'Viewport', icon: 'smartphone', nested: 'seoDetails', format: 'bool' },
+                { key: 'hasCharset', label: 'Charset', icon: 'code', nested: 'seoDetails', format: 'bool' },
+                { key: 'h1Count', label: 'H1 заголовков', icon: 'heading-1', nested: 'seoDetails', format: 'number' },
+                { key: 'h2Count', label: 'H2 заголовков', icon: 'heading-2', nested: 'seoDetails', format: 'number' },
+                { key: 'imageAltRatio', label: 'Alt у изображений (%)', icon: 'image', nested: 'seoDetails', format: 'percent' },
+                { key: 'totalLinks', label: 'Всего ссылок', icon: 'link-2', nested: 'seoDetails', format: 'number' },
+                { key: 'internalLinks', label: 'Внутренних ссылок', icon: 'arrow-right', nested: 'seoDetails', format: 'number' },
+                { key: 'externalLinks', label: 'Внешних ссылок', icon: 'external-link', nested: 'seoDetails', format: 'number' },
+                { key: 'loadTime', label: 'Время загрузки (мс)', icon: 'clock', nested: 'performanceDetails', format: 'ms', lowerIsBetter: true },
+                { key: 'pageSize', label: 'Размер страницы (KB)', icon: 'hard-drive', nested: 'performanceDetails', format: 'kb', lowerIsBetter: true },
+                { key: 'requestCount', label: 'Запросов', icon: 'file-text', nested: 'performanceDetails', format: 'number', lowerIsBetter: true },
+                { key: 'renderBlocking', label: 'Блокирующих ресурсов', icon: 'alert-triangle', nested: 'performanceDetails', format: 'number', lowerIsBetter: true },
+                { key: 'fcp', label: 'First Paint (мс)', icon: 'eye', nested: 'performanceDetails', format: 'ms', lowerIsBetter: true },
+                { key: 'ttfb', label: 'TTFB (мс)', icon: 'zap', nested: 'performanceDetails', format: 'ms', lowerIsBetter: true }
+            ];
+            
+            const tbody = document.getElementById('metricsTable');
+            let html = '';
+            const hasCompetitors = competitorsList.length > 0;
+            
+            metrics.forEach(metric => {
+                let mainValue = null;
+                
+                if (metric.nested) {
+                    const nestedData = mainResult[metric.nested];
+                    mainValue = nestedData ? nestedData[metric.key] : null;
+                } else {
+                    mainValue = mainResult.scores?.[metric.key];
+                }
+                
+                const hasMainValue = mainValue !== null && mainValue !== undefined;
+                
+                let avgVal = 0;
+                let bestVal = 0;
+                
+                if (hasCompetitors) {
+                    const vals = competitorsList.map(c => {
+                        if (metric.nested) {
+                            return c[metric.nested] ? (c[metric.nested][metric.key] ?? 0) : 0;
+                        }
+                        return c.scores?.[metric.key] ?? 0;
+                    }).filter(v => v !== null && !isNaN(v));
+                    
+                    if (vals.length > 0) {
+                        avgVal = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+                        
+                        if (metric.lowerIsBetter) {
+                            bestVal = Math.min(...vals);
+                        } else {
+                            bestVal = Math.max(...vals);
+                        }
+                    }
+                }
+                
+                let diff = 0;
+                let diffDisplay = '—';
+                
+                if (hasMainValue && avgVal > 0) {
+                    diff = mainValue - avgVal;
+                    if (metric.lowerIsBetter) diff = avgVal - mainValue;
+                    diffDisplay = (diff > 0 ? '+' : '') + diff;
+                }
+                
+                const diffClass = !hasCompetitors ? 'text-gray-500' : (diff > 0 ? 'text-green-400' : diff < 0 ? 'text-red-400' : 'text-gray-400');
+                
+                let displayValue = '—';
+                if (hasMainValue) {
+                    if (metric.format === 'bool') {
+                        displayValue = mainValue ? '✓' : '✗';
+                    } else if (metric.format === 'percent') {
+                        displayValue = mainValue + '%';
+                    } else if (metric.format === 'ms') {
+                        displayValue = mainValue > 0 ? mainValue.toLocaleString() + ' мс' : '0 мс';
+                    } else if (metric.format === 'kb') {
+                        displayValue = mainValue > 0 ? (mainValue / 1024).toFixed(1) + ' KB' : '0 KB';
+                    } else if (metric.format === 'score') {
+                        displayValue = mainValue;
+                    } else {
+                        displayValue = mainValue;
+                    }
+                }
+                
+                let avgDisplay = '—';
+                let bestDisplay = '—';
+                
+                if (hasCompetitors) {
+                    if (metric.format === 'bool') {
+                        avgDisplay = '~';
+                        bestDisplay = '~';
+                    } else {
+                        avgDisplay = avgVal > 0 
+                            ? (metric.format === 'percent' ? avgVal + '%' 
+                                : metric.format === 'ms' ? avgVal.toLocaleString() + ' мс'
+                                : metric.format === 'kb' ? (avgVal / 1024).toFixed(1) + ' KB'
+                                : avgVal)
+                            : '—';
+                        
+                        bestDisplay = bestVal > 0
+                            ? (metric.format === 'percent' ? bestVal + '%'
+                                : metric.format === 'ms' ? bestVal.toLocaleString() + ' мс'
+                                : metric.format === 'kb' ? (bestVal / 1024).toFixed(1) + ' KB'
+                                : bestVal)
+                            : '—';
+                    }
+                }
+                
+                html += `
+                    <tr class="border-b border-[#1a1a1a] hover:bg-white/5">
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="${metric.icon}" class="w-4 h-4 text-gray-500"></i>
+                                <span class="text-sm">${metric.label}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-center font-semibold ${metric.format === 'bool' ? (hasMainValue && mainValue ? 'text-green-400' : 'text-red-400') : 'text-indigo-400'}">${displayValue}</td>
+                        <td class="py-4 px-4 text-center text-gray-400">${avgDisplay}</td>
+                        <td class="py-4 px-4 text-center text-yellow-400">${bestDisplay}</td>
+                        <td class="py-4 px-4 text-center font-semibold ${diffClass}">${diffDisplay}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+            lucide.createIcons();
+        }
+        
+        function renderRecommendations(recommendations) {
+            const container = document.getElementById('recommendations');
+            const section = document.getElementById('recommendationsSection');
+            
+            if (!recommendations || recommendations.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            
+            section.classList.remove('hidden');
+            container.innerHTML = recommendations.map(rec => `
+                <div class="flex items-start gap-4 p-4 rounded-lg ${rec.priority === 'high' ? 'bg-red-500/10 border border-red-500/20' : 'bg-yellow-500/10 border border-yellow-500/20'}">
+                    <div class="w-10 h-10 rounded-full ${rec.priority === 'high' ? 'bg-red-500/20' : 'bg-yellow-500/20'} flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${rec.priority === 'high' ? 'alert-triangle' : 'lightbulb'}" class="w-5 h-5 ${rec.priority === 'high' ? 'text-red-400' : 'text-yellow-400'}"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium mb-1">${rec.text}</p>
+                        <span class="text-xs px-2 py-1 rounded ${rec.priority === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}">${rec.priority === 'high' ? 'Важно' : 'Рекомендация'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function loadLimits() {
+            if (!isLoggedIn()) {
+                document.getElementById('comparisonsRemaining').textContent = 'Войдите';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/compare/limits`, { headers: getAuthHeaders() });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateComparisonsRemaining(data.remaining, data.limit);
+                }
+            } catch (e) {
+                console.error('Error loading limits:', e);
+            }
+        }
+        
+        function updateComparisonsRemaining(remaining, limit) {
+            const remainingEl = document.getElementById('comparisonsRemaining');
+            const progressEl = document.getElementById('comparisonsProgress');
+            
+            remainingEl.textContent = `${remaining} из ${limit}`;
+            
+            const percent = limit > 0 ? Math.round((remaining / limit) * 100) : 0;
+            progressEl.style.width = percent + '%';
+            
+            if (remaining <= 0) {
+                remainingEl.className = 'font-bold text-red-400';
+                document.getElementById('compareBtn').disabled = true;
+                document.getElementById('compareBtn').className = 'w-full mt-4 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 bg-gray-600 cursor-not-allowed';
+            } else if (remaining <= limit * 0.2) {
+                remainingEl.className = 'font-bold text-yellow-400';
+            } else {
+                remainingEl.className = 'font-bold text-green-400';
+            }
+        }
+        
+        function showUpgradeModal(feature) {
+            const modal = document.getElementById('upgradeModal') || createUpgradeModal();
+            modal.classList.remove('hidden');
+            
+            const message = document.getElementById('upgradeFeatureMessage');
+            if (message) {
+                message.textContent = feature === 'comparisons' 
+                    ? 'Лимит сравнений исчерпан. Улучшите план для большего количества сравнений.'
+                    : 'Эта функция доступна в платных планах.';
+                message.classList.remove('hidden');
+            }
+        }
+        
+        function createUpgradeModal() {
+            const modal = document.createElement('div');
+            modal.id = 'upgradeModal';
+            modal.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="card p-8 w-full max-w-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Улучшить план</h2>
+                        <button onclick="closeUpgradeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold">&times;</button>
+                    </div>
+                    
+                    <div id="upgradeFeatureMessage" class="hidden mb-6 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-center text-gray-300"></div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="border border-indigo-500/30 rounded-xl p-6 relative">
+                            <div class="absolute -top-3 left-4 px-3 py-1 bg-indigo-500 rounded-full text-xs font-semibold text-white">POPULAR</div>
+                            <h3 class="text-xl font-bold mb-2">Pro</h3>
+                            <div class="text-3xl font-bold mb-4">990₽ <span class="text-lg font-normal text-gray-500">/ мес</span></div>
+                            <ul class="space-y-2 mb-6 text-sm">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> 50 сравнений/мес</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> 50 сканов/мес</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> Авто-исправления</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> PDF экспорт</li>
+                            </ul>
+                            <button onclick="selectPlan('pro')" class="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold hover:opacity-90 transition-opacity">Выбрать Pro</button>
+                        </div>
+                        <div class="border border-purple-500/30 rounded-xl p-6 relative bg-gradient-to-br from-purple-500/5 to-transparent">
+                            <div class="absolute -top-3 left-4 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-semibold text-white">BEST VALUE</div>
+                            <h3 class="text-xl font-bold mb-2">Business</h3>
+                            <div class="text-3xl font-bold mb-4">4990₽ <span class="text-lg font-normal text-gray-500">/ мес</span></div>
+                            <ul class="space-y-2 mb-6 text-sm">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> 500 сравнений/мес</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> 500 сканов/мес</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> API доступ</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> White-label</li>
+                            </ul>
+                            <button onclick="selectPlan('business')" class="w-full py-3 rounded-lg border border-purple-500 font-semibold hover:bg-purple-500/10 transition-colors">Выбрать Business</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
+            return modal;
+        }
+        
+        function closeUpgradeModal() {
+            const modal = document.getElementById('upgradeModal');
+            if (modal) modal.classList.add('hidden');
+        }
+        
+        function shareResults() {
+            if (!comparisonData) return;
+            const mainUrl = document.getElementById('mainUrl').value;
+            const score = comparisonData.summary.mainScore;
+            const position = comparisonData.summary.position;
+            const total = comparisonData.summary.total;
+            
+            const text = `📊 Сравнил свой сайт ${new URL(mainUrl).hostname} с конкурентами!\n\n🏆 Результат: ${score} баллов (${position}/${total} место)\n\nПроверь свой сайт: Site Doctor`;
+            
+            if (navigator.share) {
+                navigator.share({ text });
+            } else {
+                navigator.clipboard.writeText(text);
+                showNotification('Результат скопирован!', 'success');
+            }
+        }
+        
+        function newComparison() {
+            competitors = [];
+            document.getElementById('mainUrl').value = '';
+            document.getElementById('competitorsList').innerHTML = '';
+            document.getElementById('resultsSection').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function showNotification(message, type = 'info') {
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', warning: 'bg-yellow-500', info: 'bg-indigo-500' };
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            loadLimits();
+        });
+    </script>
+</body>
+</html>

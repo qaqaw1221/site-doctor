@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Site Doctor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        :root {
+            --bg-primary: #050505;
+            --bg-card: #111111;
+            --border: #1f1f1f;
+            --accent: #6366f1;
+        }
+        body { background: var(--bg-primary); color: white; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="border-b border-[#1f1f1f] px-6 py-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <i data-lucide="stethoscope" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-bold text-lg">Site Doctor</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-gray-400 hover:text-white transition-colors">Главная</a>
+                <a href="/account.html" class="text-gray-400 hover:text-white transition-colors">Аккаунт</a>
+                <span class="text-gray-600">|</span>
+                <span class="text-white font-medium">История</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">История сканирований</h1>
+            <p class="text-gray-400">Ваши последние 20 сканирований сохраняются локально</p>
+        </div>
+
+        <div id="stats" class="grid grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 text-center">
+                <div id="totalScans" class="text-3xl font-bold text-indigo-400">0</div>
+                <div class="text-sm text-gray-500">Всего сканирований</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div id="avgScore" class="text-3xl font-bold text-green-400">0</div>
+                <div class="text-sm text-gray-500">Средний балл</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div id="totalFixes" class="text-3xl font-bold text-yellow-400">0</div>
+                <div class="text-sm text-gray-500">Исправлений</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div id="avgDuration" class="text-3xl font-bold text-purple-400">0с</div>
+                <div class="text-sm text-gray-500">Среднее время</div>
+            </div>
+        </div>
+
+        <div id="history" class="space-y-4">
+            <div class="text-center py-12 text-gray-500">
+                <i data-lucide="clock" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
+                <p>Пока нет сканирований</p>
+                <a href="/" class="text-indigo-400 hover:underline mt-2 inline-block">Провести первое сканирование</a>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+            <button onclick="clearHistory()" class="px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors text-sm">
+                <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i> Очистить историю
+            </button>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const STORAGE_KEY = 'siteDoctor_history';
+
+        function getHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function saveHistory(history) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 20)));
+        }
+
+        function formatDate(timestamp) {
+            const d = new Date(timestamp);
+            return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getScoreColor(score) {
+            if (score >= 80) return 'text-green-400';
+            if (score >= 60) return 'text-yellow-400';
+            return 'text-red-400';
+        }
+
+        function renderHistory() {
+            const history = getHistory();
+            const container = document.getElementById('history');
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="clock" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
+                        <p>Пока нет сканирований</p>
+                        <a href="/" class="text-indigo-400 hover:underline mt-2 inline-block">Провести первое сканирование</a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = history.map(item => `
+                <div class="card p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                            <i data-lucide="globe" class="w-6 h-6 text-indigo-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium truncate max-w-md">${item.url}</div>
+                            <div class="text-sm text-gray-500">${formatDate(item.timestamp)} • ${item.duration}с</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="text-right">
+                            <div class="text-2xl font-bold ${getScoreColor(item.score)}">${item.score}</div>
+                            <div class="text-xs text-gray-500">баллов</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-semibold text-yellow-400">${item.fixes || 0}</div>
+                            <div class="text-xs text-gray-500">исправлений</div>
+                        </div>
+                        <button onclick="rescan('${item.url}')" class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm hover:bg-indigo-500/30 transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function updateStats() {
+            const history = getHistory();
+            document.getElementById('totalScans').textContent = history.length;
+
+            if (history.length > 0) {
+                const avgScore = Math.round(history.reduce((sum, h) => sum + h.score, 0) / history.length);
+                const totalFixes = history.reduce((sum, h) => sum + (h.fixes || 0), 0);
+                const avgDuration = Math.round(history.reduce((sum, h) => sum + h.duration, 0) / history.length);
+
+                document.getElementById('avgScore').textContent = avgScore;
+                document.getElementById('totalFixes').textContent = totalFixes;
+                document.getElementById('avgDuration').textContent = avgDuration + 'с';
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Удалить всю историю сканирований?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderHistory();
+                updateStats();
+            }
+        }
+
+        function rescan(url) {
+            window.location.href = `/?url=${encodeURIComponent(url)}`;
+        }
+
+        // Check auth before showing content
+        if (!localStorage.getItem('auth_token')) {
+            window.location.href = '/';
+        } else {
+            renderHistory();
+            updateStats();
+        }
+    </script>
+</body>
+</html>

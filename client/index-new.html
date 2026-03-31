@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Doctor - AI Website Analysis</title>
+    <meta name="description" content="Автоматическое обнаружение и исправление ошибок на сайтах с помощью AI">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --border: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-tertiary: #666666;
+            --accent-blue: #0070f3;
+            --accent-purple: #7928ca;
+            --accent-pink: #ff0080;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #0070f3 0%, #7928ca 50%, #ff0080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-border {
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: linear-gradient(135deg, #0070f3, #7928ca, #ff0080);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+        
+        .glow-button {
+            background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .glow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 112, 243, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+        }
+        
+        .card-hover:hover {
+            border-color: #444;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .status-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0070f3, #7928ca);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .input-field {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #0070f3;
+            box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.1);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-tertiary);
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+        
+        .noise-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+        
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 112, 243, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(121, 40, 202, 0.1), transparent);
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <!-- Background Effects -->
+    <div class="noise-bg"></div>
+    <div class="aurora-bg"></div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10">
+        <!-- Navigation -->
+        <nav class="border-b border-[#222] backdrop-blur-xl sticky top-0 z-50" style="background: rgba(10, 10, 10, 0.8)">
+            <div class="max-w-6xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #0070f3, #7928ca)">
+                            <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="font-bold text-lg tracking-tight">Site Doctor</span>
+                    </div>
+                    <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
+                        <a href="#features" class="hover:text-white transition-colors">Возможности</a>
+                        <a href="#pricing" class="hover:text-white transition-colors">Тарифы</a>
+                        <a href="#" class="hover:text-white transition-colors">Документация</a>
+                    </div>
+                    <button class="text-sm px-4 py-2 rounded-lg border border-[#333] hover:border-[#555] transition-colors">
+                        Войти
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-20 pb-32 px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-8 border border-[#333] bg-[#111]">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-gray-400">Система онлайн • AI v2.0</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
+                    Анализируйте сайты<br>
+                    <span class="gradient-text">как профессионал</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    AI-платформа для автоматического обнаружения ошибок производительности, 
+                    SEO-проблем и уязвимостей безопасности
+                </p>
+
+                <!-- Scan Form -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="gradient-border p-1">
+                        <div class="bg-[#111] rounded-xl p-2 flex flex-col md:flex-row gap-2">
+                            <div class="flex-1 relative">
+                                <i data-lucide="link" class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                                <input 
+                                    type="url" 
+                                    id="urlInput"
+                                    placeholder="https://example.com"
+                                    class="input-field w-full pl-12 pr-4 py-4 rounded-lg text-base"
+                                />
+                            </div>
+                            <button 
+                                onclick="scanWebsite()"
+                                id="scanBtn"
+                                class="glow-button px-8 py-4 rounded-lg font-semibold text-white flex items-center justify-center gap-2"
+                            >
+                                <i data-lucide="scan" class="w-5 h-5"></i>
+                                Анализировать
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="loadingState" class="hidden mt-8">
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-12 border-2 border-[#333] border-t-[#0070f3] rounded-full animate-spin mb-4"></div>
+                            <p class="text-gray-400 text-sm">Сканирование сайта...</p>
+                            <div class="w-64 mt-4 progress-bar">
+                                <div class="progress-fill" style="width: 0%" id="progressBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="flex justify-center gap-12 mt-16">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold" id="sitesScanned">0</div>
+                        <div class="text-sm text-gray-500 mt-1">Сайтов проверено</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold gradient-text" id="issuesFound">0</div>
+                        <div class="text-sm text-gray-500 mt-1">Проблем найдено</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-500" id="issuesFixed">0</div>
+                        <div class="text-sm text-gray-500 mt-1">Исправлено</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="py-20 px-6 border-t border-[#222]" id="results">
+            <div class="max-w-6xl mx-auto">
+                <div id="resultsContainer">
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#111] border border-[#333] flex items-center justify-center">
+                            <i data-lucide="search" class="w-8 h-8 text-gray-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Готовы к анализу</h3>
+                        <p class="text-gray-500">Введите URL сайта выше для начала сканирования</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-24 px-6 border-t border-[#222]" id="features">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                        Всё, что нужно для
+                        <span class="gradient-text"> perfect site</span>
+                    </h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">
+                        Полный набор инструментов для анализа и оптимизации вашего веб-присутствия
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="card-hover bg-[#111] rounded-xl p-6">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4">
+                            <i data-lucide="zap" class="w-6 h-6 text-blue-500"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">Производительность</h3>
+                        <p class="text-sm text-gray-400">Core Web Vitals, скорость загрузки, оптимизация ресурсов</p>
+                    </div>
+
+                    <div class="card-hover bg-[#111] rounded-xl p-6">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4">
+                            <i data-lucide="search" class="w-6 h-6 text-purple-500"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">SEO</h3>
+                        <p class="text-sm text-gray-400">Мета-теги, структура, индексация, мобильная оптимизация</p>
+                    </div>
+
+                    <div class="card-hover bg-[#111] rounded-xl p-6">
+                        <div class="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center mb-4">
+                            <i data-lucide="shield" class="w-6 h-6 text-pink-500"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">Безопасность</h3>
+                        <p class="text-sm text-gray-400">SSL, уязвимости, защита от атак, заголовки безопасности</p>
+                    </div>
+
+                    <div class="card-hover bg-[#111] rounded-xl p-6">
+                        <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-4">
+                            <i data-lucide="code-2" class="w-6 h-6 text-green-500"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">Качество кода</h3>
+                        <p class="text-sm text-gray-400">Валидация, доступность, семантика, best practices</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="py-24 px-6 border-t border-[#222]" id="pricing">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Простые тарифы</h2>
+                    <p class="text-gray-400">Начните бесплатно, масштабируйтесь по мере роста</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Free -->
+                    <div class="card-hover bg-[#111] rounded-xl p-8">
+                        <h3 class="text-lg font-semibold mb-2">Starter</h3>
+                        <div class="text-4xl font-bold mb-1">0₽</div>
+                        <p class="text-sm text-gray-500 mb-6">Навсегда бесплатно</p>
+                        
+                        <ul class="space-y-3 mb-8 text-sm">
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                1 сканирование / месяц
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Базовый отчет
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-500">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                Без авто-исправлений
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg border border-[#333] hover:border-[#555] transition-colors text-sm font-medium">
+                            Начать бесплатно
+                        </button>
+                    </div>
+
+                    <!-- Pro -->
+                    <div class="card-hover bg-[#111] rounded-xl p-8 relative border-[#444]">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                                Популярный
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold mb-2">Pro</h3>
+                        <div class="text-4xl font-bold mb-1 gradient-text">990₽</div>
+                        <p class="text-sm text-gray-500 mb-6">/ месяц</p>
+                        
+                        <ul class="space-y-3 mb-8 text-sm">
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                10 сканирований / месяц
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Полный отчет с рекомендациями
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Авто-исправления
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Приоритетная поддержка
+                            </li>
+                        </ul>
+                        
+                        <button class="glow-button w-full py-3 rounded-lg text-white text-sm font-medium">
+                            Выбрать Pro
+                        </button>
+                    </div>
+
+                    <!-- Business -->
+                    <div class="card-hover bg-[#111] rounded-xl p-8">
+                        <h3 class="text-lg font-semibold mb-2">Business</h3>
+                        <div class="text-4xl font-bold mb-1 text-purple-400">4 990₽</div>
+                        <p class="text-sm text-gray-500 mb-6">/ месяц</p>
+                        
+                        <ul class="space-y-3 mb-8 text-sm">
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Безлимитные сканирования
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                API доступ
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                White label решение
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Выделенный менеджер
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg border border-[#333] hover:border-[#555] transition-colors text-sm font-medium">
+                            Связаться с нами
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="gradient-border p-8 md:p-12 rounded-2xl text-center">
+                    <div class="bg-[#0a0a0a] rounded-xl">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                            Готовы улучшить свой сайт?
+                        </h2>
+                        <p class="text-gray-400 mb-8 max-w-xl mx-auto">
+                            Присоединяйтесь к тысячам разработчиков, которые уже оптимизировали свои проекты с Site Doctor
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button class="glow-button px-8 py-4 rounded-lg font-semibold text-white flex items-center justify-center gap-2">
+                                <i data-lucide="rocket" class="w-5 h-5"></i>
+                                Начать бесплатно
+                            </button>
+                            <button class="px-8 py-4 rounded-lg border border-[#333] hover:border-[#555] transition-colors text-gray-300">
+                                Смотреть демо
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6 border-t border-[#222]">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #0070f3, #7928ca)">
+                            <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="font-semibold">Site Doctor</span>
+                    </div>
+                    
+                    <div class="flex gap-6 text-sm text-gray-500">
+                        <a href="#" class="hover:text-white transition-colors">Twitter</a>
+                        <a href="#" class="hover:text-white transition-colors">GitHub</a>
+                        <a href="#" class="hover:text-white transition-colors">Discord</a>
+                    </div>
+                </div>
+                <div class="mt-8 pt-8 border-t border-[#222] text-center text-sm text-gray-600">
+                    <p>&copy; 2026 Site Doctor. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('sitesScanned').textContent = localStorage.getItem('sitesScanned') || '0';
+            document.getElementById('issuesFixed').textContent = localStorage.getItem('issuesFixed') || '0';
+            document.getElementById('issuesFound').textContent = localStorage.getItem('issuesFound') || '0';
+        }
+        
+        // Show loading
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('scanBtn').disabled = true;
+            
+            let progress = 0;
+            const bar = document.getElementById('progressBar');
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                bar.style.width = progress + '%';
+            }, 300);
+        }
+        
+        // Hide loading
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('scanBtn').disabled = false;
+        }
+        
+        // Display results
+        function displayResults(data) {
+            hideLoading();
+            const container = document.getElementById('resultsContainer');
+            
+            if (data.issues && data.issues.length > 0) {
+                let html = '<div class="space-y-6">';
+                
+                // Summary cards
+                html += `
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-[#111] rounded-xl p-6 border border-[#222]">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-gray-300">Производительность</h3>
+                                <i data-lucide="zap" class="w-5 h-5 text-blue-500"></i>
+                            </div>
+                            <div class="flex items-baseline gap-2 mb-3">
+                                <span class="text-4xl font-bold">${data.performance.score}</span>
+                                <span class="text-gray-500">/ 100</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${data.performance.score}%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-[#111] rounded-xl p-6 border border-[#222]">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-gray-300">SEO</h3>
+                                <i data-lucide="search" class="w-5 h-5 text-purple-500"></i>
+                            </div>
+                            <div class="flex items-baseline gap-2 mb-3">
+                                <span class="text-4xl font-bold">${data.seo.score}</span>
+                                <span class="text-gray-500">/ 100</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${data.seo.score}%; background: linear-gradient(90deg, #7928ca, #ff0080)"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Issues list
+                html += '<h3 class="text-xl font-semibold mb-4">Обнаруженные проблемы</h3>';
+                
+                data.issues.forEach(issue => {
+                    const statusClass = issue.severity === 'high' ? 'status-critical' : 
+                                       issue.severity === 'medium' ? 'status-warning' : 'status-success';
+                    const statusText = issue.severity === 'high' ? 'Критическая' : 
+                                      issue.severity === 'medium' ? 'Предупреждение' : 'Информация';
+                    
+                    html += `
+                        <div class="bg-[#111] rounded-xl p-6 border border-[#222] card-hover">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">${issue.title}</h4>
+                                        <span class="status-badge ${statusClass} mt-1">${statusText}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-400 mb-4">${issue.description}</p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[#222]">
+                                    <div class="text-sm text-gray-500 mb-1">Влияние на бизнес</div>
+                                    <div class="text-2xl font-bold text-red-400">-${issue.businessImpact}%</div>
+                                </div>
+                                <div class="bg-[#0a0a0a] rounded-lg p-4 border border-[#222]">
+                                    <div class="text-sm text-gray-500 mb-1">Время исправления</div>
+                                    <div class="text-2xl font-bold text-blue-400">${issue.estimatedFixTime}</div>
+                                </div>
+                            </div>
+                            ${issue.autoFixable ? `
+                                <button class="glow-button w-full mt-4 py-3 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-2">
+                                    <i data-lucide="wand-2" class="w-4 h-4"></i>
+                                    Исправить автоматически
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+                lucide.createIcons();
+                
+                // Update stats
+                const current = parseInt(localStorage.getItem('sitesScanned') || 0) + 1;
+                const issues = parseInt(localStorage.getItem('issuesFound') || 0) + data.issues.length;
+                localStorage.setItem('sitesScanned', current);
+                localStorage.setItem('issuesFound', issues);
+                updateStats();
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2 text-green-400">Отлично! Проблем не найдено</h3>
+                        <p class="text-gray-500">Ваш сайт прошел все проверки успешно</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+        
+        // Scan function
+        async function scanWebsite() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('Введите URL сайта');
+                return;
+            }
+            
+            try {
+                new URL(url);
+            } catch {
+                alert('Некорректный URL');
+                return;
+            }
+            
+            showLoading();
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Mock data
+            const mockData = {
+                url,
+                issues: Math.random() > 0.3 ? [
+                    {
+                        type: 'performance',
+                        severity: 'high',
+                        title: 'Медленная загрузка страницы',
+                        description: 'Время загрузки превышает рекомендуемые 3 секунды, что может привести к потере посетителей',
+                        businessImpact: 30,
+                        autoFixable: true,
+                        estimatedFixTime: '15 мин'
+                    },
+                    {
+                        type: 'seo',
+                        severity: 'medium',
+                        title: 'Отсутствует meta description',
+                        description: 'Meta-тег description не найден на странице, что снижает CTR в поисковой выдаче',
+                        businessImpact: 25,
+                        autoFixable: true,
+                        estimatedFixTime: '5 мин'
+                    }
+                ] : [],
+                performance: {
+                    score: Math.floor(Math.random() * 40) + 60,
+                    loadTime: Math.floor(Math.random() * 4000) + 1000
+                },
+                seo: {
+                    score: Math.floor(Math.random() * 30) + 70
+                }
+            };
+            
+            displayResults(mockData);
+        }
+        
+        // Initialize
+        updateStats();
+        
+        // Enter key handler
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') scanWebsite();
+        });
+    </script>
+</body>
+</html>
