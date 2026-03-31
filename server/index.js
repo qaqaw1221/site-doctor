@@ -12,9 +12,21 @@ const paymentRoutes = require('./routes/payment');
 const compareRoutes = require('./routes/compare');
 const exportRoutes = require('./routes/export');
 const schedulerRoutes = require('./routes/scheduler');
+const { testConnection } = require('./utils/email');
 
 // Import database (SQLite)
 require('./database');
+
+// Test SMTP connection on startup
+testConnection().then(ok => {
+    if (ok) {
+        console.log('SMTP connection: OK');
+    } else {
+        console.warn('SMTP connection: FAILED - Email sending may not work');
+    }
+}).catch(err => {
+    console.warn('SMTP connection test error:', err.message);
+});
 
 const app = express();
 
@@ -46,6 +58,23 @@ app.get('/api/health', (req, res) => {
         version: '1.0.0',
         database: 'SQLite'
     });
+});
+
+// Email test endpoint
+app.get('/api/test-email', async (req, res) => {
+    const { testConnection, sendVerificationCode } = require('./utils/email');
+    
+    console.log('Testing SMTP connection...');
+    console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    console.log('SMTP_USER:', process.env.SMTP_USER);
+    
+    const connected = await testConnection();
+    if (connected) {
+        res.json({ success: true, message: 'SMTP connected successfully' });
+    } else {
+        res.json({ success: false, message: 'SMTP connection failed - check logs' });
+    }
 });
 
 // Serve index.html for root route
