@@ -82,6 +82,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
+// Force redeploy marker - remove after confirming fix
+const FORCE_REDEPLOY = Date.now();
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
     console.log(`Site Doctor running on http://localhost:${PORT}`);
