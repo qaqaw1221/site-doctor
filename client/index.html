@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Doctor — AI-анализ сайтов за 30 секунд</title>
+    <meta name="description" content="Найдите все проблемы сайта за 30 секунд. SEO, скорость, доступность, безопасность. Бесплатно.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #0a0a0a;
+            --bg-card: #111111;
+            --border: #1f1f1f;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        /* Animated gradient background */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg-primary);
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            animation: gradientMove 20s ease-in-out infinite;
+        }
+        
+        @keyframes gradientMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-5%, 5%) rotate(5deg); }
+        }
+        
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Glow effects */
+        .glow-purple {
+            box-shadow: 0 0 60px rgba(168, 85, 247, 0.3);
+        }
+        
+        .glow-indigo {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        
+        .animate-slide-down {
+            animation: slideDown 0.5s ease forwards;
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.3s ease forwards;
+        }
+        
+        .animate-pulse-soft {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .animate-bounce-soft {
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        .animate-spin-slow {
+            animation: spin-slow 3s linear infinite;
+        }
+        
+        .animate-scale-in {
+            animation: scaleIn 0.3s ease forwards;
+        }
+        
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        /* Toast animations */
+        .toast-enter {
+            animation: slideIn 0.3s ease forwards;
+        }
+        
+        .toast-exit {
+            animation: slideIn 0.3s ease reverse forwards;
+        }
+        
+        /* Button ripple effect */
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-ripple:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Progress bar animation */
+        .progress-animated {
+            background: linear-gradient(90deg, 
+                rgba(99, 102, 241, 0.3) 0%, 
+                rgba(139, 92, 246, 0.6) 50%, 
+                rgba(99, 102, 241, 0.3) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Score counter animation */
+        .score-animate {
+            transition: all 1s ease-out;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .card:hover {
+                transform: none;
+            }
+            
+            .btn-primary:hover {
+                transform: none;
+            }
+        }
+        
+        /* Score gauge */
+        .gauge {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        
+        .gauge-inner {
+            position: absolute;
+            inset: 8px;
+            background: var(--bg-card);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gauge-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .gauge-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Pulse animation */
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Scroll animations */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Input focus */
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Pricing card popular */
+        .pricing-popular {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border-color: #6366f1;
+        }
+        
+        /* Testimonial card */
+        .testimonial-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(99, 102, 241, 0.05));
+        }
+        
+        /* Progress steps */
+        .step-connector {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, transparent);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .gauge { width: 80px; height: 80px; }
+            .gauge-value { font-size: 20px; }
+            .gauge-label { font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background effects -->
+    <div class="gradient-bg"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold">Site Doctor</span>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex items-center gap-8">
+                    <a href="#features" class="text-gray-400 hover:text-white transition-colors" data-i18n="features">Возможности</a>
+                    <a href="#how" class="text-gray-400 hover:text-white transition-colors" data-i18n="howItWorks">Как работает</a>
+                    <a href="/compare.html" class="text-gray-400 hover:text-white transition-colors">Сравнение</a>
+                    <a href="#pricing" class="text-gray-400 hover:text-white transition-colors" data-i18n="pricing">Тарифы</a>
+                    <a href="#faq" class="text-gray-400 hover:text-white transition-colors" data-i18n="faq">FAQ</a>
+                    <a href="/dashboard.html" class="auth-link hidden text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="history">История</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center gap-2 md:gap-4">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1">
+                        <button onclick="switchLang('ru')" class="lang-btn px-2 md:px-3 py-1.5 rounded-md text-xs md:text-sm transition-colors bg-indigo-500 text-white" data-lang="ru">RU</button>
+                        <button onclick="switchLang('en')" class="lang-btn px-2 md:px-3 py-1.5 rounded-md text-xs md:text-sm transition-colors text-gray-400 hover:text-white" data-lang="en">EN</button>
+                    </div>
+                    
+                    <!-- Auth Section (shows logged-in OR logged-out) -->
+                    <div class="flex items-center gap-3">
+                        <!-- Logged Out -->
+                        <div id="authLoggedOut" style="display: none;">
+                            <div class="flex items-center gap-3">
+                                <button onclick="openLoginModal()" class="text-gray-400 hover:text-white transition-colors text-sm" data-i18n="login">Войти</button>
+                                <button onclick="openRegisterModal()" class="btn-primary px-4 md:px-5 py-2 rounded-lg font-semibold text-white text-sm">
+                                    <span data-i18n="register">Регистрация</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Logged In -->
+                        <div id="authLoggedIn" style="display: none;">
+                            <div class="flex items-center gap-2">
+                                <a href="/account.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                                    <i data-lucide="user" class="w-4 h-4"></i>
+                                    <span class="text-white text-sm" data-i18n="account">Мой аккаунт</span>
+                                </a>
+                                <button onclick="logout()" class="px-3 py-2 rounded-lg border border-[#333] hover:border-[#555] transition-colors text-sm" title="Выйти">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+                        <i data-lucide="menu" class="w-6 h-6" id="mobileMenuIcon"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t border-[#333] pt-4">
+                <div class="flex flex-col gap-4">
+                    <a href="#features" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">Возможности</a>
+                    <a href="#how" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">Как работает</a>
+                    <a href="/compare.html" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">Сравнение</a>
+                    <a href="#pricing" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">Тарифы</a>
+                    <a href="#faq" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">FAQ</a>
+                    
+                    <!-- Mobile Auth -->
+                    <div id="mobileAuthLoggedOut" style="display: none;" class="border-t border-[#333] pt-4 flex flex-col gap-3">
+                        <button onclick="openLoginModal(); toggleMobileMenu();" class="text-left text-gray-400 hover:text-white transition-colors">Войти</button>
+                        <button onclick="openRegisterModal(); toggleMobileMenu();" class="btn-primary px-5 py-3 rounded-lg font-semibold text-white text-center">Регистрация</button>
+                    </div>
+                    
+                    <div id="mobileAuthLoggedIn" style="display: none;" class="border-t border-[#333] pt-4 flex flex-col gap-3">
+                        <a href="/account.html" onclick="toggleMobileMenu()" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            <span>Мой аккаунт</span>
+                        </a>
+                        <button onclick="logout(); toggleMobileMenu();" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Выйти</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('mobileMenuIcon');
+            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                icon.setAttribute('data-lucide', 'menu');
+            } else {
+                icon.setAttribute('data-lucide', 'x');
+            }
+            lucide.createIcons();
+        }
+    </script>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-20 md:pt-28 px-4 md:px-6">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <!-- Trust badges -->
+            <div class="flex items-center justify-center gap-3 md:gap-6 mb-6 md:mb-10 fade-up flex-wrap">
+                <div class="flex items-center gap-2 px-3 md:px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-green-400 text-xs md:text-sm font-medium">Система онлайн</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 md:px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-sm">
+                    <i data-lucide="zap" class="w-4 h-4 text-indigo-400"></i>
+                    <span class="text-indigo-400 text-xs md:text-sm font-medium">AI-powered</span>
+                </div>
+            </div>
+            
+            <!-- Main headline -->
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight fade-up">
+                Найди <span class="gradient-text">все проблемы</span><br class="hidden sm:block">сайта за 30 секунд
+            </h1>
+            
+            <!-- Subheadline -->
+            <p class="text-base md:text-lg lg:text-xl text-gray-400 mb-8 md:mb-12 max-w-2xl mx-auto fade-up">
+                SEO-ошибки, медленная загрузка, проблемы с доступностью — всё в одном отчёте. 
+                <span class="text-white font-medium">Бесплатно.</span>
+            </p>
+            
+            <!-- Scan form -->
+            <div class="max-w-2xl mx-auto fade-up">
+                <div class="relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30"></div>
+                    <div class="relative bg-[#111] rounded-2xl p-2 flex flex-col md:flex-row gap-2">
+                        <div class="flex-1 relative">
+                            <i data-lucide="link" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input 
+                                type="url" 
+                                id="urlInput" 
+                                placeholder="https://yoursite.com" 
+                                data-i18n-placeholder="enterUrl"
+                                class="input-glow w-full pl-12 pr-4 py-4 bg-[#0a0a0a] border border-[#222] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                            >
+                        </div>
+                        <button id="scanBtn" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i data-lucide="scan" class="w-5 h-5"></i>
+                            <span data-i18n="analyze">Анализировать</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="urlError" class="hidden mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2 justify-center">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    <span data-i18n="invalidUrl">Введите корректный URL (например: https://example.com)</span>
+                </div>
+                
+                <!-- Loading state -->
+                <div id="loadingState" class="hidden mt-8">
+                    <div class="bg-[#111] rounded-2xl p-8 border border-[#222]">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="relative">
+                                <div class="w-16 h-16 border-4 border-[#222] rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-lg font-semibold mb-1" data-i18n="scanning">Сканируем ваш сайт...</p>
+                                <p class="text-gray-400 text-sm" id="scanStatus" data-i18n="connecting">Подключение к серверу</p>
+                            </div>
+                            <div class="w-full max-w-sm">
+                                <div class="h-2 bg-[#222] rounded-full overflow-hidden">
+                                    <div id="progressBar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trust indicators -->
+            <div class="flex flex-wrap items-center justify-center gap-8 mt-12 text-gray-500 text-sm fade-up">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-green-500"></i>
+                    <span data-i18n="safePrivate">Безопасно и приватно</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-indigo-500"></i>
+                    <span data-i18n="resultIn30">Результат за 30 секунд</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-purple-500"></i>
+                    <span data-i18n="noCard">Кредитная карта не нужна</span>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto fade-up">
+                <div class="text-center">
+                    <div class="text-4xl font-bold gradient-text" id="statScanned">0</div>
+                    <div class="text-gray-500 text-sm mt-1" data-i18n="sitesChecked">Сайтов проверено</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-white">98%</div>
+                    <div class="text-gray-500 text-sm mt-1" data-i18n="accuracy">Точность анализа</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-green-400">4.9★</div>
+                    <div class="text-gray-500 text-sm mt-1" data-i18n="userRating">Рейтинг пользователей</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section (hidden initially) -->
+    <section id="results" class="py-20 px-6 hidden">
+        <div class="max-w-6xl mx-auto">
+            <div id="resultsContainer"></div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="how" class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    Просто. Быстро. <span class="gradient-text">Эффективно.</span>
+                </h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Три простых шага к идеальному сайту
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card p-8 text-center relative fade-up">
+                    <div class="step-connector hidden md:block"></div>
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 border border-indigo-500/20 flex items-center justify-center">
+                        <span class="text-2xl font-bold text-indigo-400">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Вставьте URL</h3>
+                    <p class="text-gray-400">Введите адрес сайта в поле ввода и нажмите «Анализировать»</p>
+                </div>
+                
+                <div class="card p-8 text-center relative fade-up" style="animation-delay: 0.1s">
+                    <div class="step-connector hidden md:block"></div>
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center">
+                        <span class="text-2xl font-bold text-purple-400">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">AI сканирует</h3>
+                    <p class="text-gray-400">За 30 секунд проверим SEO, скорость, доступность и безопасность</p>
+                </div>
+                
+                <div class="card p-8 text-center fade-up" style="animation-delay: 0.2s">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-500/20 flex items-center justify-center">
+                        <span class="text-2xl font-bold text-pink-400">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Получите отчёт</h3>
+                    <p class="text-gray-400">Подробный отчёт с рекомендациями по исправлению каждой проблемы</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    Полный анализ <span class="gradient-text">вашего сайта</span>
+                </h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Проверяем всё, что влияет на ранжирование и пользовательский опыт
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-blue-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="seo">SEO</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="seoDesc">Мета-теги, заголовки, alt-тексты, структура контента</p>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="zap" class="w-6 h-6 text-green-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="performance">Скорость</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="perfDesc">FCP, LCP, TTFB, время загрузки, оптимизация ресурсов</p>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="eye" class="w-6 h-6 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="accessibility">Доступность</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="accessDesc">Контрастность, aria-метки, навигация с клавиатуры</p>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="link" class="w-6 h-6 text-yellow-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="links">Ссылки</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="linksDesc">Битые ссылки, внутренняя перелинковка, внешние ссылки</p>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="smartphone" class="w-6 h-6 text-pink-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="mobile">Мобильные</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="mobileDesc">Адаптивность, touch-элементы, viewport</p>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="shield" class="w-6 h-6 text-red-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="security">Безопасность</h3>
+                    <p class="text-gray-400 text-sm" data-i18n="securityDesc">SSL, HTTPS, уязвимости</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    Им доверяют <span class="gradient-text">тысячи</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Отзывы реальных пользователей</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="testimonial-card card p-6 fade-up">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">АК</div>
+                        <div>
+                            <div class="font-semibold">Алексей К.</div>
+                            <div class="text-gray-500 text-sm">CEO, TechStart</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1 mb-3">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-300">«Нашли 47 проблем на нашем сайте за 5 минут. Исправили — трафик вырос на 30%. Окупилось за неделю.»</p>
+                </div>
+                
+                <div class="testimonial-card card p-6 fade-up">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold">МС</div>
+                        <div>
+                            <div class="font-semibold">Мария С.</div>
+                            <div class="text-gray-500 text-sm">Маркетолог</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1 mb-3">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-300">«Использую каждый раз перед запуском новой страницы. Экономлю часы на поиске проблем.»</p>
+                </div>
+                
+                <div class="testimonial-card card p-6 fade-up">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold">ДП</div>
+                        <div>
+                            <div class="font-semibold">Дмитрий П.</div>
+                            <div class="text-gray-500 text-sm">Freelance Developer</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1 mb-3">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-300">«Отличный инструмент для клиентов. Показываю отчёты — сразу видят ценность моей работы.»</p>
+                </div>
+            </div>
+            
+            <!-- Logos -->
+            <div class="flex flex-wrap items-center justify-center gap-12 mt-16 opacity-50">
+                <div class="text-gray-400 font-semibold">TechCrunch</div>
+                <div class="text-gray-400 font-semibold">Forbes</div>
+                <div class="text-gray-400 font-semibold">Product Hunt</div>
+                <div class="text-gray-400 font-semibold">GitHub</div>
+                <div class="text-gray-400 font-semibold">Vercel</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span data-i18n="pricing">Простые</span> <span class="gradient-text">тарифы</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Начните бесплатно. Масштабируйтесь по мере роста.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Free -->
+                <div class="card p-8 fade-up">
+                    <div class="text-lg font-semibold text-gray-300 mb-2" data-i18n="free">Free</div>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-5xl font-bold">0₽</span>
+                        <span class="text-gray-500" data-i18n="perMonth">/ навсегда</span>
+                    </div>
+                    <p class="text-gray-400 mb-8">Идеально для знакомства с инструментом</p>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">3 сканирования в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">1 сравнение в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Базовый SEO-анализ</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Проверка скорости</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                            <span class="text-gray-300">Авто-исправления</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                            <span class="text-gray-300">PDF экспорт</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                            <span class="text-gray-300">CSV экспорт</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                            <span class="text-gray-300">API доступ</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 rounded-xl border border-[#333] hover:border-[#555] transition-colors font-semibold" data-i18n="startFree">
+                        Начать бесплатно
+                    </button>
+                </div>
+                
+                <!-- Pro -->
+                <div class="pricing-popular card p-8 relative fade-up">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span class="px-4 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-semibold" data-i18n="mostPopular">
+                            Популярный
+                        </span>
+                    </div>
+                    
+                    <div class="text-lg font-semibold text-indigo-400 mb-2" data-i18n="pro">Pro</div>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-5xl font-bold gradient-text">$15.99</span>
+                        <span class="text-gray-500" data-i18n="perMonth">/ месяц</span>
+                    </div>
+                    <p class="text-gray-400 mb-8">Для агентств и активных пользователей</p>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">50 сканирований в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">50 сравнений в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Авто-исправления</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">PDF экспорт</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">CSV экспорт</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Приоритетная поддержка</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                            <span class="text-gray-300">API доступ</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="openPaymentModal('pro')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: linear-gradient(to right, #6366f1, #a855f7); color: white; font-weight: 600; border: none; cursor: pointer;">
+                        Выбрать Pro
+                    </button>
+                </div>
+                
+                <!-- Business -->
+                <div class="card p-8 fade-up">
+                    <div class="text-lg font-semibold text-purple-400 mb-2">Business</div>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-5xl font-bold text-purple-400">$59.99</span>
+                        <span class="text-gray-500">/ месяц</span>
+                    </div>
+                    <p class="text-gray-400 mb-8">Для команд и enterprise</p>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">500 сканирований в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">500 сравнений в месяц</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Авто-исправления</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">PDF и CSV экспорт</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">API доступ</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">White-label</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Командный доступ (до 5)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            <span class="text-gray-300">Запланированные сканы</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="openPaymentModal('business')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: transparent; border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; font-weight: 600; cursor: pointer;">
+                        Выбрать Business
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Money back guarantee -->
+            <div class="flex items-center justify-center gap-4 mt-12 text-gray-400 fade-up">
+                <i data-lucide="shield-check" class="w-6 h-6 text-green-500"></i>
+                <span>30-дневная гарантия возврата денег. Без риска.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    Частые <span class="gradient-text">вопросы</span>
+                </h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="card p-6 fade-up">
+                    <button class="faq-toggle w-full flex items-center justify-between text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-lg">Это действительно бесплатно?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden mt-4 text-gray-400">
+                        Да, бесплатный тариф действует навсегда. Вы получаете 3 сканирования в месяц с полным базовым анализом. Этого достаточно для регулярной проверки одного сайта.
+                    </div>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <button class="faq-toggle w-full flex items-center justify-between text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-lg">Сканирование безопасно для моего сайта?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden mt-4 text-gray-400">
+                        Да, мы только читаем ваш сайт, как обычный пользователь. Мы не вносим никаких изменений и не сохраняем конфиденциальные данные.
+                    </div>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <button class="faq-toggle w-full flex items-center justify-between text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-lg">Сколько времени занимает сканирование?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden mt-4 text-gray-400">
+                        Обычно 15-30 секунд в зависимости от размера сайта. Мы проверяем SEO, скорость загрузки, доступность, ссылки и мобильную адаптивность.
+                    </div>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <button class="faq-toggle w-full flex items-center justify-between text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-lg">Что такое авто-исправления?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden mt-4 text-gray-400">
+                        Это AI-функция, которая автоматически исправляет найденные проблемы: добавляет alt-теги, исправляет мета-теги, оптимизирует изображения. Доступно в Pro и Business тарифах.
+                    </div>
+                </div>
+                
+                <div class="card p-6 fade-up">
+                    <button class="faq-toggle w-full flex items-center justify-between text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-lg">Можно ли использовать API?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden mt-4 text-gray-400">
+                        Да, API доступен в тарифе Business. Вы можете интегрировать наше сканирование в свои продукты и автоматизировать проверки.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 px-6 border-t border-white/5">
+        <div class="max-w-4xl mx-auto text-center fade-up">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Готовы улучшить<br><span class="gradient-text">свой сайт?</span>
+            </h2>
+            <p class="text-gray-400 text-lg mb-12 max-w-2xl mx-auto">
+                Присоединяйтесь к тысячам пользователей, которые уже оптимизировали свои сайты
+            </p>
+            
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30"></div>
+                    <div class="relative bg-[#111] rounded-2xl p-2 flex flex-col md:flex-row gap-2">
+                        <div class="flex-1 relative">
+                            <i data-lucide="mail" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input 
+                                type="email" 
+                                placeholder="Ваш email" 
+                                class="w-full pl-12 pr-4 py-4 bg-[#0a0a0a] border border-[#222] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                            >
+                        </div>
+                        <button class="btn-primary px-8 py-4 rounded-xl font-semibold text-white">
+                            Начать бесплатно
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mt-4">Бесплатный тариф. Кредитная карта не нужна.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold">Site Doctor</span>
+                </div>
+                
+                <div class="flex items-center gap-6 text-gray-400">
+                    <a href="#" class="hover:text-white transition-colors">Twitter</a>
+                    <a href="#" class="hover:text-white transition-colors">GitHub</a>
+                    <a href="#" class="hover:text-white transition-colors">Discord</a>
+                </div>
+                
+                <div class="text-gray-500 text-sm">
+                    © 2026 Site Doctor. Все права защищены.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // Animate stats on scroll
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        // Animate score with easing
+        function animateScore(elementId, endScore, duration = 1500) {
+            const obj = document.getElementById(elementId);
+            if (!obj) return;
+            
+            let startTimestamp = null;
+            const startScore = 0;
+            
+            const easeOutExpo = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const elapsed = timestamp - startTimestamp;
+                const progress = Math.min(elapsed / duration, 1);
+                const easedProgress = easeOutExpo(progress);
+                const currentScore = Math.floor(easedProgress * (endScore - startScore) + startScore);
+                
+                obj.textContent = currentScore;
+                obj.style.transform = `scale(${1 + (1 - progress) * 0.2})`;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.style.transform = 'scale(1)';
+                }
+            };
+            
+            window.requestAnimationFrame(step);
+        }
+        
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        
+        // FAQ toggle
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+        
+        // Scan functionality
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('scanBtn').disabled = true;
+            
+            const stages = [
+                'Подключение к серверу',
+                'Загрузка страницы',
+                'Анализ SEO',
+                'Проверка скорости',
+                'Оценка доступности',
+                'Финализация результатов'
+            ];
+            
+            let stage = 0;
+            const statusEl = document.getElementById('scanStatus');
+            const progressEl = document.getElementById('progressBar');
+            
+            const interval = setInterval(() => {
+                if (stage < stages.length) {
+                    statusEl.textContent = stages[stage];
+                    progressEl.style.width = ((stage + 1) / stages.length * 100) + '%';
+                    stage++;
+                }
+            }, 1500);
+            
+            return interval;
+        }
+        
+        function hideLoading(interval) {
+            clearInterval(interval);
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('scanBtn').disabled = false;
+        }
+        
+        async function scanWebsite() {
+            // Check if user is logged in
+            if (!isLoggedIn()) {
+                showNotification('Для сканирования необходимо войти в аккаунт', 'error');
+                openLoginModal();
+                return;
+            }
+            
+            const url = document.getElementById('urlInput').value.trim();
+            const urlError = document.getElementById('urlError');
+            urlError.classList.add('hidden');
+            
+            if (!url) {
+                urlError.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+            
+            try {
+                const urlObj = new URL(url);
+                if (!['http:', 'https:'].includes(urlObj.protocol)) {
+                    throw new Error('Invalid protocol');
+                }
+            } catch {
+                urlError.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+            
+            const interval = showLoading();
+            
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch('http://localhost:3002/api/scan/v2', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ url })
+                });
+                
+                const result = await response.json();
+                hideLoading(interval);
+                
+                if (result.success) {
+                    displayResults(result.data);
+                    saveToHistory(result.data);
+                    if (result.scanId) {
+                        lastScanId = result.scanId;
+                    }
+                    // Update user data in localStorage
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    if (user.plan) {
+                        const limit = user.plan === 'free' ? 3 : user.plan === 'pro' ? 50 : 500;
+                        const used = limit - ((user.scans_left || limit) - 1);
+                        user.scans_left = (user.scans_left || limit) - 1;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        updateScansLeft(limit - user.scans_left, limit);
+                    }
+                    // Update stats
+                    const statEl = document.getElementById('statScanned');
+                    const current = parseInt(statEl.textContent.replace(/,/g, '')) || 0;
+                    animateValue('statScanned', current, current + 1, 1000);
+                } else {
+                    if (response.status === 403) {
+                        showNotification(result.error || 'Лимит сканирований исчерпан', 'error');
+                    } else {
+                        showNotification(result.error || 'Ошибка сканирования', 'error');
+                    }
+                }
+            } catch (error) {
+                hideLoading(interval);
+                showNotification('Ошибка соединения. Убедитесь, что сервер запущен', 'error');
+            }
+        }
+
+        function updateScansLeft(used, limit) {
+            let badge = document.getElementById('scansLeftBadge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'scansLeftBadge';
+                badge.className = 'fixed bottom-4 right-4 bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-40';
+                document.body.appendChild(badge);
+            }
+            
+            const usedNum = (typeof used === 'number' && !isNaN(used)) ? used : 0;
+            const limitNum = (typeof limit === 'number' && !isNaN(limit)) ? limit : (getUserPlan() === 'free' ? 3 : getUserPlan() === 'pro' ? 50 : 500);
+            const leftNum = Math.max(0, limitNum - usedNum);
+            
+            const scansText = currentLang === 'ru' ? 'Сканирований' : 'Scans';
+            badge.textContent = `${leftNum} ${scansText.toLowerCase()} из ${limitNum}`;
+            badge.style.display = 'block';
+            
+            if (leftNum === 0) {
+                badge.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-40';
+            } else if (leftNum <= limitNum * 0.2) {
+                badge.className = 'fixed bottom-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-40';
+            } else {
+                badge.className = 'fixed bottom-4 right-4 bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-40';
+            }
+        }
+
+        function getUserPlan() {
+            const user = getCurrentUser();
+            return user?.plan || 'free';
+        }
+
+        function userHasPdf() {
+            const plan = getUserPlan();
+            return plan === 'pro' || plan === 'business';
+        }
+        
+        function userHasCsv() {
+            const plan = getUserPlan();
+            return plan === 'pro' || plan === 'business';
+        }
+        
+        function userHasFixes() {
+            const plan = getUserPlan();
+            return plan === 'pro' || plan === 'business';
+        }
+
+        function calculateLosses(data) {
+            const scores = data.scores || {};
+            const stats = data.stats || {};
+            const overallScore = data.overallScore || 50;
+            
+            const baselineMonthlyVisitors = 1000;
+            const avgTicket = 50;
+            
+            const issueCount = stats.totalIssues || 0;
+            
+            let conversionLossPercent = 0;
+            
+            if (scores.seo && scores.seo < 70) {
+                conversionLossPercent += (70 - scores.seo) * 0.3;
+            }
+            if (scores.performance && scores.performance < 70) {
+                conversionLossPercent += (70 - scores.performance) * 0.25;
+            }
+            if (scores.mobile && scores.mobile < 70) {
+                conversionLossPercent += (70 - scores.mobile) * 0.2;
+            }
+            if (scores.accessibility && scores.accessibility < 70) {
+                conversionLossPercent += (70 - scores.accessibility) * 0.15;
+            }
+            if (scores.links && scores.links < 70) {
+                conversionLossPercent += (70 - scores.links) * 0.1;
+            }
+            
+            const visitorsLost = Math.round(baselineMonthlyVisitors * (conversionLossPercent / 100));
+            const revenueLost = visitorsLost * avgTicket * 0.02;
+            
+            return {
+                visitorsLost,
+                revenueLost,
+                percentLost: Math.round(conversionLossPercent),
+                recommendations: []
+            };
+        }
+
+        function formatMoney(num) {
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return '$' + Math.round(num / 1000) + 'K';
+            }
+            return '$' + Math.round(num);
+        }
+
+        function showUpgradeModal(feature) {
+            const featureMessages = {
+                fixes: 'Для использования авто-исправлений необходим тариф Pro или Business',
+                pdf: 'Для скачивания PDF необходимо обновить тариф',
+                csv: 'Для экспорта CSV необходимо обновить тариф',
+                api: 'API доступ доступен только на тарифе Business',
+                pro: 'Выберите план Pro',
+                business: 'Выберите план Business'
+            };
+            
+            const modal = document.getElementById('upgradeModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const message = document.getElementById('upgradeFeatureMessage');
+                if (message) {
+                    if (featureMessages[feature]) {
+                        message.textContent = featureMessages[feature];
+                        message.style.display = 'block';
+                    } else {
+                        message.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        function closeUpgradeModal() {
+            const modal = document.getElementById('upgradeModal');
+            if (modal) {
+                modal.style.display = 'none';
+                const message = document.getElementById('upgradeFeatureMessage');
+                if (message) message.style.display = 'none';
+            }
+            const tempModal = document.getElementById('paymentModalTemp');
+            if (tempModal) tempModal.remove();
+        }
+        
+        function displayResults(data) {
+            const resultsSection = document.getElementById('results');
+            const container = document.getElementById('resultsContainer');
+            
+            const scores = data.scores || {};
+            const stats = data.stats || {};
+            const fixes = data.fixes || {};
+            const losses = calculateLosses(data);
+            
+            const getScoreColor = (score) => {
+                if (score >= 80) return 'text-green-400';
+                if (score >= 60) return 'text-yellow-400';
+                return 'text-red-400';
+            };
+            
+            const getScoreGradient = (score) => {
+                if (score >= 80) return 'from-green-500 to-emerald-500';
+                if (score >= 60) return 'from-yellow-500 to-orange-500';
+                return 'from-red-500 to-rose-500';
+            };
+            
+            container.innerHTML = `
+                <div class="mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-2" data-i18n="results">Результаты анализа</h2>
+                            <p class="text-gray-400">${data.url}</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="shareResults('${data.url}')" class="px-4 py-2 rounded-lg border border-[#333] hover:border-[#555] transition-colors flex items-center gap-2">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                                <span data-i18n="share">Поделиться</span>
+                            </button>
+                            ${userHasCsv() ? `
+                                <button onclick="downloadCSV(${lastScanId})" class="px-4 py-2 rounded-lg border border-green-500/50 bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center gap-2">
+                                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                    <span>CSV</span>
+                                </button>
+                            ` : `
+                                <button onclick="showUpgradeModal('csv')" class="px-4 py-2 rounded-lg border border-[#333] text-gray-400 flex items-center gap-2">
+                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                    <span>CSV</span>
+                                </button>
+                            `}
+                            ${userHasPdf() ? `
+                                <button onclick="downloadPDF()" class="btn-primary px-4 py-2 rounded-lg flex items-center gap-2">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                    <span data-i18n="downloadPdf">PDF</span>
+                                </button>
+                            ` : `
+                                <button onclick="showUpgradeModal('pdf')" class="px-4 py-2 rounded-lg border border-[#333] text-gray-400 flex items-center gap-2">
+                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                    <span>PDF</span>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Overall Score -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-8 text-center">
+                        <div class="text-sm text-gray-400 uppercase tracking-wider mb-4" data-i18n="overallScore">Общий балл</div>
+                        <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br ${getScoreGradient(data.overallScore)} p-1 mb-4">
+                            <div class="w-full h-full rounded-full bg-[#111] flex flex-col items-center justify-center">
+                                <span class="text-4xl font-bold ${getScoreColor(data.overallScore)}">${data.overallScore || 0}</span>
+                                <span class="text-xs text-gray-500" data-i18n="outOf100">из 100</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-400">
+                            ${data.overallScore >= 80 ? t('excellentSite') : data.overallScore >= 60 ? t('hasImprovements') : t('needsAttention')}
+                        </p>
+                    </div>
+                    
+                    <div class="card p-8">
+                        <div class="text-sm text-gray-400 uppercase tracking-wider mb-4" data-i18n="fixes">Авто-исправления</div>
+                        ${userHasFixes() ? `
+                            ${fixes.totalFixes > 0 ? `
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                                        <span class="text-2xl font-bold">+${fixes.totalFixes}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-lg font-semibold" data-i18n="fixAvailable">Исправлений доступно</div>
+                                        <div class="text-gray-400 text-sm" data-i18n="potentialGrowth">Потенциальный рост: +${fixes.potentialScoreIncrease || 0} баллов</div>
+                                    </div>
+                                </div>
+                                <button onclick="applyAllFixes()" class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+                                    <i data-lucide="wand-2" class="w-5 h-5"></i>
+                                    <span data-i18n="applyAll">Применить все исправления</span>
+                                </button>
+                            ` : `
+                                <div class="text-center py-6">
+                                    <i data-lucide="check-circle" class="w-12 h-12 text-green-400 mx-auto mb-3"></i>
+                                    <p class="text-gray-400" data-i18n="allFixed">Все возможные исправления уже применены!</p>
+                                </div>
+                            `}
+                        ` : `
+                            <div class="text-center py-6">
+                                <i data-lucide="lock" class="w-12 h-12 text-gray-500 mx-auto mb-3"></i>
+                                <p class="text-gray-400 mb-3">Авто-исправления доступны в тарифе Pro</p>
+                                <button onclick="showUpgradeModal('fixes')" class="px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold text-sm">
+                                    Улучшить до Pro
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                </div>
+                
+                ${losses.percentLost > 0 ? `
+                <!-- Potential Losses -->
+                <div class="card p-6 mb-8 bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="trending-down" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-red-400 text-sm font-semibold uppercase tracking-wider mb-1">⚠️ Потери из-за проблем</div>
+                            <p class="text-white text-lg mb-1">
+                                Вы теряете примерно <span class="text-red-400 font-bold text-2xl">${losses.visitorsLost}</span> посетителей в месяц
+                            </p>
+                            <p class="text-gray-400 text-sm">
+                                Это может стоить вам до <span class="text-yellow-400 font-semibold">${formatMoney(losses.revenueLost)}</span> потенциальной выручки
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold text-red-400">-${losses.percentLost}%</div>
+                            <div class="text-gray-500 text-sm">конверсии</div>
+                        </div>
+                    </div>
+                </div>
+                ` : `
+                <div class="card p-6 mb-8 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="text-green-400 text-lg font-semibold mb-1">🎉 Отличный сайт!</div>
+                            <p class="text-gray-400">Ваш сайт работает хорошо. Продолжайте в том же духе!</p>
+                        </div>
+                    </div>
+                </div>
+                `}
+                
+                <!-- Category Scores -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('seo')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.seo)}">${scores.seo || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1" data-i18n="seo">SEO</div>
+                    </div>
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('performance')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.performance)}">${scores.performance || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1" data-i18n="performance">Скорость</div>
+                    </div>
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('accessibility')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.accessibility)}">${scores.accessibility || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1" data-i18n="accessibility">Доступность</div>
+                    </div>
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('links')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.links)}">${scores.links || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1" data-i18n="links">Ссылки</div>
+                    </div>
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('mobile')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.mobile)}">${scores.mobile || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1" data-i18n="mobile">Мобильные</div>
+                    </div>
+                </div>
+                
+                <!-- Issues Summary -->
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <div class="card px-4 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        <span class="font-semibold">${stats.critical || 0}</span>
+                        <span class="text-gray-500 text-sm">critical</span>
+                    </div>
+                    <div class="card px-4 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                        <span class="font-semibold">${stats.high || 0}</span>
+                        <span class="text-gray-500 text-sm">high</span>
+                    </div>
+                    <div class="card px-4 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span class="font-semibold">${stats.medium || 0}</span>
+                        <span class="text-gray-500 text-sm">medium</span>
+                    </div>
+                    <div class="card px-4 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-gray-500"></span>
+                        <span class="font-semibold">${stats.low || 0}</span>
+                        <span class="text-gray-500 text-sm">low</span>
+                    </div>
+                    <div class="card px-4 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span class="font-semibold">${stats.totalFixes || 0}</span>
+                        <span class="text-gray-500 text-sm">исправлений</span>
+                    </div>
+                </div>
+                
+                <!-- Fixes Section -->
+                ${fixes.fixes && fixes.fixes.length > 0 ? `
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="wand-2" class="w-5 h-5 text-indigo-400"></i>
+                            Доступные исправления (${fixes.fixes.length})
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            ${fixes.fixes.map((fix, index) => {
+                                const isLocked = !userHasFixes() && index >= 5;
+                                const isBlurred = !userHasFixes();
+                                
+                                const categoryColors = {
+                                    seo: 'from-blue-500 to-blue-600',
+                                    performance: 'from-green-500 to-green-600',
+                                    accessibility: 'from-purple-500 to-purple-600',
+                                    mobile: 'from-pink-500 to-pink-600',
+                                    social: 'from-yellow-500 to-yellow-600'
+                                };
+                                const cat = fix.category || 'seo';
+                                const gradient = categoryColors[cat] || categoryColors.seo;
+                                
+                                return `
+                                    <div class="card p-4 border-l-4 border-l-indigo-500 ${isBlurred ? 'opacity-50' : ''} ${isLocked ? 'blur-sm select-none pointer-events-none' : ''}">
+                                        <div class="flex items-start justify-between mb-2">
+                                            <div class="flex items-center gap-2">
+                                                <span class="px-2 py-0.5 rounded text-xs bg-gradient-to-r ${gradient} text-white">${fix.category || 'other'}</span>
+                                                <span class="text-xs text-gray-500">${fix.impact || 'Среднее'}</span>
+                                            </div>
+                                            ${isLocked ? `
+                                                <span class="px-3 py-1 rounded-lg bg-gray-500/20 text-gray-400 text-sm flex items-center gap-1">
+                                                    <i data-lucide="lock" class="w-3 h-3"></i> Pro
+                                                </span>
+                                            ` : isBlurred ? `
+                                                <button onclick="showUpgradeModal('fixes')" class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm hover:bg-indigo-500/30 transition-colors">
+                                                    Исправить
+                                                </button>
+                                            ` : `
+                                                <button onclick="applyFix('${fix.id}')" class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm hover:bg-indigo-500/30 transition-colors">
+                                                    Исправить
+                                                </button>
+                                            `}
+                                        </div>
+                                        <p class="text-sm text-gray-300 mb-2">${fix.description || fix.preview || 'Исправление доступно'}</p>
+                                        ${fix.preview ? `<code class="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">${fix.preview}</code>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        ${!userHasFixes() && fixes.fixes.length > 5 ? `
+                            <div class="mt-4 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-center">
+                                <p class="text-gray-400 mb-3">Показаны 5 из ${fixes.fixes.length} исправлений</p>
+                                <button onclick="showUpgradeModal('fixes')" class="px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity">
+                                    Разблокировать все исправления
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+                
+                <!-- Issues List -->
+                ${data.issues && data.issues.length > 0 ? `
+                    <h3 class="text-xl font-bold mb-4">Найденные проблемы (${data.issues.length})</h3>
+                    <div class="space-y-4">
+                        ${data.issues.map(issue => {
+                            const severityColors = {
+                                critical: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400' },
+                                high: { bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400' },
+                                medium: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400' },
+                                low: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-400' }
+                            };
+                            const colors = severityColors[issue.severity] || severityColors.low;
+                            
+                            return `
+                                <div class="card p-6 ${colors.bg} border ${colors.border}">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-lg bg-[#222] flex items-center justify-center flex-shrink-0">
+                                            <i data-lucide="${issue.type === 'seo' ? 'search' : issue.type === 'performance' ? 'zap' : issue.type === 'mobile' ? 'smartphone' : issue.type === 'accessibility' ? 'eye' : 'link'}" class="w-5 h-5 ${colors.text}"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h4 class="font-semibold">${issue.title}</h4>
+                                                <span class="px-2 py-0.5 rounded text-xs uppercase ${colors.bg} ${colors.text} border ${colors.border}">${issue.severity}</span>
+                                            </div>
+                                            <p class="text-gray-400 text-sm mb-4">${issue.description}</p>
+                                            <div class="flex flex-wrap gap-4 text-sm">
+                                                <div>
+                                                    <span class="text-gray-500">Влияние:</span>
+                                                    <span class="${colors.text} font-semibold ml-1">-${issue.impact || 0}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">Время:</span>
+                                                    <span class="text-blue-400 font-semibold ml-1">${issue.fixTime || issue.estimatedFixTime || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : `
+                    <div class="card p-8 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-green-400 mb-2">Отлично!</h3>
+                        <p class="text-gray-400">Проблем не найдено. Ваш сайт в идеальном состоянии!</p>
+                    </div>
+                `}
+            `;
+            
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            lucide.createIcons();
+        }
+        
+        // Event listeners
+        document.getElementById('scanBtn').addEventListener('click', scanWebsite);
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') scanWebsite();
+        });
+        
+        // Load saved stats
+        const savedScans = localStorage.getItem('totalScans') || 0;
+        if (savedScans > 0) {
+            document.getElementById('statScanned').textContent = savedScans;
+        }
+        
+        // Fixes functionality
+        let currentScanData = null;
+        
+        async function applyFix(fixId) {
+            if (!currentScanData || !currentScanData.fixes) return;
+            
+            if (!userHasFixes()) {
+                showUpgradeModal('fixes');
+                return;
+            }
+            
+            const fix = currentScanData.fixes.fixes.find(f => f.id === fixId);
+            if (!fix) return;
+            
+            try {
+                const response = await fetch('http://localhost:3002/api/fixes/apply', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({
+                        url: currentScanData.url,
+                        fixes: [fix]
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Исправление применено!', 'success');
+                    const blob = new Blob([result.modifiedHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'fixed-page.html';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (result.upgrade) {
+                    showUpgradeModal(result.required);
+                } else {
+                    showNotification('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка соединения с сервером', 'error');
+            }
+        }
+        
+        async function applyAllFixes() {
+            if (!currentScanData || !currentScanData.fixes) return;
+            
+            if (!userHasFixes()) {
+                showUpgradeModal('fixes');
+                return;
+            }
+            
+            const fixes = currentScanData.fixes.fixes;
+            if (fixes.length === 0) return;
+            
+            try {
+                const response = await fetch('http://localhost:3002/api/fixes/apply', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({
+                        url: currentScanData.url,
+                        fixes: fixes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`Применено ${result.appliedFixes} исправлений!`, 'success');
+                    const blob = new Blob([result.modifiedHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'fixed-page.html';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (result.upgrade) {
+                    showUpgradeModal(result.required);
+                } else {
+                    showNotification('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка соединения с сервером', 'error');
+            }
+        }
+        
+        function showCategoryDetails(category) {
+            showNotification('Детали категории: ' + category, 'info');
+        }
+        
+        function shareResults(url) {
+            const shareUrl = `${window.location.origin}/report?url=${encodeURIComponent(url)}`;
+            navigator.clipboard.writeText(shareUrl);
+            showNotification('Ссылка скопирована в буфер обмена!', 'success');
+        }
+        
+        function downloadPDF() {
+            if (!currentScanData) {
+                showNotification('Сначала проведите сканирование', 'error');
+                return;
+            }
+
+            showNotification('Генерация PDF...', 'info');
+
+            const data = currentScanData;
+            const scores = data.scores || {};
+            const fixes = data.fixes || {};
+            const issues = data.issues || [];
+
+            const pdfContent = document.createElement('div');
+            pdfContent.style.cssText = 'width: 800px; padding: 40px; font-family: Arial, sans-serif; color: #333; background: #fff;';
+            pdfContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #6366f1; margin: 0;">Site Doctor</h1>
+                    <p style="color: #666;">Отчёт о сканировании сайта</p>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                    <h2 style="margin: 0 0 10px 0;">${data.url}</h2>
+                    <p style="margin: 0; color: #666;">Дата: ${new Date().toLocaleDateString('ru-RU')}</p>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="display: inline-block; width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(${data.overallScore >= 80 ? '#22c55e' : data.overallScore >= 60 ? '#f59e0b' : '#ef4444'} ${data.overallScore * 3.6}deg, #e5e5e5 0deg); display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 120px; height: 120px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; color: #333;">
+                            ${data.overallScore}
+                        </div>
+                    </div>
+                    <p style="font-size: 18px; margin-top: 10px;">Общий балл</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #6366f1;">${scores.seo || 0}</div>
+                        <div style="font-size: 12px; color: #666;">SEO</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #22c55e;">${scores.performance || 0}</div>
+                        <div style="font-size: 12px; color: #666;">Скорость</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #a855f7;">${scores.accessibility || 0}</div>
+                        <div style="font-size: 12px; color: #666;">Доступность</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #f59e0b;">${scores.links || 0}</div>
+                        <div style="font-size: 12px; color: #666;">Ссылки</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #ec4899;">${scores.mobile || 0}</div>
+                        <div style="font-size: 12px; color: #666;">Мобильные</div>
+                    </div>
+                </div>
+                
+                ${fixes.fixes && fixes.fixes.length > 0 ? `
+                <div style="margin-bottom: 30px;">
+                    <h3 style="border-bottom: 2px solid #6366f1; padding-bottom: 10px;">Рекомендации (${fixes.fixes.length})</h3>
+                    ${fixes.fixes.map(fix => `
+                        <div style="padding: 15px; background: #f9f9f9; border-radius: 8px; margin-top: 10px;">
+                            <strong>${fix.description || 'Исправление'}</strong>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Категория: ${fix.category || 'other'} | Влияние: ${fix.impact || 'Среднее'}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+                
+                ${issues.length > 0 ? `
+                <div>
+                    <h3 style="border-bottom: 2px solid #ef4444; padding-bottom: 10px;">Найденные проблемы (${issues.length})</h3>
+                    ${issues.slice(0, 10).map(issue => `
+                        <div style="padding: 12px; background: #fef2f2; border-left: 4px solid ${issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f59e0b' : '#e5e5e5'}; margin-top: 10px; border-radius: 4px;">
+                            <strong>${issue.title || issue.name || 'Проблема'}</strong>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">${issue.description || ''}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e5e5; text-align: center; color: #999; font-size: 12px;">
+                    Сгенерировано Site Doctor — ${new Date().toLocaleDateString('ru-RU')}
+                </div>
+            `;
+
+            const opt = {
+                margin: 0,
+                filename: `site-doctor-report-${data.url.replace(/[^a-z0-9]/gi, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(pdfContent).save().then(() => {
+                showNotification('PDF скачан!', 'success');
+            }).catch(err => {
+                showNotification('Ошибка генерации PDF', 'error');
+                console.error(err);
+            });
+        }
+        
+        let lastScanId = null;
+        
+        function downloadCSV(scanId) {
+            if (!scanId) {
+                showNotification('ID скана не найден', 'error');
+                return;
+            }
+            
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                showNotification('Войдите для экспорта', 'error');
+                return;
+            }
+            
+            window.location.href = `${API_URL}/api/export/csv/${scanId}`;
+        }
+        
+        function saveToHistory(data) {
+            const HISTORY_KEY = 'siteDoctor_history';
+            try {
+                let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+                history.unshift({
+                    url: data.url,
+                    score: data.overallScore,
+                    fixes: data.fixes ? data.fixes.totalFixes : 0,
+                    timestamp: data.timestamp || Date.now(),
+                    duration: Math.round((data.stats && data.stats.duration) ? data.stats.duration / 1000 : 0)
+                });
+                history = history.slice(0, 20);
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.error('Failed to save to history:', e);
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const configs = {
+                success: { bg: 'bg-gradient-to-r from-green-500 to-emerald-500', icon: 'check-circle', border: 'border-green-400' },
+                error: { bg: 'bg-gradient-to-r from-red-500 to-rose-500', icon: 'x-circle', border: 'border-red-400' },
+                warning: { bg: 'bg-gradient-to-r from-yellow-500 to-orange-500', icon: 'alert-triangle', border: 'border-yellow-400' },
+                info: { bg: 'bg-gradient-to-r from-indigo-500 to-purple-500', icon: 'info', border: 'border-indigo-400' }
+            };
+            
+            const config = configs[type] || configs.info;
+            
+            notification.className = `fixed top-24 right-4 z-[100] toast-enter ${config.bg} text-white px-5 py-4 rounded-xl shadow-2xl border ${config.border} flex items-center gap-3 max-w-sm`;
+            notification.innerHTML = `
+                <i data-lucide="${config.icon}" class="w-5 h-5 flex-shrink-0 animate-scale-in"></i>
+                <span class="text-sm font-medium">${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-2 hover:opacity-70 transition-opacity">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            document.body.appendChild(notification);
+            lucide.createIcons();
+            
+            // Auto remove
+            setTimeout(() => {
+                notification.classList.add('toast-exit');
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                notification.style.transition = 'all 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+        
+        // Update currentScanData when results are displayed
+        const originalDisplayResults = displayResults;
+        displayResults = function(data) {
+            currentScanData = data;
+            originalDisplayResults(data);
+        };
+
+        // Auth functions
+        function openLoginModal() {
+            resetLoginModal();
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            resetRegisterModal();
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function closeModals() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('registerModal').classList.add('hidden');
+            setTimeout(() => {
+                resetLoginModal();
+                resetRegisterModal();
+            }, 300);
+        }
+
+        function resetLoginModal() {
+            const modal = document.getElementById('loginModal');
+            const body = modal.querySelector('.card-body');
+            body.innerHTML = `
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1" data-i18n="password">Пароль</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors" data-i18n="login">Войти</button>
+                    <p class="text-center text-gray-400 text-sm">
+                        Нет аккаунта? <button type="button" onclick="openRegisterModal()" class="text-indigo-400 hover:text-indigo-300" data-i18n="register">Зарегистрироваться</button>
+                    </p>
+                </form>
+            `;
+        }
+
+        function resetRegisterModal() {
+            const modal = document.getElementById('registerModal');
+            const body = modal.querySelector('.card-body');
+            body.innerHTML = `
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Имя (необязательно)</label>
+                        <input type="text" id="registerName" class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none" placeholder="Как вас называть">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1" data-i18n="password">Пароль</label>
+                        <input type="password" id="registerPassword" required minlength="8" class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none" placeholder="Минимум 8 символов, буквы и цифры">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors" data-i18n="createAccount">Создать аккаунт</button>
+                    <p class="text-center text-gray-400 text-sm">
+                        Уже есть аккаунт? <button type="button" onclick="openLoginModal()" class="text-indigo-400 hover:text-indigo-300" data-i18n="login">Войти</button>
+                    </p>
+                </form>
+            `;
+        }
+
+        // i18n
+        const translations = {
+            ru: {
+                scan: 'Сканировать',
+                analyze: 'Анализировать',
+                enterUrl: 'Введите URL сайта',
+                invalidUrl: 'Введите корректный URL (например: https://example.com)',
+                results: 'Результаты анализа',
+                overallScore: 'Общий балл',
+                seo: 'SEO',
+                performance: 'Скорость',
+                accessibility: 'Доступность',
+                links: 'Ссылки',
+                mobile: 'Мобильные',
+                security: 'Безопасность',
+                issues: 'Найденные проблемы',
+                fixes: 'Доступные исправления',
+                applyFix: 'Исправить',
+                applyAll: 'Применить все',
+                downloadPdf: 'Скачать PDF',
+                downloadCsv: 'Скачать CSV',
+                share: 'Поделиться',
+                login: 'Вход',
+                register: 'Регистрация',
+                email: 'Email',
+                password: 'Пароль',
+                name: 'Имя',
+                welcome: 'Добро пожаловать',
+                loggedOut: 'Вы вышли из аккаунта',
+                freeScans: '3 сканирования в месяц',
+                proScans: '50 сканирований в месяц',
+                businessScans: '500 сканирований в месяц',
+                loginRequired: 'Для сканирования необходимо войти в аккаунт',
+                loginError: 'Ошибка входа',
+                registerSuccess: 'Регистрация успешна!',
+                registerError: 'Ошибка регистрации',
+                alreadyLoggedIn: 'Вы уже вошли',
+                logout: 'Выйти',
+                account: 'Мой аккаунт',
+                history: 'История',
+                features: 'Возможности',
+                howItWorks: 'Как работает',
+                pricing: 'Тарифы',
+                faq: 'FAQ',
+                startFree: 'Начать бесплатно',
+                heroTitle: 'Анализ сайта за 30 секунд',
+                heroSubtitle: 'SEO, скорость, доступность, безопасность — всё в одном месте',
+                heroHeadline: 'Найди все проблемы сайта за 30 секунд',
+                heroSub: 'SEO-ошибки, медленная загрузка, проблемы с доступностью — всё в одном отчёте. Бесплатно.',
+                safePrivate: 'Безопасно и приватно',
+                resultIn30: 'Результат за 30 секунд',
+                noCard: 'Кредитная карта не нужна',
+                sitesChecked: 'Сайтов проверено',
+                accuracy: 'Точность анализа',
+                userRating: 'Рейтинг пользователей',
+                scanning: 'Сканируем ваш сайт...',
+                connecting: 'Подключение к серверу',
+                fixAvailable: 'Исправлений доступно',
+                potentialGrowth: 'Потенциальный рост',
+                allFixed: 'Все возможные исправления уже применены!',
+                excellentSite: 'Отличный сайт!',
+                hasImprovements: 'Есть что улучшить',
+                needsAttention: 'Требует внимания',
+                outOf100: 'из 100',
+                free: 'Бесплатно',
+                pro: 'Профессионал',
+                business: 'Бизнес',
+                perMonth: '/месяц',
+                perYear: '/год',
+                getStarted: 'Начать',
+                mostPopular: 'Популярный',
+                unlimitedScans: 'Безлимитные сканирования',
+                prioritySupport: 'Приоритетная поддержка',
+                advancedAnalytics: 'Расширенная аналитика',
+                whiteLabel: 'White-label отчёты',
+                apiAccess: 'API доступ',
+                upgrade: 'Улучшить',
+                upgradeTitle: 'Улучшить план',
+                popular: 'ПОПУЛЯРНЫЙ',
+                bestValue: 'ЛУЧШЕЕ',
+                autoFixes: 'Авто-исправления',
+                csvExport: 'CSV экспорт',
+                teamAccess: 'Командный доступ',
+                proPlan: 'Pro план',
+                businessPlan: 'Business план',
+                autoFixesDesc: 'Авто-исправления доступны в тарифе Pro',
+                choosePro: 'Улучшить до Pro',
+                locked: 'Заблокировано',
+                seoDesc: 'Мета-теги, заголовки, alt-тексты, структура контента',
+                perfDesc: 'FCP, LCP, TTFB, время загрузки, оптимизация ресурсов',
+                accessDesc: 'Контрастность, aria-метки, навигация с клавиатуры',
+                linksDesc: 'Битые ссылки, внутренняя перелинковка, внешние ссылки',
+                mobileDesc: 'Адаптивность, touch-элементы, viewport',
+                securityDesc: 'SSL, HTTPS, уязвимости',
+                noCreditCard: 'Кредитная карта не требуется',
+                cancelAnytime: 'Отмена в любой момент',
+                haveAccount: 'Уже есть аккаунт?',
+                noAccount: 'Нет аккаунта?',
+                freeScans: '3 сканирования в месяц',
+                proScans: '50 сканирований в месяц',
+                businessScans: '500 сканирований в месяц',
+                fixesAvailable: 'Доступные исправления',
+                lockedFeature: 'Функция Pro',
+                upgradeToPro: 'Улучшить до Pro'
+            },
+            en: {
+                scan: 'Scan',
+                analyze: 'Analyze',
+                enterUrl: 'Enter website URL',
+                invalidUrl: 'Enter a valid URL (e.g. https://example.com)',
+                results: 'Analysis Results',
+                overallScore: 'Overall Score',
+                seo: 'SEO',
+                performance: 'Performance',
+                accessibility: 'Accessibility',
+                links: 'Links',
+                mobile: 'Mobile',
+                security: 'Security',
+                issues: 'Issues Found',
+                fixes: 'Available Fixes',
+                applyFix: 'Fix',
+                applyAll: 'Apply All',
+                downloadPdf: 'Download PDF',
+                share: 'Share',
+                login: 'Login',
+                register: 'Register',
+                email: 'Email',
+                password: 'Password',
+                name: 'Name',
+                welcome: 'Welcome',
+                loggedOut: 'You have logged out',
+                loginRequired: 'You need to login to scan',
+                loginError: 'Login error',
+                registerSuccess: 'Registration successful!',
+                registerError: 'Registration error',
+                alreadyLoggedIn: 'You are logged in',
+                logout: 'Logout',
+                account: 'My Account',
+                history: 'History',
+                features: 'Features',
+                howItWorks: 'How it works',
+                pricing: 'Pricing',
+                faq: 'FAQ',
+                startFree: 'Start Free',
+                heroTitle: 'Website Analysis in 30 Seconds',
+                heroSubtitle: 'SEO, speed, accessibility, security — all in one place',
+                heroHeadline: 'Find all website problems in 30 seconds',
+                heroSub: 'SEO errors, slow loading, accessibility issues — all in one report. Free.',
+                safePrivate: 'Safe and private',
+                resultIn30: 'Results in 30 seconds',
+                noCard: 'No credit card needed',
+                sitesChecked: 'Sites checked',
+                accuracy: 'Analysis accuracy',
+                userRating: 'User rating',
+                scanning: 'Scanning your site...',
+                connecting: 'Connecting to server',
+                fixAvailable: 'Fixes available',
+                potentialGrowth: 'Potential growth',
+                allFixed: 'All possible fixes already applied!',
+                excellentSite: 'Excellent site!',
+                hasImprovements: 'Room for improvement',
+                needsAttention: 'Needs attention',
+                outOf100: 'out of 100',
+                free: 'Free',
+                pro: 'Pro',
+                business: 'Business',
+                perMonth: '/month',
+                perYear: '/year',
+                getStarted: 'Get Started',
+                mostPopular: 'Most Popular',
+                unlimitedScans: 'Unlimited scans',
+                prioritySupport: 'Priority support',
+                advancedAnalytics: 'Advanced analytics',
+                whiteLabel: 'White-label reports',
+                apiAccess: 'API access',
+                seoDesc: 'Meta tags, headings, alt texts, content structure',
+                perfDesc: 'FCP, LCP, TTFB, load time, resource optimization',
+                accessDesc: 'Contrast, aria labels, keyboard navigation',
+                linksDesc: 'Broken links, internal linking, external links',
+                mobileDesc: 'Responsiveness, touch elements, viewport',
+                securityDesc: 'SSL, HTTPS, vulnerabilities',
+                freeScans: '3 scans per month',
+                proScans: '50 scans per month',
+                businessScans: '500 scans per month',
+                noCreditCard: 'No credit card required',
+                cancelAnytime: 'Cancel anytime',
+                haveAccount: 'Already have an account?',
+                noAccount: "Don't have an account?",
+                free: 'Free',
+                pro: 'Pro',
+                business: 'Business',
+                perMonth: '/month',
+                perYear: '/year',
+                getStarted: 'Get Started',
+                mostPopular: 'Most Popular',
+                prioritySupport: 'Priority support',
+                advancedAnalytics: 'Advanced analytics',
+                whiteLabel: 'White-label reports',
+                apiAccess: 'API access',
+                upgrade: 'Upgrade',
+                fixes: 'Available Fixes',
+                autoFixes: 'Auto-fixes',
+                autoFixesDesc: 'Auto-fixes available in Pro plan',
+                fixesAvailable: 'Available fixes',
+                lockedFeature: 'Pro feature',
+                upgradeToPro: 'Upgrade to Pro',
+                upgradeTitle: 'Upgrade Plan',
+                popular: 'POPULAR',
+                bestValue: 'BEST VALUE',
+                csvExport: 'CSV export',
+                teamAccess: 'Team access',
+                proPlan: 'Pro plan',
+                businessPlan: 'Business plan',
+                choosePro: 'Upgrade to Pro',
+                locked: 'Locked'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'ru';
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            
+            // Update text content (only for elements without children that have data-i18n)
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.children.length === 0) {
+                    el.textContent = t(key);
+                }
+            });
+            
+            // Update full innerHTML for elements with data-i18n-html
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                el.innerHTML = t(key);
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            
+            // Update lang button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('bg-indigo-500', btn.dataset.lang === lang);
+                btn.classList.toggle('text-white', btn.dataset.lang === lang);
+            });
+            
+            // Re-render results if they are displayed
+            if (currentScanData && document.getElementById('results').classList.contains('hidden') === false) {
+                displayResults(currentScanData);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            switchLang(currentLang);
+            const user = getCurrentUser();
+            if (user) {
+                updateUserUI(user);
+                // Показать счётчик сканов
+                const limit = user.plan === 'free' ? 3 : user.plan === 'pro' ? 50 : 500;
+                const left = user.scans_left || limit;
+                const used = limit - left;
+                updateScansLeft(used, limit);
+            } else {
+                updateUserUI(null);
+            }
+        });
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:3002/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    localStorage.setItem('auth_token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    closeModals();
+                    updateUserUI(result.user);
+                    showNotification('Добро пожаловать, ' + result.user.name + '!', 'success');
+                } else if (result.needsVerification) {
+                    showNotification(result.error, 'warning');
+                    document.getElementById('loginModal').querySelector('.card-body').innerHTML = `
+                        <div class="text-center py-8">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2">Email не подтверждён</h3>
+                            <p class="text-gray-400 mb-4">${result.error}</p>
+                            <button onclick="resendCode('${email}')" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+                                Выслать код повторно
+                            </button>
+                            <button onclick="openLoginModal()" class="block w-full mt-4 text-gray-400 hover:text-white transition-colors">
+                                Назад ко входу
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    showNotification(result.error || 'Ошибка входа', 'error');
+                }
+            } catch (err) {
+                showNotification('Ошибка соединения', 'error');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const name = document.getElementById('registerName').value;
+
+            try {
+                const response = await fetch('http://localhost:3002/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('registerModal').querySelector('.card-body').innerHTML = `
+                        <div class="text-center py-4">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2">Код отправлен!</h3>
+                            <p class="text-gray-400 mb-4">Введите 6-значный код из письма на <span class="text-white">${email}</span></p>
+                            <form id="verifyCodeForm" onsubmit="handleVerifyCode(event, '${email}')" class="space-y-4">
+                                <input type="text" id="verifyCode" maxlength="6" required placeholder="000000" 
+                                       class="w-full text-center text-3xl tracking-widest py-4 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none font-mono"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors">
+                                    Подтвердить код
+                                </button>
+                            </form>
+                            <button onclick="resendCode('${email}')" id="resendBtn" class="mt-4 text-indigo-400 hover:text-indigo-300 transition-colors text-sm disabled:opacity-50">
+                                Отправить код повторно
+                            </button>
+                        </div>
+                    `;
+                    showNotification('Код отправлен на email!', 'success');
+                } else {
+                    showNotification(result.error || 'Ошибка регистрации', 'error');
+                }
+            } catch (err) {
+                showNotification('Ошибка соединения', 'error');
+            }
+        }
+
+        async function handleVerifyCode(e, email) {
+            e.preventDefault();
+            const code = document.getElementById('verifyCode').value;
+
+            if (code.length !== 6) {
+                showNotification('Введите 6-значный код', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3002/api/auth/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('auth_token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    closeModals();
+                    updateUserUI(result.user);
+                    showNotification('Добро пожаловать, ' + result.user.name + '!', 'success');
+                } else {
+                    showNotification(result.error || 'Неверный код', 'error');
+                }
+            } catch (err) {
+                showNotification('Ошибка проверки кода', 'error');
+            }
+        }
+
+        async function resendCode(email) {
+            const btn = document.getElementById('resendBtn');
+            btn.disabled = true;
+            btn.textContent = 'Отправляем...';
+
+            try {
+                const response = await fetch('http://localhost:3002/api/auth/resend-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                showNotification(result.message, result.success ? 'success' : 'error');
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Отправить код повторно';
+                }, 30000);
+            } catch (err) {
+                showNotification('Ошибка отправки', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Отправить код повторно';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            updateUserUI(null);
+            showNotification('Вы вышли из аккаунта', 'info');
+        }
+
+        function isLoggedIn() {
+            return !!localStorage.getItem('auth_token');
+        }
+
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem('user') || 'null');
+            } catch {
+                return null;
+            }
+        }
+
+        function updateUserUI(user) {
+            const authLoggedOut = document.getElementById('authLoggedOut');
+            const authLoggedIn = document.getElementById('authLoggedIn');
+            const mobileAuthLoggedOut = document.getElementById('mobileAuthLoggedOut');
+            const mobileAuthLoggedIn = document.getElementById('mobileAuthLoggedIn');
+
+            if (user) {
+                // Show logged-in, hide logged-out
+                if (authLoggedOut) authLoggedOut.style.display = 'none';
+                if (authLoggedIn) authLoggedIn.style.display = 'block';
+                if (mobileAuthLoggedOut) mobileAuthLoggedOut.style.display = 'none';
+                if (mobileAuthLoggedIn) mobileAuthLoggedIn.style.display = 'flex';
+            } else {
+                // Show logged-out, hide logged-in
+                if (authLoggedOut) authLoggedOut.style.display = 'block';
+                if (authLoggedIn) authLoggedIn.style.display = 'none';
+                if (mobileAuthLoggedOut) mobileAuthLoggedOut.style.display = 'flex';
+                if (mobileAuthLoggedIn) mobileAuthLoggedIn.style.display = 'none';
+            }
+        }
+
+        // Close modals on backdrop click
+        document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModals();
+            });
+        });
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Вход</h2>
+                <button onclick="closeModals()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold">&times;</button>
+            </div>
+            <div class="card-body">
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Пароль</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">Войти</button>
+                </form>
+                <p class="text-center text-gray-400 mt-4">
+                    Нет аккаунта? <button onclick="openRegisterModal()" class="text-indigo-400 hover:underline">Зарегистрироваться</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Регистрация</h2>
+                <button onclick="closeModals()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold">&times;</button>
+            </div>
+            <div class="card-body">
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Имя</label>
+                        <input type="text" id="registerName" class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none" placeholder="Как вас называть">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Пароль</label>
+                        <input type="password" id="registerPassword" required minlength="8" class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-indigo-500 focus:outline-none" placeholder="Минимум 8 символов, буквы и цифры">
+                    </div>
+                    <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">Зарегистрироваться</button>
+                </form>
+                <p class="text-center text-gray-400 mt-4">
+                    Уже есть аккаунт? <button onclick="openLoginModal()" class="text-indigo-400 hover:underline">Войти</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div id="upgradeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 99999;">
+        <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 16px; padding: 32px; width: 90%; max-width: 800px; margin: 5% auto; color: white;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: bold; color: white;">Улучшить план</h2>
+                <button onclick="closeUpgradeModal()" style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; background: transparent; border: none; color: #9ca3af; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div id="upgradeFeatureMessage" style="display: none; margin-bottom: 1.5rem; padding: 1rem; border-radius: 0.5rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); text-align: center; color: #d1d5db;"></div>
+            
+            <!-- Period Toggle -->
+            <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                <div style="display: inline-flex; border-radius: 0.5rem; background: #1a1a1a; padding: 0.25rem;">
+                    <button onclick="setPaymentPeriod('monthly')" id="periodMonthly" style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; background: #6366f1; color: white; border: none; cursor: pointer;">
+                        Месяц
+                    </button>
+                    <button onclick="setPaymentPeriod('yearly')" id="periodYearly" style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; color: #9ca3af; border: none; background: transparent; cursor: pointer;">
+                        Год <span style="color: #4ade80; font-size: 0.75rem;">-17%</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <!-- Pro Plan -->
+                <div style="border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 0.75rem; padding: 1.5rem; position: relative;">
+                    <div style="position: absolute; top: -0.75rem; left: 1rem; padding: 0.25rem 0.75rem; background: #6366f1; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; color: white;">
+                        POPULAR
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: white;">Pro</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <span id="proPrice" style="font-size: 2rem; font-weight: bold; color: #818cf8;">990₽</span>
+                        <span style="font-size: 1rem; color: #6b7280;">/ <span id="proPeriodText">месяц</span></span>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0; font-size: 0.875rem;">
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> 50 сканирований/мес</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Авто-исправления</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> PDF экспорт</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> CSV экспорт</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Приоритетная поддержка</li>
+                    </ul>
+                    <button onclick="selectPlan('pro')" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background: linear-gradient(to right, #6366f1, #a855f7); color: white; font-weight: 600; border: none; cursor: pointer;">
+                        Выбрать Pro
+                    </button>
+                </div>
+                
+                <!-- Business Plan -->
+                <div style="border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 0.75rem; padding: 1.5rem; position: relative; background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.05), transparent);">
+                    <div style="position: absolute; top: -0.75rem; left: 1rem; padding: 0.25rem 0.75rem; background: linear-gradient(to right, #a855f7, #ec4899); border-radius: 9999px; font-size: 0.75rem; font-weight: 600; color: white;">
+                        BEST VALUE
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #c084fc;">Business</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <span id="businessPrice" style="font-size: 2rem; font-weight: bold; color: #a855f7;">4990₽</span>
+                        <span style="font-size: 1rem; color: #6b7280;">/ <span id="businessPeriodText">месяц</span></span>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0; font-size: 0.875rem;">
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> 500 сканирований/мес</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Всё из Pro</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> API доступ</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> White-label отчёты</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Командный доступ (до 5)</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Запланированные сканы</li>
+                    </ul>
+                    <button onclick="selectPlan('business')" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background: transparent; border: 1px solid #a855f7; color: #c084fc; font-weight: 600; cursor: pointer;">
+                        Выбрать Business
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Payment Method Selection -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #333;">
+                <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Способ оплаты</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+                    <button onclick="setPaymentMethod('card')" id="methodCard" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; border-radius: 0.5rem; border: 1px solid #333; background: transparent; cursor: pointer; color: #9ca3af;">
+                        <span style="font-size: 1.5rem;">💳</span>
+                        <span style="font-size: 0.875rem;">Карта</span>
+                        <span style="font-size: 0.75rem; color: #4b5563;">Скоро</span>
+                    </button>
+                    <button onclick="setPaymentMethod('crypto')" id="methodCrypto" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(74, 222, 128, 0.5); background: rgba(74, 222, 128, 0.1); cursor: pointer;">
+                        <span style="font-size: 1.5rem;">₿</span>
+                        <span style="font-size: 0.875rem; color: #4ade80;">Криптовалюта</span>
+                        <span style="font-size: 0.75rem; color: rgba(74, 222, 128, 0.6);">NOWPayments</span>
+                    </button>
+                    <button onclick="setPaymentMethod('sbp')" id="methodSbp" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; border-radius: 0.5rem; border: 1px solid #333; background: transparent; cursor: pointer; color: #9ca3af;">
+                        <span style="font-size: 1.5rem;">📱</span>
+                        <span style="font-size: 0.875rem;">СБП</span>
+                        <span style="font-size: 0.75rem; color: #4b5563;">Скоро</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let selectedPeriod = 'monthly';
+        let selectedMethod = 'crypto';
+        
+        const PRICES = {
+            pro: { monthly: '$15.99', yearly: '$159.99' },
+            business: { monthly: '$59.99', yearly: '$599.99' }
+        };
+        
+        function setPaymentPeriod(period) {
+            selectedPeriod = period;
+            const monthlyBtn = document.getElementById('periodMonthly');
+            const yearlyBtn = document.getElementById('periodYearly');
+            
+            if (period === 'monthly') {
+                monthlyBtn.style.background = '#6366f1';
+                monthlyBtn.style.color = 'white';
+                yearlyBtn.style.background = 'transparent';
+                yearlyBtn.style.color = '#9ca3af';
+            } else {
+                yearlyBtn.style.background = '#6366f1';
+                yearlyBtn.style.color = 'white';
+                monthlyBtn.style.background = 'transparent';
+                monthlyBtn.style.color = '#9ca3af';
+            }
+            
+            document.getElementById('proPrice').textContent = PRICES.pro[period];
+            document.getElementById('businessPrice').textContent = PRICES.business[period];
+            document.getElementById('proPeriodText').textContent = period === 'monthly' ? 'месяц' : 'год';
+            document.getElementById('businessPeriodText').textContent = period === 'monthly' ? 'месяц' : 'год';
+        }
+        
+        function setPaymentMethod(method) {
+            selectedMethod = method;
+            ['card', 'crypto', 'sbp'].forEach(m => {
+                const btn = document.getElementById('method' + m.charAt(0).toUpperCase() + m.slice(1));
+                if (btn) {
+                    if (m === method) {
+                        if (m === 'crypto') {
+                            btn.style.borderColor = 'rgba(74, 222, 128, 0.5)';
+                            btn.style.background = 'rgba(74, 222, 128, 0.1)';
+                            btn.style.color = '#4ade80';
+                        } else {
+                            btn.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                            btn.style.background = 'rgba(99, 102, 241, 0.1)';
+                            btn.style.color = '#818cf8';
+                        }
+                    } else {
+                        btn.style.borderColor = '#333';
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#9ca3af';
+                    }
+                }
+            });
+        }
+        
+        function openPaymentModal(plan) {
+            const existing = document.getElementById('paymentModalTemp');
+            if (existing) existing.remove();
+            
+            const priceMonthly = plan === 'pro' ? '$15.99' : '$59.99';
+            const priceYearly = plan === 'pro' ? '$159.99' : '$599.99';
+            const planColor = plan === 'pro' ? '#6366f1' : '#a855f7';
+            
+            const modal = document.createElement('div');
+            modal.id = 'paymentModalTemp';
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div style="background: #111; border: 1px solid #333; border-radius: 20px; padding: 40px; width: 100%; max-width: 500px; color: white; position: relative;">
+                        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #666; font-size: 24px; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                        
+                        <h2 style="font-size: 28px; font-weight: bold; margin-bottom: 8px; text-align: center;">
+                            <span style="background: linear-gradient(to right, ${planColor}, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${plan.toUpperCase()}</span> Plan
+                        </h2>
+                        <p style="color: #888; text-align: center; margin-bottom: 30px;">Выберите период оплаты</p>
+                        
+                        <!-- Period Toggle -->
+                        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+                            <button onclick="selectPeriod('monthly', '${plan}')" id="periodMonthlyBtn" style="flex: 1; padding: 15px; border-radius: 12px; border: 2px solid ${planColor}; background: ${planColor}20; cursor: pointer; color: white; font-weight: bold;">
+                                Monthly<br><span style="font-size: 24px; font-weight: bold;">${priceMonthly}</span><br><span style="font-size: 12px; opacity: 0.7;">/месяц</span>
+                            </button>
+                            <button onclick="selectPeriod('yearly', '${plan}')" id="periodYearlyBtn" style="flex: 1; padding: 15px; border-radius: 12px; border: 2px solid #333; background: transparent; cursor: pointer; color: #888;">
+                                Yearly<br><span style="font-size: 24px; font-weight: bold; color: #4ade80;">${priceYearly}</span><br><span style="font-size: 12px; opacity: 0.7;">/год (-17%)</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div style="margin-bottom: 30px; padding: 20px; background: #1a1a1a; border-radius: 12px;">
+                            <p style="color: #888; font-size: 14px; margin-bottom: 10px;">Включено:</p>
+                            <div style="color: #d1d5db; font-size: 14px;">
+                                <div style="margin-bottom: 8px;">✓ ${plan === 'pro' ? '50' : '500'} сканирований/мес</div>
+                                <div style="margin-bottom: 8px;">✓ Авто-исправления</div>
+                                <div style="margin-bottom: 8px;">✓ PDF & CSV экспорт</div>
+                                ${plan === 'business' ? '<div style="margin-bottom: 8px;">✓ API доступ</div><div style="margin-bottom: 8px;">✓ White-label</div><div>✓ Командный доступ</div>' : '<div>✓ Приоритетная поддержка</div>'}
+                            </div>
+                        </div>
+                        
+                        <!-- Pay Button -->
+                        <button onclick="selectPlan('${plan}')" id="payButton" style="width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(to right, ${planColor}, #ec4899); color: white; font-size: 18px; font-weight: bold; cursor: pointer;">
+                            Оплатить через NOWPayments
+                        </button>
+                        
+                        <p style="text-align: center; color: #666; font-size: 12px; margin-top: 15px;">
+                            💳 Безопасная оплата через NOWPayments
+                        </p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function selectPeriod(period, plan) {
+            selectedPeriod = period;
+            const monthlyBtn = document.getElementById('periodMonthlyBtn');
+            const yearlyBtn = document.getElementById('periodYearlyBtn');
+            const planColor = plan === 'pro' ? '#6366f1' : '#a855f7';
+            
+            if (period === 'monthly') {
+                monthlyBtn.style.borderColor = planColor;
+                monthlyBtn.style.background = planColor + '20';
+                monthlyBtn.style.color = 'white';
+                yearlyBtn.style.borderColor = '#333';
+                yearlyBtn.style.background = 'transparent';
+                yearlyBtn.style.color = '#888';
+            } else {
+                yearlyBtn.style.borderColor = '#4ade80';
+                yearlyBtn.style.background = '#4ade8020';
+                yearlyBtn.style.color = '#4ade80';
+                monthlyBtn.style.borderColor = '#333';
+                monthlyBtn.style.background = 'transparent';
+                monthlyBtn.style.color = '#888';
+            }
+        }
+        
+        function closePaymentModal() {
+            const modal = document.getElementById('paymentModalTemp');
+            if (modal) modal.remove();
+        }
+        
+        async function selectPlan(plan) {
+            const user = getCurrentUser();
+            if (!user) {
+                const modal = document.getElementById('paymentModalTemp');
+                if (modal) modal.remove();
+                openRegisterModal();
+                return;
+            }
+            
+            showNotification('Создание платежа...', 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/payment/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({
+                        plan: plan,
+                        period: selectedPeriod,
+                        method: selectedMethod
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Close modal
+                    const modal = document.getElementById('paymentModalTemp');
+                    if (modal) modal.remove();
+                    
+                    if (selectedMethod === 'crypto' && data.checkoutUrl) {
+                        showNotification('Перенаправляем на оплату...', 'info');
+                        setTimeout(() => {
+                            window.open(data.checkoutUrl, '_blank');
+                        }, 1000);
+                    } else {
+                        showNotification('Скоро: оплата картой. Пока используйте криптовалюту.', 'info');
+                    }
+                } else {
+                    showNotification(data.error || 'Ошибка при создании платежа', 'error');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showNotification('Ошибка соединения с сервером', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+node_modules/
+database.sqlite
+server.log
+database/
+analyzer/
+backend/
+frontend/
+fixer/
