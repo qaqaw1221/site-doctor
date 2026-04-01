@@ -79,27 +79,54 @@ router.post('/', authenticateToken, async (req, res) => {
 
     const userId = req.user.id;
     const plan = req.user.plan || 'free';
+    const email = req.user.email;
 
-    // Check and update scan limits
-    db.get('SELECT scans_used, scans_reset_at, plan FROM users WHERE id = ?', [userId], (err, user) => {
+    // Ensure user exists in database
+    db.get('SELECT id, scans_used, scans_reset_at, plan FROM users WHERE id = ?', [userId], (err, user) => {
         if (err) {
             console.error('Database error:', err.message);
         }
+        
+        // If user not found in DB, create them
         if (!user) {
-            return res.status(401).json({ success: false, error: 'User not found' });
+            console.log('User not in DB, creating from JWT:', email);
+            db.run(
+                'INSERT OR IGNORE INTO users (id, email, name, password, plan, scans_used) VALUES (?, ?, ?, ?, ?, ?)',
+                [userId, email, email.split('@')[0], 'jwt-user', plan, 0],
+                function(insertErr) {
+                    if (insertErr) {
+                        console.error('Failed to create user:', insertErr.message);
+                        return res.status(500).json({ success: false, error: 'Database error: ' + insertErr.message });
+                    }
+                    proceedWithScan(userId, plan, res, req);
+                }
+            );
+            return;
         }
 
-        const now = new Date();
-        let scansUsed = user.scans_used || 0;
-        
-        // Check if scans_reset_at exists and is valid
-        if (user.scans_reset_at) {
-            const resetDate = new Date(user.scans_reset_at);
-            const monthDiff = now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear();
+        proceedWithScan(userId, user.plan || plan, res, req);
+    });
+});
+
+function proceedWithScan(userId, plan, res, req) {
+    const { url } = req.body;
+
+    const now = new Date();
+    let scansUsed = 0;
+    
+    db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = ?', [userId], (err, user) => {
+        if (err) {
+            console.error('DB error:', err.message);
+        }
+        if (user) {
+            scansUsed = user.scans_used || 0;
             
-            if (monthDiff) {
-                scansUsed = 0;
-                db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+            if (user.scans_reset_at) {
+                const resetDate = new Date(user.scans_reset_at);
+                if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {
+                    scansUsed = 0;
+                    db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+                }
             }
         }
 
@@ -147,7 +174,7 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
     });
-});
+}
 
 router.get('/limits', authenticateToken, (req, res) => {
     const userId = req.user.id;
@@ -156,8 +183,18 @@ router.get('/limits', authenticateToken, (req, res) => {
     const limit = planLimits.scans;
 
     db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err || !user) {
-            return res.status(404).json({ success: false, error: 'User not found' });
+        if (err) {
+            console.error('DB error:', err.message);
+        }
+        if (!user) {
+            return res.json({
+                success: true,
+                scansUsed: 0,
+                scansLeft: limit,
+                scansLimit: limit,
+                plan: plan,
+                resetsAt: new Date().toISOString()
+            });
         }
 
         const now = new Date();
