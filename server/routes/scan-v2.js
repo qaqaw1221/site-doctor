@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const dns = require('dns');
 const https = require('https');
-const { SiteScanner } = require('../../scanner');
+const SimpleScanner = require('../../scanner/simple-scanner');
 const dbModule = require('../database');
 const db = dbModule;
 const { authenticateToken } = require('../middleware/auth');
@@ -112,13 +112,9 @@ router.post('/', authenticateToken, async (req, res) => {
 
         // Perform scan
         try {
-            const siteScanner = new SiteScanner({ maxInstances: 2 });
-            
-            siteScanner.on('progress', (data) => {
-                console.log(`[Scan Progress] ${data.stage}: ${data.percent}%`);
-            });
+            const scanner = new SimpleScanner();
 
-            siteScanner.scan(url, { modules }).then(result => {
+            scanner.scan(url, { modules }).then(result => {
                 // Increment scan count
                 db.run('UPDATE users SET scans_used = scans_used + 1 WHERE id = ?', [userId]);
 
