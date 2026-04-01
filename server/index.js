@@ -5,7 +5,6 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const scanRoutes = require('./routes/scan');
 const scanV2Routes = require('./routes/scan-v2');
 const fixesRoutes = require('./routes/fixes');
 const paymentRoutes = require('./routes/payment');
@@ -30,8 +29,7 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/scan', scanRoutes);
-app.use('/api/scan/v2', scanV2Routes);
+app.use('/api/scan', scanV2Routes);
 app.use('/api/fixes', fixesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/compare', compareRoutes);
