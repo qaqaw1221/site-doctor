@@ -109,7 +109,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 function proceedWithScan(userId, plan, res, req) {
-    const { url } = req.body;
+    const { url, modules } = req.body;
 
     const now = new Date();
     let scansUsed = 0;
