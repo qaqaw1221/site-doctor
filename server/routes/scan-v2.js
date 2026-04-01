@@ -82,20 +82,25 @@ router.post('/', authenticateToken, async (req, res) => {
 
     // Check and update scan limits
     db.get('SELECT scans_used, scans_reset_at, plan FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err || !user) {
+        if (err) {
+            console.error('Database error:', err.message);
+        }
+        if (!user) {
             return res.status(401).json({ success: false, error: 'User not found' });
         }
 
         const now = new Date();
-        const resetDate = new Date(user.scans_reset_at);
-        const monthDiff = now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear();
-
         let scansUsed = user.scans_used || 0;
         
-        // Reset if new month
-        if (monthDiff) {
-            scansUsed = 0;
-            db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+        // Check if scans_reset_at exists and is valid
+        if (user.scans_reset_at) {
+            const resetDate = new Date(user.scans_reset_at);
+            const monthDiff = now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear();
+            
+            if (monthDiff) {
+                scansUsed = 0;
+                db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+            }
         }
 
         const planLimits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
