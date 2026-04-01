@@ -22,6 +22,7 @@ function initializeDatabase() {
                 password TEXT NOT NULL,
                 plan TEXT DEFAULT 'free',
                 scans_used INTEGER DEFAULT 0,
+                scans_reset_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 last_login DATETIME,
                 subscription_end TEXT,
@@ -35,6 +36,9 @@ function initializeDatabase() {
             if (err) console.error('Error creating users table:', err.message);
             else console.log('Users table ready');
         });
+
+        db.run(`ALTER TABLE users ADD COLUMN scans_reset_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => {});
+        db.run(`ALTER TABLE users ADD COLUMN scans_limit INTEGER DEFAULT 3`, () => {});
 
         db.run(`
             CREATE TABLE IF NOT EXISTS scan_history (
