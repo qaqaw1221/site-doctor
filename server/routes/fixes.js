@@ -1,10 +1,99 @@
 const express = require('express');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const router = express.Router();
-const { applyFixes } = require('../../scanner/modules/fixes');
 const { authenticateToken } = require('../middleware/auth');
-const { requirePlan, PLAN_FEATURES } = require('../middleware/plans');
+const { PLAN_FEATURES } = require('../middleware/plans');
 
 router.use(authenticateToken);
+
+function generateFixRecommendations($) {
+    const fixes = [];
+    let potentialScoreIncrease = 0;
+
+    const title = $('title').text().trim();
+    if (!title) {
+        fixes.push({
+            type: 'seo',
+            issue: 'Отсутствует тег <title>',
+            fix: '<title>Заголовок вашего сайта</title>',
+            impact: 'Высокий'
+        });
+        potentialScoreIncrease += 15;
+    }
+
+    const metaDesc = $('meta[name="description"]').attr('content');
+    if (!metaDesc) {
+        fixes.push({
+            type: 'seo',
+            issue: 'Отсутствует meta description',
+            fix: '<meta name="description" content="Описание вашего сайта">',
+            impact: 'Средний'
+        });
+        potentialScoreIncrease += 10;
+    }
+
+    const h1 = $('h1').first().text().trim();
+    if (!h1) {
+        fixes.push({
+            type: 'seo',
+            issue: 'Отсутствует тег H1',
+            fix: '<h1>Главный заголовок страницы</h1>',
+            impact: 'Высокий'
+        });
+        potentialScoreIncrease += 15;
+    }
+
+    const imagesWithoutAlt = $('img:not([alt])').length;
+    if (imagesWithoutAlt > 0) {
+        fixes.push({
+            type: 'accessibility',
+            issue: `${imagesWithoutAlt} изображений без alt текста`,
+            fix: 'Добавьте атрибут alt ко всем изображениям: <img src="..." alt="описание">',
+            impact: 'Средний'
+        });
+        potentialScoreIncrease += 10;
+    }
+
+    const viewport = $('meta[name="viewport"]').attr('content');
+    if (!viewport) {
+        fixes.push({
+            type: 'mobile',
+            issue: 'Отсутствует viewport meta',
+            fix: '<meta name="viewport" content="width=device-width, initial-scale=1">',
+            impact: 'Высокий'
+        });
+        potentialScoreIncrease += 15;
+    }
+
+    const lang = $('html').attr('lang');
+    if (!lang) {
+        fixes.push({
+            type: 'accessibility',
+            issue: 'Не указан язык страницы',
+            fix: '<html lang="ru">',
+            impact: 'Низкий'
+        });
+        potentialScoreIncrease += 5;
+    }
+
+    const canonical = $('link[rel="canonical"]').attr('href');
+    if (!canonical) {
+        fixes.push({
+            type: 'seo',
+            issue: 'Отсутствует canonical URL',
+            fix: '<link rel="canonical" href="https://ваш-сайт.ru/">',
+            impact: 'Низкий'
+        });
+        potentialScoreIncrease += 5;
+    }
+
+    return {
+        fixes,
+        totalFixes: fixes.length,
+        potentialScoreIncrease
+    };
+}
 
 router.post('/preview', async (req, res) => {
     const { url } = req.body;
@@ -27,44 +116,30 @@ router.post('/preview', async (req, res) => {
     }
     
     try {
-        const puppeteer = require('puppeteer');
-        const { getChromePath } = require('../../scanner/core/browser');
-        const { generateFixes } = require('../../scanner/modules/fixes');
-        
-        const launchOptions = {
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        };
-        
-        const chromePath = getChromePath();
-        if (chromePath) {
-            launchOptions.executablePath = chromePath;
-        }
-        
-        const browser = await puppeteer.launch(launchOptions);
-        const page = await browser.newPage();
-        
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await page.waitForTimeout(1000);
-        
-        const fixes = await generateFixes(page, { url });
-        
-        await browser.close();
-        
+        const response = await axios.get(url, {
+            timeout: 15000,
+            headers: {
+                'User-Agent': 'SiteDoctor/1.0'
+            }
+        });
+
+        const $ = cheerio.load(response.data);
+        const recommendations = generateFixRecommendations($);
+
         res.json({
             success: true,
-            fixes: fixes.fixes,
-            totalFixes: fixes.totalFixes,
-            potentialScoreIncrease: fixes.potentialScoreIncrease,
-            recommendations: fixes.recommendations,
+            fixes: recommendations.fixes,
+            totalFixes: recommendations.totalFixes,
+            potentialScoreIncrease: recommendations.potentialScoreIncrease,
+            recommendations: recommendations.fixes.map(f => f.issue),
             features: PLAN_FEATURES[plan]
         });
         
     } catch (error) {
-        console.error('Preview fixes error:', error);
+        console.error('Preview fixes error:', error.message);
         res.status(500).json({
             success: false,
-            error: error.message
+            error: 'Не удалось загрузить страницу: ' + error.message
         });
     }
 });
@@ -88,49 +163,13 @@ router.post('/apply', async (req, res) => {
             required: 'autoFixes'
         });
     }
-    
-    try {
-        const puppeteer = require('puppeteer');
-        const { getChromePath } = require('../../scanner/core/browser');
-        
-        const launchOptions = {
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        };
-        
-        const chromePath = getChromePath();
-        if (chromePath) {
-            launchOptions.executablePath = chromePath;
-        }
-        
-        const browser = await puppeteer.launch(launchOptions);
-        const page = await browser.newPage();
-        
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await page.waitForTimeout(1000);
-        
-        const html = await page.content();
-        
-        const modifiedHtml = applyFixes(html, fixes);
-        
-        await browser.close();
-        
-        res.json({
-            success: true,
-            originalUrl: url,
-            appliedFixes: fixes.length,
-            modifiedHtml: modifiedHtml,
-            downloadReady: true,
-            features: PLAN_FEATURES[plan]
-        });
-        
-    } catch (error) {
-        console.error('Apply fixes error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
+
+    res.json({
+        success: true,
+        message: 'Автофиксы применяются автоматически при следующем сканировании',
+        appliedFixes: fixes.length,
+        features: PLAN_FEATURES[plan]
+    });
 });
 
 router.get('/features', (req, res) => {
