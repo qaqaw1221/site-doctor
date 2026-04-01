@@ -1419,7 +1419,15 @@
             const resultsSection = document.getElementById('results');
             const container = document.getElementById('resultsContainer');
             
-            const scores = data.scores || {};
+            // Normalize data format from SimpleScanner
+            const overallScore = data.score || data.overallScore || 0;
+            const scores = data.scores || {
+                seo: data.seo?.score || 0,
+                performance: data.performance?.score || 0,
+                accessibility: data.accessibility?.score || 0,
+                links: data.links?.score || 0,
+                mobile: data.mobile?.score || 0
+            };
             const stats = data.stats || {};
             const fixes = data.fixes || {};
             const losses = calculateLosses(data);
@@ -1478,14 +1486,14 @@
                 <div class="grid md:grid-cols-2 gap-6 mb-8">
                     <div class="card p-8 text-center">
                         <div class="text-sm text-gray-400 uppercase tracking-wider mb-4" data-i18n="overallScore">Общий балл</div>
-                        <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br ${getScoreGradient(data.overallScore)} p-1 mb-4">
+                        <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br ${getScoreGradient(overallScore)} p-1 mb-4">
                             <div class="w-full h-full rounded-full bg-[#111] flex flex-col items-center justify-center">
-                                <span class="text-4xl font-bold ${getScoreColor(data.overallScore)}">${data.overallScore || 0}</span>
+                                <span class="text-4xl font-bold ${getScoreColor(overallScore)}">${overallScore}</span>
                                 <span class="text-xs text-gray-500" data-i18n="outOf100">из 100</span>
                             </div>
                         </div>
                         <p class="text-gray-400">
-                            ${data.overallScore >= 80 ? t('excellentSite') : data.overallScore >= 60 ? t('hasImprovements') : t('needsAttention')}
+                            ${overallScore >= 80 ? t('excellentSite') : overallScore >= 60 ? t('hasImprovements') : t('needsAttention')}
                         </p>
                     </div>
                     
