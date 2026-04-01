@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const dns = require('dns');
 const https = require('https');
-const { SiteScanner } = require('../../scanner');
+const SimpleScanner = require('../../scanner/simple-scanner');
 const { authenticateToken } = require('../middleware/auth');
 const dbModule = require('../database');
 const db = dbModule;
@@ -113,7 +113,7 @@ router.post('/compare', authenticateToken, async (req, res) => {
         for (const url of allUrls) {
             try {
                 console.log(`[Compare] Scanning: ${url}`);
-                const scanner = new SiteScanner({ maxInstances: 1 });
+                const scanner = new SimpleScanner();
                 const data = await scanner.scan(url, { modules: ['seo', 'performance', 'accessibility'] });
                 await scanner.close();
                 

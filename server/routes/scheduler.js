@@ -4,7 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 const dbModule = require('../database');
 const db = dbModule;
 const { PLAN_FEATURES, getScanLimit } = dbModule;
-const { SiteScanner } = require('../../scanner');
+const SimpleScanner = require('../../scanner/simple-scanner');
 
 router.post('/create', authenticateToken, (req, res) => {
     const { url, name, frequency } = req.body;
@@ -162,7 +162,7 @@ router.post('/:id/scan-now', authenticateToken, async (req, res) => {
             }
             
             try {
-                const scanner = new SiteScanner({ maxInstances: 1 });
+                const scanner = new SimpleScanner();
                 const result = await scanner.scan(row.url, { modules: ['seo', 'performance', 'accessibility', 'links', 'mobile'] });
                 await scanner.close();
                 
