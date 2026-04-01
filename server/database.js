@@ -37,8 +37,21 @@ function initializeDatabase() {
             else console.log('Users table ready');
         });
 
-        db.run(`ALTER TABLE users ADD COLUMN scans_reset_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => {});
-        db.run(`ALTER TABLE users ADD COLUMN scans_limit INTEGER DEFAULT 3`, () => {});
+        // Add missing columns safely
+        const addColumnIfNotExists = (table, column, type, defaultValue) => {
+            db.all(`PRAGMA table_info(${table})`, (err, columns) => {
+                if (err) return;
+                const exists = columns.some(c => c.name === column);
+                if (!exists) {
+                    db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${type} DEFAULT ${defaultValue}`, (e) => {
+                        if (e) console.error(`Error adding ${column}:`, e.message);
+                    });
+                }
+            });
+        };
+
+        addColumnIfNotExists('users', 'scans_reset_at', 'DATETIME', 'CURRENT_TIMESTAMP');
+        addColumnIfNotExists('users', 'scans_limit', 'INTEGER', '3');
 
         db.run(`
             CREATE TABLE IF NOT EXISTS scan_history (
