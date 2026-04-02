@@ -1,9 +1,13 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const https = require('https');
 
 class SimpleScanner {
     constructor() {
         this.cache = new Map();
+        this.issues = [];
+        this.fixes = [];
+        this.stats = { critical: 0, high: 0, medium: 0, low: 0, totalFixes: 0 };
     }
 
     isValidUrl(url) {
@@ -16,78 +20,75 @@ class SimpleScanner {
     }
 
     async fetchPage(url) {
-        const cacheKey = url;
-        if (this.cache.has(cacheKey)) {
-            return this.cache.get(cacheKey);
-        }
-
+        if (this.cache.has(url)) return this.cache.get(url);
         try {
             const response = await axios.get(url, {
                 timeout: 15000,
-                headers: {
-                    'User-Agent': 'SiteDoctor/1.0 (+https://sitedoctor.io)',
-                    'Accept': 'text/html,application/xhtml+xml',
-                },
-                maxContentLength: 5 * 1024 * 1024
+                headers: { 'User-Agent': 'SiteDoctor/1.0', 'Accept': 'text/html' },
+                maxContentLength: 5 * 1024 * 1024,
+                httpsAgent: new https.Agent({ rejectUnauthorized: false })
             });
-
-            const data = {
-                html: response.data,
-                status: response.status,
-                headers: response.headers
-            };
-
-            this.cache.set(cacheKey, data);
+            const data = { html: response.data, status: response.status, headers: response.headers };
+            this.cache.set(url, data);
             return data;
         } catch (error) {
             return { error: error.message, html: null };
         }
     }
 
-    async scan(url, options = {}) {
-        if (!this.isValidUrl(url)) {
-            return { error: 'Invalid URL. URL must start with http:// or https://' };
-        }
+    addIssue(category, severity, message) {
+        this.issues.push({ category, severity, message });
+        if (severity === 'critical') this.stats.critical++;
+        else if (severity === 'high') this.stats.high++;
+        else if (severity === 'medium') this.stats.medium++;
+        else this.stats.low++;
+    }
 
-        const results = {
-            url,
-            timestamp: new Date().toISOString(),
-            seo: {},
-            performance: {},
-            accessibility: {},
-            links: {},
-            mobile: {},
-            score: 0
-        };
+    addFix(category, description, impact, code) {
+        this.fixes.push({ category, description, impact, code });
+        this.stats.totalFixes++;
+    }
 
+    async scan(url) {
+        if (!this.isValidUrl(url)) return { error: 'Invalid URL' };
+
+        const results = { url, timestamp: new Date().toISOString(), score: 0, issues: [], fixes: {}, stats: {} };
         const page = await this.fetchPage(url);
-        if (page.error) {
-            results.error = page.error;
-            return results;
-        }
+        if (page.error) { results.error = page.error; return results; }
 
         const $ = cheerio.load(page.html);
 
-        results.seo = this.checkSEO($);
-        results.performance = this.checkPerformance($);
-        results.accessibility = this.checkAccessibility($);
-        results.links = this.checkLinks($, url);
-        results.mobile = this.checkMobile($);
+        const seo = this.checkSEO($, url);
+        const perf = this.checkPerformance($, page.html);
+        const a11y = this.checkAccessibility($);
+        const links = this.checkLinks($, url);
+        const mobile = this.checkMobile($);
 
-        const totalScore = (
-            results.seo.score +
-            results.performance.score +
-            results.accessibility.score +
-            results.links.score +
-            results.mobile.score
-        ) / 5;
+        results.seo = seo;
+        results.performance = perf;
+        results.accessibility = a11y;
+        results.links = links;
+        results.mobile = mobile;
 
-        results.score = Math.round(totalScore);
+        results.scores = {
+            seo: seo.score,
+            performance: perf.score,
+            accessibility: a11y.score,
+            links: links.score,
+            mobile: mobile.score
+        };
+
+        results.score = Math.round((seo.score + perf.score + a11y.score + links.score + mobile.score) / 5);
+        results.overallScore = results.score;
+
+        results.issues = this.issues;
+        results.fixes = { fixes: this.fixes, totalFixes: this.stats.totalFixes, potentialScoreIncrease: Math.min(30, this.stats.totalFixes * 5) };
+        results.stats = this.stats;
 
         return results;
     }
 
-    checkSEO($) {
+    checkSEO($, url) {
         const checks = [];
         let score = 100;
 
@@ -95,79 +96,157 @@ class SimpleScanner {
         if (!title) {
             checks.push({ item: 'Title', status: 'error', message: 'Отсутствует тег <title>' });
             score -= 20;
+            this.addIssue('seo', 'critical', 'Отсутствует тег <title>');
+            this.addFix('seo', 'Добавить тег <title>', 'Высокий', '<title>Заголовок страницы</title>');
+        } else if (title.length > 60) {
+            checks.push({ item: 'Title', status: 'warning', message: `Title слишком длинный (${title.length} символов)` });
+            score -= 5;
+            this.addIssue('seo', 'medium', `Title слишком длинный: ${title.length} символов (макс. 60)`);
+            this.addFix('seo', 'Сократить title до 60 символов', 'Средний', '');
         } else {
-            checks.push({ item: 'Title', status: 'pass', message: `Title: ${title.substring(0, 50)}...` });
+            checks.push({ item: 'Title', status: 'pass', message: `Title: ${title}` });
         }
 
         const metaDesc = $('meta[name="description"]').attr('content');
         if (!metaDesc) {
             checks.push({ item: 'Meta Description', status: 'error', message: 'Отсутствует meta description' });
             score -= 15;
+            this.addIssue('seo', 'high', 'Отсутствует meta description');
+            this.addFix('seo', 'Добавить meta description', 'Высокий', '<meta name="description" content="Описание страницы">');
         } else if (metaDesc.length < 120) {
-            checks.push({ item: 'Meta Description', status: 'warning', message: `Description слишком короткий (${metaDesc.length} символов)` });
+            checks.push({ item: 'Meta Description', status: 'warning', message: `Description короткий (${metaDesc.length} символов)` });
             score -= 5;
+            this.addIssue('seo', 'medium', `Meta description короткий: ${metaDesc.length} символов (мин. 120)`);
+        } else if (metaDesc.length > 160) {
+            checks.push({ item: 'Meta Description', status: 'warning', message: `Description длинный (${metaDesc.length} символов)` });
+            score -= 3;
         } else {
-            checks.push({ item: 'Meta Description', status: 'pass', message: `Description: ${metaDesc.substring(0, 50)}...` });
+            checks.push({ item: 'Meta Description', status: 'pass', message: `Description: ${metaDesc.substring(0, 60)}...` });
         }
 
+        const h1Count = $('h1').length;
         const h1 = $('h1').first().text().trim();
-        if (!h1) {
+        if (h1Count === 0) {
             checks.push({ item: 'H1 Tag', status: 'error', message: 'Отсутствует тег H1' });
             score -= 15;
+            this.addIssue('seo', 'critical', 'Отсутствует тег H1');
+            this.addFix('seo', 'Добавить тег H1', 'Высокий', '<h1>Главный заголовок</h1>');
+        } else if (h1Count > 1) {
+            checks.push({ item: 'H1 Tag', status: 'warning', message: `Найдено ${h1Count} тегов H1 (должен быть один)` });
+            score -= 5;
+            this.addIssue('seo', 'medium', `Множественные H1: ${h1Count}`);
         } else {
-            checks.push({ item: 'H1 Tag', status: 'pass', message: `H1: ${h1.substring(0, 50)}...` });
+            checks.push({ item: 'H1 Tag', status: 'pass', message: `H1: ${h1}` });
         }
 
         const h2Count = $('h2').length;
-        checks.push({ item: 'H2 Tags', status: h2Count > 0 ? 'pass' : 'warning', message: `Найдено H2: ${h2Count}` });
+        checks.push({ item: 'H2 Tags', status: h2Count > 0 ? 'pass' : 'warning', message: `H2: ${h2Count}` });
+        if (h2Count === 0) {
+            this.addIssue('seo', 'low', 'Отсутствуют теги H2');
+        }
 
         const lang = $('html').attr('lang');
         if (!lang) {
-            checks.push({ item: 'Language', status: 'error', message: 'Не указан язык страницы' });
+            checks.push({ item: 'Language', status: 'error', message: 'Не указан язык' });
             score -= 10;
+            this.addIssue('seo', 'medium', 'Не указан язык страницы');
+            this.addFix('seo', 'Добавить lang атрибут', 'Средний', '<html lang="ru">');
         } else {
             checks.push({ item: 'Language', status: 'pass', message: `Язык: ${lang}` });
         }
 
         const canonical = $('link[rel="canonical"]').attr('href');
-        checks.push({ item: 'Canonical URL', status: canonical ? 'pass' : 'info', message: canonical || 'Canonical не указан' });
+        if (!canonical) {
+            checks.push({ item: 'Canonical', status: 'warning', message: 'Canonical не указан' });
+            score -= 5;
+            this.addIssue('seo', 'low', 'Отсутствует canonical URL');
+            this.addFix('seo', 'Добавить canonical URL', 'Низкий', `<link rel="canonical" href="${url}">`);
+        } else {
+            checks.push({ item: 'Canonical', status: 'pass', message: `Canonical: ${canonical}` });
+        }
+
+        const metaRobots = $('meta[name="robots"]').attr('content');
+        if (metaRobots && metaRobots.includes('noindex')) {
+            checks.push({ item: 'Robots', status: 'error', message: 'Страница запрещена к индексации (noindex)' });
+            score -= 20;
+            this.addIssue('seo', 'critical', 'Страница запрещена к индексации');
+        } else {
+            checks.push({ item: 'Robots', status: 'pass', message: 'Страница индексируется' });
+        }
+
+        const ogTitle = $('meta[property="og:title"]').attr('content');
+        const ogImage = $('meta[property="og:image"]').attr('content');
+        if (!ogTitle || !ogImage) {
+            checks.push({ item: 'Open Graph', status: 'warning', message: 'Open Graph теги неполные' });
+            score -= 5;
+            this.addIssue('seo', 'low', 'Отсутствуют Open Graph теги');
+            this.addFix('seo', 'Добавить Open Graph теги', 'Низкий', '<meta property="og:title" content="..."><meta property="og:image" content="...">');
+        } else {
+            checks.push({ item: 'Open Graph', status: 'pass', message: 'Open Graph настроен' });
+        }
 
         return { score: Math.max(0, score), checks };
     }
 
-    checkPerformance($) {
+    checkPerformance($, html) {
         const checks = [];
         let score = 100;
+        const htmlSize = Buffer.byteLength(html, 'utf8');
+        const sizeKB = (htmlSize / 1024).toFixed(1);
 
-        const htmlLength = $('html').html().length;
-        const sizeKB = (htmlLength / 1024).toFixed(1);
-
-        if (htmlLength > 100000) {
+        if (htmlSize > 150000) {
             checks.push({ item: 'HTML Size', status: 'error', message: `HTML слишком большой: ${sizeKB}KB` });
             score -= 20;
-        } else if (htmlLength > 50000) {
+            this.addIssue('performance', 'high', `HTML размер: ${sizeKB}KB (макс. 150KB)`);
+            this.addFix('performance', 'Уменьшить размер HTML', 'Высокий', 'Удалите лишние пробелы и комментарии');
+        } else if (htmlSize > 50000) {
             checks.push({ item: 'HTML Size', status: 'warning', message: `HTML большой: ${sizeKB}KB` });
             score -= 10;
         } else {
-            checks.push({ item: 'HTML Size', status: 'pass', message: `HTML размер: ${sizeKB}KB` });
+            checks.push({ item: 'HTML Size', status: 'pass', message: `HTML: ${sizeKB}KB` });
         }
 
         const scripts = $('script').length;
-        checks.push({ item: 'Scripts', status: 'pass', message: `Скриптов на странице: ${scripts}` });
-
-        const images = $('img').length;
-        checks.push({ item: 'Images', status: 'pass', message: `Изображений: ${images}` });
+        const externalScripts = $('script[src]').length;
+        if (externalScripts > 10) {
+            checks.push({ item: 'Scripts', status: 'error', message: `Слишком много скриптов: ${externalScripts}` });
+            score -= 15;
+            this.addIssue('performance', 'high', `Много внешних скриптов: ${externalScripts}`);
+            this.addFix('performance', 'Объединить скрипты', 'Высокий', '');
+        } else {
+            checks.push({ item: 'Scripts', status: 'pass', message: `Скриптов: ${scripts} (внешних: ${externalScripts})` });
+        }
 
         const stylesheets = $('link[rel="stylesheet"]').length;
-        checks.push({ item: 'Stylesheets', status: 'pass', message: `CSS файлов: ${stylesheets}` });
-
-        const lazyImages = $('img[loading="lazy"]').length;
-        const totalImages = $('img').length;
-        if (totalImages > 0 && lazyImages < totalImages / 2) {
-            checks.push({ item: 'Lazy Loading', status: 'warning', message: `Только ${lazyImages} из ${totalImages} изображений с lazy loading` });
+        if (stylesheets > 5) {
+            checks.push({ item: 'Stylesheets', status: 'warning', message: `Много CSS файлов: ${stylesheets}` });
             score -= 5;
+            this.addFix('performance', 'Объединить CSS файлы', 'Средний', '');
         } else {
-            checks.push({ item: 'Lazy Loading', status: 'pass', message: 'Lazy loading настроен' });
+            checks.push({ item: 'Stylesheets', status: 'pass', message: `CSS файлов: ${stylesheets}` });
+        }
+
+        const images = $('img').length;
+        const lazyImages = $('img[loading="lazy"]').length;
+        if (images > 0 && lazyImages < images / 2) {
+            checks.push({ item: 'Lazy Loading', status: 'warning', message: `Lazy loading: ${lazyImages}/${images}` });
+            score -= 10;
+            this.addIssue('performance', 'medium', 'Не все изображения используют lazy loading');
+            this.addFix('performance', 'Добавить loading="lazy" к изображениям', 'Средний', '');
+        } else {
+            checks.push({ item: 'Lazy Loading', status: 'pass', message: images > 0 ? `Lazy loading: ${lazyImages}/${images}` : 'Нет изображений' });
+        }
+
+        const inlineStyles = $('[style]').length;
+        if (inlineStyles > 20) {
+            checks.push({ item: 'Inline Styles', status: 'warning', message: `Inline стилей: ${inlineStyles}` });
+            score -= 5;
+        }
+
+        const iframes = $('iframe').length;
+        if (iframes > 3) {
+            checks.push({ item: 'iFrames', status: 'warning', message: `iFrames: ${iframes}` });
+            score -= 5;
         }
 
         return { score: Math.max(0, score), checks };
@@ -179,36 +258,53 @@ class SimpleScanner {
 
         const imagesWithoutAlt = $('img:not([alt])').length;
         if (imagesWithoutAlt > 0) {
-            checks.push({ item: 'Images Alt', status: 'error', message: `${imagesWithoutAlt} изображений без alt текста` });
+            checks.push({ item: 'Images Alt', status: 'error', message: `${imagesWithoutAlt} изображений без alt` });
             score -= 20;
+            this.addIssue('accessibility', 'high', `${imagesWithoutAlt} изображений без alt текста`);
+            this.addFix('accessibility', 'Добавить alt ко всем изображениям', 'Высокий', '');
         } else {
-            checks.push({ item: 'Images Alt', status: 'pass', message: 'Все изображения с alt текстом' });
+            checks.push({ item: 'Images Alt', status: 'pass', message: 'Все изображения с alt' });
         }
 
-        const linksWithoutText = $('a:not(:has(img))').filter(function() {
-            return !$(this).text().trim();
+        const emptyLinks = $('a').filter(function() {
+            return !$(this).text().trim() && !$(this).find('img').length && !$(this).attr('aria-label');
         }).length;
-
-        if (linksWithoutText > 0) {
-            checks.push({ item: 'Empty Links', status: 'warning', message: `${linksWithoutText} пустых ссылок` });
+        if (emptyLinks > 0) {
+            checks.push({ item: 'Empty Links', status: 'error', message: `${emptyLinks} пустых ссылок` });
             score -= 10;
+            this.addIssue('accessibility', 'medium', `${emptyLinks} пустых ссылок`);
         } else {
             checks.push({ item: 'Empty Links', status: 'pass', message: 'Нет пустых ссылок' });
         }
 
-        const buttons = $('button').length;
-        const inputs = $('input').length;
-        checks.push({ item: 'Forms', status: 'pass', message: `Кнопок: ${buttons}, полей ввода: ${inputs}` });
+        const formLabels = $('input:not([type="hidden"])').length;
+        const labeledInputs = $('input[aria-label], input[id]').length;
+        if (formLabels > 0 && labeledInputs < formLabels) {
+            checks.push({ item: 'Form Labels', status: 'warning', message: `Не все поля формы имеют labels` });
+            score -= 10;
+            this.addIssue('accessibility', 'medium', 'Поля формы без labels');
+            this.addFix('accessibility', 'Добавить labels к полям формы', 'Средний', '');
+        }
 
         const hasViewport = $('meta[name="viewport"]').length > 0;
-        checks.push({
-            item: 'Viewport Meta',
-            status: hasViewport ? 'pass' : 'warning',
-            message: hasViewport ? 'Viewport настроен' : 'Viewport не настроен'
-        });
+        checks.push({ item: 'Viewport', status: hasViewport ? 'pass' : 'error', message: hasViewport ? 'Viewport настроен' : 'Viewport отсутствует' });
+        if (!hasViewport) {
+            score -= 15;
+            this.addIssue('accessibility', 'high', 'Viewport meta тег отсутствует');
+        }
 
-        const hasContrast = $('style').text().includes('color') || $('[style*="color"]').length > 0;
-        checks.push({ item: 'Color Contrast', status: 'info', message: 'Проверьте контрастность цветов вручную' });
+        const lang = $('html').attr('lang');
+        if (!lang) {
+            checks.push({ item: 'Language', status: 'error', message: 'Язык не указан' });
+            score -= 10;
+        }
+
+        const headings = $('h1, h2, h3, h4, h5, h6').length;
+        checks.push({ item: 'Headings', status: 'pass', message: `Заголовков: ${headings}` });
+
+        const buttons = $('button').length;
+        const inputs = $('input').length;
+        checks.push({ item: 'Interactive', status: 'pass', message: `Кнопок: ${buttons}, полей: ${inputs}` });
 
         return { score: Math.max(0, score), checks };
     }
@@ -216,48 +312,43 @@ class SimpleScanner {
     checkLinks($, baseUrl) {
         const checks = [];
         let score = 100;
-
         const internalLinks = [];
         const externalLinks = [];
-        const brokenLinks = [];
+        const anchors = [];
+        const mailtos = [];
+        const telLinks = [];
 
         $('a[href]').each((i, el) => {
             const href = $(el).attr('href');
-            if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+            if (!href) return;
+            if (href.startsWith('#')) { anchors.push(href); return; }
+            if (href.startsWith('mailto:')) { mailtos.push(href); return; }
+            if (href.startsWith('tel:')) { telLinks.push(href); return; }
 
             try {
                 if (href.startsWith('http')) {
-                    if (href.includes(new URL(baseUrl).hostname)) {
-                        internalLinks.push(href);
-                    } else {
-                        externalLinks.push(href);
-                    }
+                    if (href.includes(new URL(baseUrl).hostname)) internalLinks.push(href);
+                    else externalLinks.push(href);
                 } else {
-                    const absolute = new URL(href, baseUrl).href;
-                    internalLinks.push(absolute);
+                    internalLinks.push(new URL(href, baseUrl).href);
                 }
             } catch (e) {}
         });
 
-        checks.push({
-            item: 'Internal Links',
-            status: 'pass',
-            message: `Внутренних ссылок: ${internalLinks.length}`
-        });
-
-        checks.push({
-            item: 'External Links',
-            status: 'pass',
-            message: `Внешних ссылок: ${externalLinks.length}`
-        });
+        checks.push({ item: 'Internal Links', status: 'pass', message: `Внутренних: ${internalLinks.length}` });
+        checks.push({ item: 'External Links', status: 'pass', message: `Внешних: ${externalLinks.length}` });
+        checks.push({ item: 'Anchors', status: 'pass', message: `Якорей: ${anchors.length}` });
+        checks.push({ item: 'Email Links', status: 'pass', message: `Email: ${mailtos.length}` });
+        checks.push({ item: 'Phone Links', status: 'pass', message: `Телефон: ${telLinks.length}` });
 
         const imgWithoutSrc = $('img:not([src])').length;
         if (imgWithoutSrc > 0) {
-            checks.push({ item: 'Missing Images', status: 'error', message: `${imgWithoutSrc} изображений без src` });
+            checks.push({ item: 'Broken Images', status: 'error', message: `${imgWithoutSrc} изображений без src` });
             score -= 10;
+            this.addIssue('links', 'high', `${imgWithoutSrc} изображений без src`);
         }
 
-        return { score: Math.max(0, score), checks, internalLinks: internalLinks.slice(0, 10), externalLinks: externalLinks.slice(0, 10) };
+        return { score: Math.max(0, score), checks, internalLinks: internalLinks.slice(0, 20), externalLinks: externalLinks.slice(0, 20) };
     }
 
     checkMobile($) {
@@ -266,28 +357,36 @@ class SimpleScanner {
 
         const viewport = $('meta[name="viewport"]').attr('content');
         if (!viewport) {
-            checks.push({ item: 'Viewport', status: 'error', message: 'Viewport meta тег отсутствует' });
+            checks.push({ item: 'Viewport', status: 'error', message: 'Viewport отсутствует' });
             score -= 30;
+            this.addIssue('mobile', 'critical', 'Viewport meta тег отсутствует');
+            this.addFix('mobile', 'Добавить viewport meta', 'Высокий', '<meta name="viewport" content="width=device-width, initial-scale=1">');
         } else {
-            checks.push({ item: 'Viewport', status: 'pass', message: `Viewport: ${viewport}` });
+            checks.push({ item: 'Viewport', status: 'pass', message: viewport });
         }
 
-        const touchElements = $('[ontouchstart]').length;
-        checks.push({ item: 'Touch Elements', status: 'info', message: `Touch элементов: ${touchElements}` });
+        const fontSize = $('body').css('font-size');
+        checks.push({ item: 'Font Size', status: 'pass', message: fontSize || 'Наследуемый' });
 
-        const fontSizeSmall = $('[style*="font-size"]').filter(function() {
-            const style = $(this).attr('style');
-            const match = style.match(/font-size:\s*(\d+)px/);
-            return match && parseInt(match[1]) < 12;
-        }).length;
+        const tapTargets = $('a, button, input, select, textarea').length;
+        checks.push({ item: 'Tap Targets', status: 'pass', message: `Интерактивных элементов: ${tapTargets}` });
 
-        if (fontSizeSmall > 0) {
-            checks.push({ item: 'Small Font', status: 'warning', message: `${fontSizeSmall} элементов с мелким шрифтом` });
+        const hasMediaQuery = $('style').text().includes('@media') || $('link[rel="stylesheet"]').length > 0;
+        checks.push({ item: 'Responsive CSS', status: hasMediaQuery ? 'pass' : 'warning', message: hasMediaQuery ? 'CSS подключён' : 'Возможно нет адаптивности' });
+        if (!hasMediaQuery) {
             score -= 10;
+            this.addIssue('mobile', 'medium', 'Возможно отсутствует адаптивный дизайн');
         }
 
-        const hasResponsive = $('link[rel="stylesheet"]').length > 0;
-        checks.push({ item: 'Stylesheets', status: hasResponsive ? 'pass' : 'warning', message: 'CSS подключён' });
+        const hasTouch = $('[ontouchstart], [onclick]').length;
+        checks.push({ item: 'Touch Events', status: 'pass', message: `Touch элементов: ${hasTouch}` });
+
+        const scale = viewport ? viewport.includes('user-scalable') : null;
+        if (scale && viewport.includes('user-scalable=no')) {
+            checks.push({ item: 'Zoom', status: 'warning', message: 'Масштабирование отключено' });
+            score -= 10;
+            this.addIssue('mobile', 'medium', 'Масштабирование отключено');
+        }
 
         return { score: Math.max(0, score), checks };
     }
