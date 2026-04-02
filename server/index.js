@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/scan/v2', scanV2Routes);
+app.use('/api/scan', scanV2Routes);
 app.use('/api/fixes', fixesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/compare', compareRoutes);
