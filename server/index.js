@@ -51,10 +51,10 @@ app.get('/api/health', (req, res) => {
 app.get('/api/test-email', async (req, res) => {
     const { testConnection, sendVerificationCode } = require('./utils/email');
     
-    console.log('Testing SMTP connection...');
-    console.log('SMTP_HOST:', process.env.SMTP_HOST);
-    console.log('SMTP_PORT:', process.env.SMTP_PORT);
-    console.log('SMTP_USER:', process.env.SMTP_USER);
+    // console.log('Testing SMTP connection...');
+    // console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    // console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    // console.log('SMTP_USER:', process.env.SMTP_USER);
     
     const connected = await testConnection();
     if (connected) {
@@ -88,6 +88,4 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Site Doctor running on port ${PORT}`);
     console.log(`Database: SQLite`);
-});
-Database: SQLite`);
 });
