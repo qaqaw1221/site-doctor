@@ -19,10 +19,11 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
 
-// Raw body for webhook verification
+// Raw body for webhook verification (must be before express.json)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
+app.use(express.json());
 
 // Serve static files from client directory
 app.use(express.static(path.join(__dirname, '../client')));
@@ -83,8 +84,10 @@ app.get('/', (req, res) => {
 // Force redeploy marker - remove after confirming fix
 const FORCE_REDEPLOY = Date.now();
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Site Doctor running on http://localhost:${PORT}`);
+    console.log(`Site Doctor running on port ${PORT}`);
     console.log(`Database: SQLite`);
+});
+Database: SQLite`);
 });
