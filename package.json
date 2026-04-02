@@ -1,6 +1,6 @@
 {
   "name": "site-doctor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-powered website error detection and fixing platform",
   "main": "server/index.js",
   "engines": {
