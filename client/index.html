@@ -1627,6 +1627,7 @@
                         <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
                             <i data-lucide="wand-2" class="w-5 h-5 text-indigo-400"></i>
                             Доступные исправления (${fixes.fixes.length})
+                            <span class="text-sm text-gray-500 ml-2">+${fixes.potentialScoreIncrease || 0} баллов</span>
                         </h3>
                         <div class="grid md:grid-cols-2 gap-4">
                             ${fixes.fixes.map((fix, index) => {
@@ -1638,17 +1639,18 @@
                                     performance: 'from-green-500 to-green-600',
                                     accessibility: 'from-purple-500 to-purple-600',
                                     mobile: 'from-pink-500 to-pink-600',
-                                    social: 'from-yellow-500 to-yellow-600'
+                                    links: 'from-yellow-500 to-yellow-600'
                                 };
                                 const cat = fix.category || 'seo';
                                 const gradient = categoryColors[cat] || categoryColors.seo;
+                                const impactLabels = { 'Высокий': '🔴', 'Средний': '🟡', 'Низкий': '🟢' };
                                 
                                 return `
                                     <div class="card p-4 border-l-4 border-l-indigo-500 ${isBlurred ? 'opacity-50' : ''} ${isLocked ? 'blur-sm select-none pointer-events-none' : ''}">
                                         <div class="flex items-start justify-between mb-2">
                                             <div class="flex items-center gap-2">
-                                                <span class="px-2 py-0.5 rounded text-xs bg-gradient-to-r ${gradient} text-white">${fix.category || 'other'}</span>
-                                                <span class="text-xs text-gray-500">${fix.impact || 'Среднее'}</span>
+                                                <span class="px-2 py-0.5 rounded text-xs bg-gradient-to-r ${gradient} text-white">${cat}</span>
+                                                <span class="text-xs text-gray-500">${impactLabels[fix.impact] || ''} ${fix.impact || 'Среднее'}</span>
                                             </div>
                                             ${isLocked ? `
                                                 <span class="px-3 py-1 rounded-lg bg-gray-500/20 text-gray-400 text-sm flex items-center gap-1">
@@ -1659,13 +1661,13 @@
                                                     Исправить
                                                 </button>
                                             ` : `
-                                                <button onclick="applyFix('${fix.id}')" class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm hover:bg-indigo-500/30 transition-colors">
+                                                <button onclick="applyFix(${index})" class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm hover:bg-indigo-500/30 transition-colors">
                                                     Исправить
                                                 </button>
                                             `}
                                         </div>
-                                        <p class="text-sm text-gray-300 mb-2">${fix.description || fix.preview || 'Исправление доступно'}</p>
-                                        ${fix.preview ? `<code class="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">${fix.preview}</code>` : ''}
+                                        <p class="text-sm text-gray-300 mb-2">${fix.description}</p>
+                                        ${fix.code ? `<code class="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded block mt-2">${fix.code}</code>` : ''}
                                     </div>
                                 `;
                             }).join('')}
@@ -1693,28 +1695,19 @@
                                 low: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-400' }
                             };
                             const colors = severityColors[issue.severity] || severityColors.low;
+                            const categoryIcons = { seo: 'search', performance: 'zap', mobile: 'smartphone', accessibility: 'eye', links: 'link' };
                             
                             return `
                                 <div class="card p-6 ${colors.bg} border ${colors.border}">
                                     <div class="flex items-start gap-4">
                                         <div class="w-10 h-10 rounded-lg bg-[#222] flex items-center justify-center flex-shrink-0">
-                                            <i data-lucide="${issue.type === 'seo' ? 'search' : issue.type === 'performance' ? 'zap' : issue.type === 'mobile' ? 'smartphone' : issue.type === 'accessibility' ? 'eye' : 'link'}" class="w-5 h-5 ${colors.text}"></i>
+                                            <i data-lucide="${categoryIcons[issue.category] || 'alert-circle'}" class="w-5 h-5 ${colors.text}"></i>
                                         </div>
                                         <div class="flex-1">
                                             <div class="flex items-center gap-3 mb-2">
-                                                <h4 class="font-semibold">${issue.title}</h4>
+                                                <h4 class="font-semibold">${issue.message}</h4>
                                                 <span class="px-2 py-0.5 rounded text-xs uppercase ${colors.bg} ${colors.text} border ${colors.border}">${issue.severity}</span>
-                                            </div>
-                                            <p class="text-gray-400 text-sm mb-4">${issue.description}</p>
-                                            <div class="flex flex-wrap gap-4 text-sm">
-                                                <div>
-                                                    <span class="text-gray-500">Влияние:</span>
-                                                    <span class="${colors.text} font-semibold ml-1">-${issue.impact || 0}</span>
-                                                </div>
-                                                <div>
-                                                    <span class="text-gray-500">Время:</span>
-                                                    <span class="text-blue-400 font-semibold ml-1">${issue.fixTime || issue.estimatedFixTime || 'N/A'}</span>
-                                                </div>
+                                                <span class="px-2 py-0.5 rounded text-xs bg-gray-500/20 text-gray-400">${issue.category}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1753,58 +1746,19 @@
         // Fixes functionality
         let currentScanData = null;
         
-        async function applyFix(fixId) {
+        async function applyFix(index) {
             if (!currentScanData || !currentScanData.fixes) return;
+            if (!userHasFixes()) { showUpgradeModal('fixes'); return; }
             
-            if (!userHasFixes()) {
-                showUpgradeModal('fixes');
-                return;
-            }
-            
-            const fix = currentScanData.fixes.fixes.find(f => f.id === fixId);
+            const fix = currentScanData.fixes.fixes[index];
             if (!fix) return;
             
-            try {
-                const response = await fetch('https://site--site-doctor--4rfn89yxsfpw.code.run/api/fixes/apply', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                    },
-                    body: JSON.stringify({
-                        url: currentScanData.url,
-                        fixes: [fix]
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('Исправление применено!', 'success');
-                    const blob = new Blob([result.modifiedHtml], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'fixed-page.html';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                } else if (result.upgrade) {
-                    showUpgradeModal(result.required);
-                } else {
-                    showNotification('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
-                }
-            } catch (error) {
-                showNotification('Ошибка соединения с сервером', 'error');
-            }
+            showNotification(`Исправление: ${fix.description}`, 'info');
         }
         
         async function applyAllFixes() {
             if (!currentScanData || !currentScanData.fixes) return;
-            
-            if (!userHasFixes()) {
-                showUpgradeModal('fixes');
-                return;
-            }
+            if (!userHasFixes()) { showUpgradeModal('fixes'); return; }
             
             const fixes = currentScanData.fixes.fixes;
             if (fixes.length === 0) return;
@@ -1823,18 +1777,8 @@
                 });
                 
                 const result = await response.json();
-                
                 if (result.success) {
                     showNotification(`Применено ${result.appliedFixes} исправлений!`, 'success');
-                    const blob = new Blob([result.modifiedHtml], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'fixed-page.html';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                } else if (result.upgrade) {
-                    showUpgradeModal(result.required);
                 } else {
                     showNotification('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
                 }
@@ -1916,8 +1860,8 @@
                     <h3 style="border-bottom: 2px solid #6366f1; padding-bottom: 10px;">Рекомендации (${fixes.fixes.length})</h3>
                     ${fixes.fixes.map(fix => `
                         <div style="padding: 15px; background: #f9f9f9; border-radius: 8px; margin-top: 10px;">
-                            <strong>${fix.description || 'Исправление'}</strong>
-                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Категория: ${fix.category || 'other'} | Влияние: ${fix.impact || 'Среднее'}</p>
+                            <strong>${fix.description}</strong>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Категория: ${fix.category} | Влияние: ${fix.impact}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -1928,8 +1872,8 @@
                     <h3 style="border-bottom: 2px solid #ef4444; padding-bottom: 10px;">Найденные проблемы (${issues.length})</h3>
                     ${issues.slice(0, 10).map(issue => `
                         <div style="padding: 12px; background: #fef2f2; border-left: 4px solid ${issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f59e0b' : '#e5e5e5'}; margin-top: 10px; border-radius: 4px;">
-                            <strong>${issue.title || issue.name || 'Проблема'}</strong>
-                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">${issue.description || ''}</p>
+                            <strong>${issue.message}</strong>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">${issue.category} | ${issue.severity}</p>
                         </div>
                     `).join('')}
                 </div>
