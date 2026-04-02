@@ -479,6 +479,10 @@ class SimpleScanner {
 
         return { score: Math.max(0, score), checks };
     }
+
+    close() {
+        this.cache.clear();
+    }
 }
 
 module.exports = SimpleScanner;

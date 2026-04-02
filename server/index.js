@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const scanV2Routes = require('./routes/scan-v2');
+const scanRoutes = require('./routes/scan');
 const fixesRoutes = require('./routes/fixes');
 const paymentRoutes = require('./routes/payment');
 const compareRoutes = require('./routes/compare');
@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/scan', scanV2Routes);
+app.use('/api/scan', scanRoutes);
 app.use('/api/fixes', fixesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/compare', compareRoutes);
@@ -80,9 +80,6 @@ app.get('/api/debug/db', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
-
-// Force redeploy marker - remove after confirming fix
-const FORCE_REDEPLOY = Date.now();
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

@@ -115,7 +115,6 @@ router.post('/compare', authenticateToken, async (req, res) => {
                 console.log(`[Compare] Scanning: ${url}`);
                 const scanner = new SimpleScanner();
                 const data = await scanner.scan(url, { modules: ['seo', 'performance', 'accessibility'] });
-                await scanner.close();
                 
                 results.push({
                     url,

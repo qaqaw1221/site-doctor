@@ -164,7 +164,6 @@ router.post('/:id/scan-now', authenticateToken, async (req, res) => {
             try {
                 const scanner = new SimpleScanner();
                 const result = await scanner.scan(row.url, { modules: ['seo', 'performance', 'accessibility', 'links', 'mobile'] });
-                await scanner.close();
                 
                 const nextScanAt = calculateNextScan(row.frequency);
                 
