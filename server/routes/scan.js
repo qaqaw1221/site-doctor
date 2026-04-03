@@ -1,11 +1,33 @@
 const express = require('express');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
-const { SiteScanner } = require('../../scanner');
 
 const router = express.Router();
 
-// Scan website - protected route
+let SiteScanner = null;
+try {
+    const scannerModule = require('../../scanner');
+    SiteScanner = scannerModule.SiteScanner;
+} catch (err) {
+    console.error('Warning: Could not load SiteScanner:', err.message);
+}
+
+async function performScan(url) {
+    if (!SiteScanner) {
+        throw new Error('Scanner not available');
+    }
+    
+    const scanner = new SiteScanner({ maxInstances: 2 });
+    try {
+        const results = await scanner.scan(url);
+        return results;
+    } finally {
+        try {
+            await scanner.close();
+        } catch (e) {}
+    }
+}
+
 router.post('/scan', authenticateToken, async (req, res) => {
     const { url } = req.body;
     const userId = req.user.id;
@@ -14,7 +36,13 @@ router.post('/scan', authenticateToken, async (req, res) => {
         return res.status(400).json({ success: false, error: 'URL is required' });
     }
 
-    // Check if user has scans left
+    if (!SiteScanner) {
+        return res.status(503).json({ 
+            success: false, 
+            error: 'Scanner is not available. Please try again later.' 
+        });
+    }
+
     db.get('SELECT plan, scans_left FROM users WHERE id = ?', [userId], async (err, user) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'Database error' });
@@ -24,8 +52,10 @@ router.post('/scan', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
 
-        // Business plan has unlimited scans
-        if (user.plan !== 'business' && user.scans_left <= 0) {
+        const plan = user.plan || 'free';
+        const scansLeft = user.scans_left ?? (plan === 'free' ? 3 : plan === 'pro' ? 50 : 500);
+
+        if (plan !== 'business' && scansLeft <= 0) {
             return res.status(403).json({ 
                 success: false, 
                 error: 'No scans left. Please upgrade your plan.',
@@ -34,34 +64,22 @@ router.post('/scan', authenticateToken, async (req, res) => {
         }
 
         try {
-            // Perform scan
-            const scanner = new SiteScanner();
-            const results = await scanner.scan(url);
+            const results = await performScan(url);
 
-            // Save scan to history
             db.run(
                 'INSERT INTO scan_history (user_id, url, results) VALUES (?, ?, ?)',
-                [userId, url, JSON.stringify(results)],
-                function(err) {
-                    if (err) {
-                        console.error('Error saving scan history:', err);
-                    }
-                }
+                [userId, url, JSON.stringify(results)]
             );
 
-            // Decrement scans_left if not business
-            if (user.plan !== 'business') {
+            if (plan !== 'business') {
                 db.run('UPDATE users SET scans_left = scans_left - 1 WHERE id = ?', [userId]);
             }
 
-            // Get updated scans_left
-            db.get('SELECT scans_left FROM users WHERE id = ?', [userId], (err, updatedUser) => {
-                res.json({
-                    success: true,
-                    data: results,
-                    scansLeft: updatedUser?.scans_left || 0,
-                    plan: user.plan
-                });
+            res.json({
+                success: true,
+                data: results,
+                scansLeft: scansLeft - 1,
+                plan: plan
             });
 
         } catch (error) {
@@ -71,7 +89,6 @@ router.post('/scan', authenticateToken, async (req, res) => {
     });
 });
 
-// Get scan history - protected route
 router.get('/history', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
@@ -95,7 +112,6 @@ router.get('/history', authenticateToken, (req, res) => {
     );
 });
 
-// Get user stats
 router.get('/stats', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
@@ -104,11 +120,14 @@ router.get('/stats', authenticateToken, (req, res) => {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
 
+        const plan = user.plan || 'free';
+        const scansLeft = user.scans_left ?? (plan === 'free' ? 3 : plan === 'pro' ? 50 : 500);
+
         db.get('SELECT COUNT(*) as total FROM scan_history WHERE user_id = ?', [userId], (err, count) => {
             res.json({
                 success: true,
-                plan: user.plan,
-                scansLeft: user.scans_left,
+                plan: plan,
+                scansLeft: scansLeft,
                 totalScans: count?.total || 0
             });
         });
