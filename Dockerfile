@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22-bookworm
 
 RUN apt-get update && apt-get install -y \
     chromium \
@@ -35,6 +35,9 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     xdg-utils \
+    python3 \
+    make \
+    g++ \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,7 +48,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /workspace
 
 COPY package*.json ./
-RUN npm install
+RUN npm install && npm rebuild sqlite3
 
 COPY . .
 
