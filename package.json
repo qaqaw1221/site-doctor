@@ -4,7 +4,7 @@
   "description": "AI-powered website error detection and fixing platform",
   "main": "server/index.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "start": "node server/index.js",

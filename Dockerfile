@@ -1,6 +1,5 @@
-FROM node:18
+FROM node:22
 
-# Устанавливаем системные зависимости для Chromium
 RUN apt-get update && apt-get install -y \
     chromium \
     chromium-sandbox \
