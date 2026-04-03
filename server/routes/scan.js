@@ -1,30 +1,19 @@
 const express = require('express');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
+const SimpleScanner = require('../../scanner/simple-scanner');
 
 const router = express.Router();
 
-let SiteScanner = null;
-try {
-    const scannerModule = require('../../scanner');
-    SiteScanner = scannerModule.SiteScanner;
-} catch (err) {
-    console.error('Warning: Could not load SiteScanner:', err.message);
-}
-
 async function performScan(url) {
-    if (!SiteScanner) {
-        throw new Error('Scanner not available');
-    }
-    
-    const scanner = new SiteScanner({ maxInstances: 2 });
+    const scanner = new SimpleScanner();
     try {
-        const results = await scanner.scan(url);
+        const results = await scanner.scan(url, { modules: ['seo', 'performance', 'accessibility', 'links', 'mobile'] });
+        scanner.close();
         return results;
-    } finally {
-        try {
-            await scanner.close();
-        } catch (e) {}
+    } catch (err) {
+        try { scanner.close(); } catch (e) {}
+        throw err;
     }
 }
 
@@ -34,13 +23,6 @@ router.post('/scan', authenticateToken, async (req, res) => {
 
     if (!url) {
         return res.status(400).json({ success: false, error: 'URL is required' });
-    }
-
-    if (!SiteScanner) {
-        return res.status(503).json({ 
-            success: false, 
-            error: 'Scanner is not available. Please try again later.' 
-        });
     }
 
     db.get('SELECT plan, scans_left FROM users WHERE id = ?', [userId], async (err, user) => {
@@ -64,7 +46,9 @@ router.post('/scan', authenticateToken, async (req, res) => {
         }
 
         try {
+            console.log(`Starting scan for: ${url}`);
             const results = await performScan(url);
+            console.log(`Scan complete for: ${url}`);
 
             db.run(
                 'INSERT INTO scan_history (user_id, url, results) VALUES (?, ?, ?)',
