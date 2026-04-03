@@ -1,29 +1,49 @@
 const puppeteer = require('puppeteer');
 const os = require('os');
+const fs = require('fs');
 
 function getChromePath() {
     const platform = os.platform();
+    
     if (platform === 'win32') {
         const paths = [
             'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
             'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-            process.env.LOCALAPPDATA + '\\Google\\Chrome\\Application\\chrome.exe',
-            process.env.PROGRAMFILES + '\\Google\\Chrome\\Application\\chrome.exe',
-            process.env['PROGRAMFILES(X86)'] + '\\Google\\Chrome\\Application\\chrome.exe'
+            process.env.LOCALAPPDATA + '\\Google\\Chrome\\Application\\chrome.exe'
         ];
-        return paths.find(path => require('fs').existsSync(path));
+        return paths.find(path => fs.existsSync(path));
     }
+    
+    if (platform === 'linux') {
+        const paths = [
+            process.env.PUPPETEER_EXECUTABLE_PATH,
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable'
+        ];
+        
+        for (const path of paths) {
+            if (path && fs.existsSync(path)) {
+                return path;
+            }
+        }
+    }
+    
     return null;
 }
 
 class BrowserPool {
     constructor(options = {}) {
-        this.maxInstances = options.maxInstances || 3;
+        this.maxInstances = options.maxInstances || 2;
         this.browsers = [];
         this.available = [];
         this.inUse = new Set();
+        
+        const chromePath = getChromePath();
+        
         this.launchOptions = {
-            headless: 'new',
+            headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -32,13 +52,20 @@ class BrowserPool {
                 '--disable-gpu',
                 '--window-size=1920,1080',
                 '--disable-web-security',
-                '--disable-features=IsolateOrigins,site-per-process'
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--disable-default-apps',
+                '--disable-extensions',
+                '--disable-translate',
+                '--no-first-run',
+                '--single-process'
             ]
         };
-
-        const chromePath = getChromePath();
+        
         if (chromePath) {
             this.launchOptions.executablePath = chromePath;
+            console.log('Using Chrome at:', chromePath);
+        } else {
+            console.warn('Chrome not found. Puppeteer will try to download it.');
         }
     }
 
@@ -49,9 +76,15 @@ class BrowserPool {
         }
 
         if (this.browsers.length < this.maxInstances) {
-            const browser = await puppeteer.launch(this.launchOptions);
-            this.browsers.push(browser);
-            return browser;
+            try {
+                const browser = await puppeteer.launch(this.launchOptions);
+                this.browsers.push(browser);
+                console.log('Browser launched successfully');
+                return browser;
+            } catch (err) {
+                console.error('Failed to launch browser:', err.message);
+                throw err;
+            }
         }
 
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -65,11 +98,8 @@ class BrowserPool {
         
         await page.setRequestInterception(true);
         page.on('request', request => {
-            if (['image', 'stylesheet', 'font', 'media'].includes(request.resourceType())) {
-                request.continue();
-            } else {
-                request.continue();
-            }
+            const type = request.resourceType();
+            request.continue();
         });
 
         this.inUse.add(page);
