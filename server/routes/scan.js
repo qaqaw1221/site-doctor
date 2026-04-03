@@ -17,7 +17,7 @@ async function performScan(url) {
     }
 }
 
-router.post('/scan', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     const { url } = req.body;
     const userId = req.user.id;
 
