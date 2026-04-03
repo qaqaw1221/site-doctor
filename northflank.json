@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "service": {
+    "name": "site-doctor",
+    "runCommand": "node server/index.js",
+    "port": 8080,
+    "build": {
+      "method": "docker",
+      "dockerfilePath": "Dockerfile"
+    }
+  }
+}
