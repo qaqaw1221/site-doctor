@@ -48,7 +48,10 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /workspace
 
 COPY package*.json ./
-RUN npm install && npm rebuild sqlite3
+
+RUN npm install --ignore-scripts && \
+    npx node-pre-gyp rebuild --directory node_modules/sqlite3 && \
+    rm -rf node_modules/.cache
 
 COPY . .
 
