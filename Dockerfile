@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:18
 
 # Устанавливаем системные зависимости для Chromium
 RUN apt-get update && apt-get install -y \
@@ -36,28 +36,19 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     xdg-utils \
-    curl \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Переменные для Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     CHROME_PATH=/usr/bin/chromium
 
 WORKDIR /workspace
 
-# Копируем package файлы
 COPY package*.json ./
-
-# Устанавливаем зависимости
 RUN npm install
 
-# Копируем весь проект
 COPY . .
-
-# Проверяем что файлы есть
-RUN ls -la server/
 
 EXPOSE 8080
 
