@@ -1,10 +1,10 @@
 {
   "name": "site-doctor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AI-powered website error detection and fixing platform",
   "main": "server/index.js",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "start": "node server/index.js",
@@ -23,7 +23,7 @@
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^6.9.8",
     "puppeteer": "^21.0.0",
-    "sqlite3": "^6.0.1"
+    "sql.js": "^1.10.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",

@@ -35,9 +35,6 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     xdg-utils \
-    python3 \
-    make \
-    g++ \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
@@ -48,10 +45,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /workspace
 
 COPY package*.json ./
-
-RUN npm install --ignore-scripts && \
-    npx node-pre-gyp rebuild --directory node_modules/sqlite3 && \
-    rm -rf node_modules/.cache
+RUN npm install
 
 COPY . .
 

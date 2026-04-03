@@ -1,24 +1,36 @@
-const sqlite3 = require('sqlite3').verbose();
+const initSqlJs = require('sql.js');
+const fs = require('fs');
 const path = require('path');
 
 const dbPath = path.join(__dirname, '..', 'database.sqlite');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database at:', dbPath);
+let db = null;
+
+const dbReady = initSqlJs().then(SQL => {
+    try {
+        if (fs.existsSync(dbPath)) {
+            const fileBuffer = fs.readFileSync(dbPath);
+            db = new SQL.Database(fileBuffer);
+            console.log('Loaded existing SQLite database');
+        } else {
+            db = new SQL.Database();
+            console.log('Created new SQLite database');
+        }
+        initializeDatabase();
+    } catch (err) {
+        console.error('Error initializing database:', err);
+        db = new SQL.Database();
         initializeDatabase();
     }
 });
 
 function initializeDatabase() {
-    db.serialize(() => {
+    try {
         db.run(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT UNIQUE NOT NULL,
-                name TEXT UNIQUE,
+                name TEXT,
                 password TEXT NOT NULL,
                 plan TEXT DEFAULT 'free',
                 scans_used INTEGER DEFAULT 0,
@@ -30,28 +42,11 @@ function initializeDatabase() {
                 email_verified INTEGER DEFAULT 0,
                 verification_code TEXT,
                 verification_expires TEXT,
-                comparisons_used INTEGER DEFAULT 0
+                comparisons_used INTEGER DEFAULT 0,
+                scans_left INTEGER DEFAULT 3
             )
-        `, (err) => {
-            if (err) console.error('Error creating users table:', err.message);
-            else console.log('Users table ready');
-        });
-
-        // Add missing columns safely
-        const addColumnIfNotExists = (table, column, type, defaultValue) => {
-            db.all(`PRAGMA table_info(${table})`, (err, columns) => {
-                if (err) return;
-                const exists = columns.some(c => c.name === column);
-                if (!exists) {
-                    db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${type} DEFAULT ${defaultValue}`, (e) => {
-                        if (e) console.error(`Error adding ${column}:`, e.message);
-                    });
-                }
-            });
-        };
-
-        addColumnIfNotExists('users', 'scans_reset_at', 'DATETIME', 'CURRENT_TIMESTAMP');
-        addColumnIfNotExists('users', 'scans_limit', 'INTEGER', '3');
+        `);
+        console.log('Users table ready');
 
         db.run(`
             CREATE TABLE IF NOT EXISTS scan_history (
@@ -62,10 +57,8 @@ function initializeDatabase() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
-        `, (err) => {
-            if (err) console.error('Error creating scan_history table:', err.message);
-            else console.log('Scan history table ready');
-        });
+        `);
+        console.log('Scan history table ready');
 
         db.run(`
             CREATE TABLE IF NOT EXISTS payments (
@@ -83,10 +76,8 @@ function initializeDatabase() {
                 completed_at DATETIME,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
-        `, (err) => {
-            if (err) console.error('Error creating payments table:', err.message);
-            else console.log('Payments table ready');
-        });
+        `);
+        console.log('Payments table ready');
 
         db.run(`
             CREATE TABLE IF NOT EXISTS comparison_history (
@@ -98,10 +89,8 @@ function initializeDatabase() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
-        `, (err) => {
-            if (err) console.error('Error creating comparison_history table:', err.message);
-            else console.log('Comparison history table ready');
-        });
+        `);
+        console.log('Comparison history table ready');
 
         db.run(`
             CREATE TABLE IF NOT EXISTS scheduled_scans (
@@ -116,73 +105,96 @@ function initializeDatabase() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
-        `, (err) => {
-            if (err) console.error('Error creating scheduled_scans table:', err.message);
-            else console.log('Scheduled scans table ready');
-        });
-    });
+        `);
+        console.log('Scheduled scans table ready');
+
+        saveDatabase();
+    } catch (err) {
+        console.error('Error creating tables:', err);
+    }
 }
 
-// Plan limits
+function saveDatabase() {
+    try {
+        const data = db.export();
+        const buffer = Buffer.from(data);
+        fs.writeFileSync(dbPath, buffer);
+    } catch (err) {
+        console.error('Error saving database:', err);
+    }
+}
+
+const dbModule = {
+    run(sql, params = [], callback) {
+        dbReady.then(() => {
+            try {
+                db.run(sql, params);
+                saveDatabase();
+                if (callback) callback(null);
+            } catch (err) {
+                if (callback) callback(err);
+            }
+        });
+    },
+    get(sql, params = [], callback) {
+        dbReady.then(() => {
+            try {
+                const stmt = db.prepare(sql);
+                stmt.bind(params);
+                if (stmt.step()) {
+                    const row = stmt.getAsObject();
+                    stmt.free();
+                    if (callback) callback(null, row);
+                } else {
+                    stmt.free();
+                    if (callback) callback(null, undefined);
+                }
+            } catch (err) {
+                if (callback) callback(err);
+            }
+        });
+    },
+    all(sql, params = [], callback) {
+        dbReady.then(() => {
+            try {
+                const stmt = db.prepare(sql);
+                stmt.bind(params);
+                const results = [];
+                while (stmt.step()) {
+                    results.push(stmt.getAsObject());
+                }
+                stmt.free();
+                if (callback) callback(null, results);
+            } catch (err) {
+                if (callback) callback(err);
+            }
+        });
+    }
+};
+
 const PLAN_LIMITS = {
     free: { scans: 3, comparisons: 1 },
     pro: { scans: 50, comparisons: 50 },
     business: { scans: 500, comparisons: 500 }
 };
 
-// Plan features
 const PLAN_FEATURES = {
-    free: {
-        scans: 3,
-        comparisons: 1,
-        autoFixes: false,
-        pdfExport: false,
-        csvExport: false,
-        apiAccess: false,
-        whiteLabel: false,
-        teamAccess: false,
-        scheduledScans: false,
-        history: 1 // days
-    },
-    pro: {
-        scans: 50,
-        comparisons: 50,
-        autoFixes: true,
-        pdfExport: true,
-        csvExport: true,
-        apiAccess: false,
-        whiteLabel: false,
-        teamAccess: false,
-        scheduledScans: false,
-        history: 90 // days
-    },
-    business: {
-        scans: 500,
-        comparisons: 500,
-        autoFixes: true,
-        pdfExport: true,
-        csvExport: true,
-        apiAccess: true,
-        whiteLabel: true,
-        teamAccess: 5,
-        scheduledScans: true,
-        history: 365 // days
-    }
+    free: { scans: 3, comparisons: 1, autoFixes: false, pdfExport: false, csvExport: false, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false, history: 1 },
+    pro: { scans: 50, comparisons: 50, autoFixes: true, pdfExport: true, csvExport: true, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false, history: 90 },
+    business: { scans: 500, comparisons: 500, autoFixes: true, pdfExport: true, csvExport: true, apiAccess: true, whiteLabel: true, teamAccess: 5, scheduledScans: true, history: 365 }
 };
 
 function getScanLimit(plan) {
-    const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
-    return limits.scans;
+    return PLAN_LIMITS[plan]?.scans || 3;
 }
 
 function getComparisonLimit(plan) {
-    const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
-    return limits.comparisons;
+    return PLAN_LIMITS[plan]?.comparisons || 1;
 }
 
-// Export db directly for compatibility, and also as named exports
-module.exports = db;
+module.exports = dbModule;
 module.exports.PLAN_LIMITS = PLAN_LIMITS;
 module.exports.PLAN_FEATURES = PLAN_FEATURES;
 module.exports.getScanLimit = getScanLimit;
 module.exports.getComparisonLimit = getComparisonLimit;
+module.exports.dbReady = dbReady;
