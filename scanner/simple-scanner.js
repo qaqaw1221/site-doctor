@@ -312,6 +312,31 @@ class SimpleScanner {
         const links = $('a').length;
         checks.push({ item: 'Interactive', status: 'pass', message: `Кнопок: ${buttons}, ссылок: ${links}` });
 
+        const preloads = $('link[rel="preload"]').length;
+        const preconnects = $('link[rel="preconnect"]').length;
+        checks.push({ item: 'Preconnect', status: preconnects > 0 ? 'pass' : 'info', message: preconnects > 0 ? `Preconnect: ${preconnects}` : 'Preconnect не найден' });
+        if (preconnects === 0) {
+            score -= 2;
+        }
+
+        checks.push({ item: 'Preload', status: preloads > 0 ? 'pass' : 'info', message: preloads > 0 ? `Preload: ${preloads}` : 'Preload не найден' });
+
+        const deferScripts = $('script[defer]').length;
+        const asyncScripts = $('script[async]').length;
+        const totalScripts = $('script[src]').length;
+        if (totalScripts > 0) {
+            const optimizedScripts = deferScripts + asyncScripts;
+            checks.push({ item: 'Script Loading', status: optimizedScripts > totalScripts / 2 ? 'pass' : 'warning', message: `Defer: ${deferScripts}, Async: ${asyncScripts} из ${totalScripts}` });
+            if (optimizedScripts < totalScripts / 2) {
+                score -= 5;
+                this.addIssue('performance', 'low', 'Много синхронных скриптов', `Только ${optimizedScripts} из ${totalScripts} оптимизированы.`, 5, true, '20 мин');
+            }
+        }
+
+        const metaKeywords = $('meta[name="keywords"]').length;
+        const metaGenerator = $('meta[name="generator"]').length;
+        checks.push({ item: 'Meta Tags', status: 'pass', message: `Keywords: ${metaKeywords > 0 ? 'есть' : 'нет'}, Generator: ${metaGenerator > 0 ? 'есть' : 'нет'}` });
+
         return { score: Math.max(0, score), checks };
     }
 

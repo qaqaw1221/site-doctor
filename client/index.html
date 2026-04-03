@@ -1788,7 +1788,81 @@
         }
         
         function showCategoryDetails(category) {
-            showNotification('Детали категории: ' + category, 'info');
+            if (!currentScanData) {
+                showNotification('Сначала проведите сканирование', 'error');
+                return;
+            }
+            
+            const categoryData = currentScanData[category];
+            if (!categoryData) {
+                showNotification('Данные категории не найдены', 'error');
+                return;
+            }
+            
+            const checks = categoryData.checks || [];
+            const score = categoryData.score || 0;
+            
+            const categoryNames = {
+                seo: { title: 'SEO анализ', icon: 'search', color: 'blue' },
+                performance: { title: 'Производительность', icon: 'zap', color: 'green' },
+                accessibility: { title: 'Доступность', icon: 'eye', color: 'purple' },
+                links: { title: 'Ссылки', icon: 'link', color: 'yellow' },
+                mobile: { title: 'Мобильные', icon: 'smartphone', color: 'pink' }
+            };
+            
+            const cat = categoryNames[category] || { title: category, icon: 'info', color: 'gray' };
+            const scoreColor = score >= 80 ? 'text-green-400' : score >= 60 ? 'text-yellow-400' : 'text-red-400';
+            
+            document.getElementById('categoryTitle').textContent = cat.title;
+            document.getElementById('categoryScore').innerHTML = `Оценка: <span class="font-semibold ${scoreColor}">${score}/100</span>`;
+            
+            const iconEl = document.getElementById('categoryIcon');
+            iconEl.className = `w-12 h-12 rounded-xl bg-${cat.color}-500/20 flex items-center justify-center`;
+            iconEl.innerHTML = `<i data-lucide="${cat.icon}" class="w-6 h-6 text-${cat.color}-400"></i>`;
+            
+            const checksContainer = document.getElementById('categoryChecks');
+            
+            if (checks.length === 0) {
+                checksContainer.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
+                        <p class="text-lg">Все проверки пройдены!</p>
+                        <p class="text-sm mt-2">Проблем не обнаружено</p>
+                    </div>
+                `;
+            } else {
+                checksContainer.innerHTML = checks.map(check => {
+                    const statusConfig = {
+                        pass: { icon: 'check-circle', color: 'green', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+                        error: { icon: 'x-circle', color: 'red', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+                        warning: { icon: 'alert-circle', color: 'yellow', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+                        info: { icon: 'info', color: 'blue', bg: 'bg-blue-500/10', border: 'border-blue-500/20' }
+                    };
+                    const status = statusConfig[check.status] || statusConfig.info;
+                    
+                    return `
+                        <div class="card p-4 border-l-4 ${status.border} ${status.bg}">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="${status.icon}" class="w-5 h-5 text-${status.color}-400 flex-shrink-0 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="font-semibold">${check.item}</span>
+                                        <span class="text-xs text-gray-500 uppercase">${check.status}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-400">${check.message}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            document.getElementById('categoryModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
         }
         
         function shareResults(url) {
@@ -1990,6 +2064,7 @@
         function closeModals() {
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('registerModal').classList.add('hidden');
+            document.getElementById('categoryModal').classList.add('hidden');
             setTimeout(() => {
                 resetLoginModal();
                 resetRegisterModal();
@@ -2560,6 +2635,30 @@
                 <p class="text-center text-gray-400 mt-4">
                     Уже есть аккаунт? <button onclick="openLoginModal()" class="text-indigo-400 hover:underline">Войти</button>
             </p>
+        </div>
+    </div>
+
+    <!-- Category Details Modal -->
+    <div id="categoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeCategoryModal()">
+        <div class="card w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b border-[#333]">
+                <div class="flex items-center gap-3">
+                    <div id="categoryIcon" class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+                        <i data-lucide="search" class="w-6 h-6 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h2 id="categoryTitle" class="text-2xl font-bold">Детали SEO</h2>
+                        <p id="categoryScore" class="text-gray-400">Оценка: <span class="text-indigo-400 font-semibold">85/100</span></p>
+                    </div>
+                </div>
+                <button onclick="closeCategoryModal()" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-2xl">&times;</button>
+            </div>
+            <div id="categoryChecks" class="flex-1 overflow-y-auto p-6 space-y-3">
+                <!-- Checks will be inserted here -->
+            </div>
+            <div class="p-4 border-t border-[#333] flex justify-end">
+                <button onclick="closeCategoryModal()" class="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">Закрыть</button>
+            </div>
         </div>
     </div>
 
