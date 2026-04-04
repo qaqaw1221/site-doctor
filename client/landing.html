@@ -48,67 +48,80 @@
         .bg-gradient-slow {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #0a0a0b 0%, #0f0f14 25%, #0a0a0b 50%, #0f0f14 75%, #0a0a0b 100%);
-            background-size: 400% 400%;
-            animation: gradient-shift 30s ease infinite;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 50% at 50% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a0f 0%, #0f0f18 50%, #0a0a0f 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 200% 200%;
+            animation: bg-shift 20s ease infinite;
             z-index: -2;
         }
         
-        @keyframes gradient-shift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        @keyframes bg-shift {
+            0%, 100% { 
+                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+            }
+            33% { 
+                background-position: 10% 10%, 5% -5%, -5% 5%, 0% 50%;
+            }
+            66% { 
+                background-position: -5% 5%, -10% 10%, 10% -5%, 0% 50%;
+            }
         }
         
-        /* Subtle orbs */
+        /* Vibrant orbs */
         .orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(150px);
             z-index: -1;
-            animation: orb-float 20s ease-in-out infinite;
+            animation: orb-float 25s ease-in-out infinite;
         }
         
         .orb-1 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-            top: -200px;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.05) 40%, transparent 70%);
+            filter: blur(80px);
+            top: -250px;
             left: -200px;
         }
         
         .orb-2 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
-            top: 40%;
-            right: -150px;
-            animation-delay: -10s;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, rgba(168, 85, 247, 0.05) 40%, transparent 70%);
+            filter: blur(90px);
+            top: 30%;
+            right: -200px;
+            animation-delay: -8s;
         }
         
         .orb-3 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.05) 0%, transparent 70%);
-            bottom: -100px;
-            left: 30%;
-            animation-delay: -5s;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.03) 40%, transparent 70%);
+            filter: blur(100px);
+            bottom: -150px;
+            left: 20%;
+            animation-delay: -15s;
         }
         
         @keyframes orb-float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -20px) scale(1.05); }
-            50% { transform: translate(-20px, 20px) scale(0.95); }
-            75% { transform: translate(20px, 30px) scale(1.02); }
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+            25% { transform: translate(50px, -30px) scale(1.1); opacity: 0.9; }
+            50% { transform: translate(-30px, 40px) scale(0.95); opacity: 1; }
+            75% { transform: translate(40px, 50px) scale(1.05); opacity: 0.85; }
         }
         
         /* ========== GRADIENT TEXT ========== */
         .gradient-text {
-            background: linear-gradient(135deg, #818cf8 0%, #a78bfa 25%, #c084fc 50%, #a78bfa 75%, #818cf8 100%);
-            background-size: 200% 200%;
+            background: linear-gradient(135deg, #818cf8 0%, #a78bfa 20%, #c084fc 40%, #f472b6 60%, #a78bfa 80%, #818cf8 100%);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: text-gradient 8s ease infinite;
+            animation: text-gradient 6s ease infinite;
         }
         
         @keyframes text-gradient {
@@ -117,17 +130,18 @@
         }
         
         .glow-text {
-            text-shadow: 0 0 40px rgba(129, 140, 248, 0.4);
-            filter: drop-shadow(0 0 20px rgba(129, 140, 248, 0.3));
+            text-shadow: 0 0 60px rgba(167, 139, 250, 0.6), 0 0 120px rgba(139, 92, 246, 0.4);
+            filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.5));
         }
         
         /* ========== CTA SECTION ========== */
         .gradient-border-animated {
             position: relative;
-            background: rgba(17, 17, 17, 0.9);
+            background: linear-gradient(135deg, rgba(17, 17, 17, 0.95), rgba(25, 25, 40, 0.9));
             backdrop-filter: blur(20px);
             border-radius: 24px;
             overflow: hidden;
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         
         .gradient-border-animated::before {
@@ -136,75 +150,125 @@
             inset: -2px;
             border-radius: 26px;
             padding: 2px;
-            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #a855f7, #6366f1);
-            background-size: 300% 300%;
-            animation: border-flow 8s linear infinite;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f472b6, #ec4899, #a855f7, #6366f1);
+            background-size: 400% 400%;
+            animation: border-flow 6s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            opacity: 0.6;
+            opacity: 0.8;
+        }
+        
+        .gradient-border-animated::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
         
         @keyframes border-flow {
             0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
+            100% { background-position: 400% 50%; }
         }
         
         /* ========== CARDS ========== */
         .card {
-            background: rgba(17, 17, 17, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(20, 20, 30, 0.8), rgba(30, 30, 45, 0.6));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.5s;
         }
         
         .card:hover {
-            background: rgba(25, 25, 35, 0.8);
-            border-color: rgba(99, 102, 241, 0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(99, 102, 241, 0.1);
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.9), rgba(40, 40, 60, 0.8));
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
         }
         
         .card-icon {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
         }
         
         .card:hover .card-icon {
-            transform: scale(1.08) translateY(-2px);
+            transform: scale(1.1) translateY(-3px);
+        }
+        
+        .card:hover .card-icon::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: inherit;
+            background: inherit;
+            filter: blur(20px);
+            opacity: 0.5;
+            z-index: -1;
         }
         
         /* ========== BUTTONS ========== */
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #a855f7 100%);
             background-size: 200% 200%;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
         }
         
         .btn-primary::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
             opacity: 0;
             transition: opacity 0.4s;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
         }
         
         .btn-primary:hover::after {
             opacity: 1;
         }
         
+        .btn-primary:hover::before {
+            transform: translateX(100%);
+        }
+        
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5), 0 0 60px rgba(168, 85, 247, 0.3);
             background-position: 100% 50%;
         }
         
         .btn-primary:active {
-            transform: translateY(-1px) scale(0.98);
+            transform: translateY(-2px) scale(0.98);
         }
         
         .btn-primary span, .btn-primary i {
@@ -239,10 +303,12 @@
         .stat-number {
             font-size: 3.5rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 30%, #a5b4fc 50%, #c7d2fe 70%, #ffffff 100%);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(165, 180, 252, 0.4));
         }
         
         /* ========== STEPS ========== */
@@ -250,41 +316,79 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #a855f7 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.8rem;
             font-weight: 800;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-            transition: all 0.4s;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .step-number::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            filter: blur(15px);
+            opacity: 0.5;
+            z-index: -1;
+            transition: all 0.5s;
         }
         
         .step-card:hover .step-number {
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
-            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.6), inset 0 2px 0 rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .step-card:hover .step-number::after {
+            opacity: 0.8;
+            filter: blur(20px);
         }
         
         /* ========== PRICING ========== */
         .pricing-popular {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
-            border: 2px solid rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.1));
+            border: 2px solid rgba(99, 102, 241, 0.5);
             position: relative;
-            transition: all 0.4s;
+            transition: all 0.5s;
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .pricing-popular::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+            filter: blur(20px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: glow-pulse 3s ease-in-out infinite;
         }
         
         .pricing-popular:hover {
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.7);
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+            transform: translateY(-8px);
         }
         
         .popular-badge {
-            animation: subtle-pulse 3s ease-in-out infinite;
+            animation: badge-glow 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
         }
         
-        @keyframes subtle-pulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+        @keyframes badge-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.7), 0 0 60px rgba(168, 85, 247, 0.3); }
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
         }
         
         /* ========== NAVIGATION ========== */
@@ -366,12 +470,28 @@
         
         /* ========== FEATURE ICONS ========== */
         .feature-icon-box {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .feature-icon-box::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: inherit;
+            background: inherit;
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -1;
         }
         
         .card:hover .feature-icon-box {
-            transform: scale(1.1);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+            transform: scale(1.15);
+        }
+        
+        .card:hover .feature-icon-box::after {
+            opacity: 0.5;
         }
         
         /* ========== HERO TEXT ANIMATION ========== */
@@ -397,6 +517,36 @@
         .counter-value {
             display: inline-block;
         }
+        
+        /* ========== GLOWING DOT ========== */
+        .glow-dot {
+            animation: glow-dot-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow-dot-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 40px rgba(168, 85, 247, 0.5);
+            }
+        }
+        
+        /* ========== SECTION DIVIDER ========== */
+        .section-glow {
+            position: relative;
+        }
+        
+        .section-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -409,11 +559,14 @@
     </div>
 
     <!-- Nav -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-2xl border-b border-white/5">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/90 backdrop-blur-2xl border-b border-white/[0.08]">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <a href="/" class="flex items-center gap-3 group">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    <i data-lucide="scan" class="w-6 h-6 text-white"></i>
+                <div class="relative w-12 h-12 rounded-2xl">
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 blur-sm opacity-75 group-hover:blur-md group-hover:opacity-100 transition-all"></div>
+                    <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <i data-lucide="scan" class="w-6 h-6 text-white"></i>
+                    </div>
                 </div>
                 <span class="text-xl font-bold">Site Doctor</span>
             </a>
@@ -447,9 +600,12 @@
     <section class="min-h-screen flex items-center justify-center pt-20 md:pt-28 pb-12 md:pb-20 px-4 md:px-6 relative">
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-3 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-6 md:mb-10">
-                <span class="w-2.5 h-2.5 md:h-3 md:w-3 rounded-full bg-indigo-500"></span>
-                <span class="text-xs md:text-sm text-indigo-400 font-medium">AI-Powered анализ сайтов</span>
+            <div class="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/40 mb-6 md:mb-10">
+                <span class="relative flex h-2.5 w-2.5 md:h-3 md:w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3 md:w-3 bg-gradient-to-r from-indigo-500 to-purple-500"></span>
+                </span>
+                <span class="text-xs md:text-sm text-indigo-300 font-medium">AI-Powered анализ сайтов</span>
             </div>
             
             <!-- Headline -->
@@ -509,7 +665,7 @@
     </section>
 
     <!-- Stats -->
-    <section class="py-16 md:py-24 px-4 md:px-6 border-y border-white/5 bg-white/[0.02]">
+    <section class="py-16 md:py-24 px-4 md:px-6 border-y border-white/[0.05] bg-gradient-to-b from-indigo-500/[0.03] via-transparent to-indigo-500/[0.03]">
         <div class="max-w-6xl mx-auto">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
                 <div class="text-center reveal">
@@ -540,7 +696,7 @@
     <section id="features" class="py-16 md:py-28 px-4 md:px-6">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-10 md:mb-20 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Возможности</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/40 text-indigo-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Возможности</span>
                 <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold mt-4 mb-4 md:mb-6">Всё что нужно для анализа</h2>
                 <p class="text-gray-400 text-sm md:text-lg max-w-2xl mx-auto px-4">
                     Комплексный анализ сайта: от SEO до безопасности. 
@@ -552,7 +708,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
                 <!-- SEO -->
                 <div class="card p-6 md:p-10 reveal icon-bounce">
-                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-indigo-500/25 to-indigo-500/10 border-indigo-500/30">
                         <i data-lucide="search" class="w-7 h-7 md:w-9 md:h-9 text-indigo-400"></i>
                     </div>
                     <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">SEO анализ</h3>
@@ -590,7 +746,7 @@
                 
                 <!-- Auto Fixes -->
                 <div class="card p-6 md:p-10 reveal icon-bounce">
-                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-purple-500/25 to-purple-500/10 border-purple-500/30">
                         <i data-lucide="wand-2" class="w-7 h-7 md:w-9 md:h-9 text-purple-400"></i>
                     </div>
                     <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Авто-исправления</h3>
@@ -628,7 +784,7 @@
                 
                 <!-- Compare -->
                 <div class="card p-6 md:p-10 reveal icon-bounce">
-                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-pink-500/25 to-pink-500/10 border-pink-500/30">
                         <i data-lucide="git-compare" class="w-7 h-7 md:w-9 md:h-9 text-pink-400"></i>
                     </div>
                     <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Сравнение</h3>
@@ -668,28 +824,28 @@
             <!-- Additional features grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 reveal-scale">
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="gauge" class="w-6 h-6 md:w-8 md:h-8 text-green-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Скорость</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Google Lighthouse метрики</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="smartphone" class="w-6 h-6 md:w-8 md:h-8 text-blue-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Мобильные</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Viewport, размеры шрифтов</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/20 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="link" class="w-6 h-6 md:w-8 md:h-8 text-yellow-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Ссылки</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Битые и внутренние</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-red-500/20 to-rose-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="shield" class="w-6 h-6 md:w-8 md:h-8 text-red-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Безопасность</h4>
@@ -700,10 +856,10 @@
     </section>
 
     <!-- How it works -->
-    <section id="how" class="py-16 md:py-28 px-4 md:px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+    <section id="how" class="py-16 md:py-28 px-4 md:px-6 bg-gradient-to-b from-transparent via-purple-500/[0.05] to-transparent">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-10 md:mb-20 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Процесс</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-purple-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Процесс</span>
                 <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold mt-4 mb-4 md:mb-6">Как это работает</h2>
                 <p class="text-gray-400 text-sm md:text-lg">Простой процесс в 3 шага</p>
             </div>
@@ -746,7 +902,7 @@
     <section class="py-16 md:py-28 px-4 md:px-6">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-8 md:mb-16 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Отзывы</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/20 to-rose-500/20 border border-pink-500/40 text-pink-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Отзывы</span>
                 <h2 class="text-2xl md:text-4xl font-bold mt-4">Что говорят пользователи</h2>
             </div>
             
@@ -893,7 +1049,7 @@
     <section class="py-16 md:py-28 px-4 md:px-6">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-10 md:mb-16 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Демо</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 text-cyan-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Демо</span>
                 <h2 class="text-2xl md:text-4xl font-bold mt-4 mb-4">Посмотри как это работает</h2>
                 <p class="text-gray-400 text-sm md:text-lg max-w-2xl mx-auto">
                     Введи URL любого сайта и получи детальный отчёт за 30 секунд
@@ -956,7 +1112,7 @@
     <section id="pricing" class="py-16 md:py-28 px-4 md:px-6">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-8 md:mb-16 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Тарифы</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">Тарифы</span>
                 <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold mt-4 mb-4 md:mb-6">Выбери свой план</h2>
                 <p class="text-gray-400 text-sm md:text-lg">Начни бесплатно, масштабируйся при необходимости</p>
             </div>
@@ -1071,10 +1227,10 @@
     </section>
 
     <!-- FAQ -->
-    <section class="py-16 md:py-28 px-4 md:px-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
+    <section class="py-16 md:py-28 px-4 md:px-6 bg-gradient-to-b from-transparent via-pink-500/[0.03] to-transparent">
         <div class="max-w-3xl mx-auto">
             <div class="text-center mb-8 md:mb-16 reveal">
-                <span class="inline-block px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">FAQ</span>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 font-semibold text-xs md:text-sm uppercase tracking-wider mb-4 md:mb-6">FAQ</span>
                 <h2 class="text-2xl md:text-4xl font-bold mt-4">Частые вопросы</h2>
             </div>
             
@@ -1220,8 +1376,11 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
                 <div class="col-span-2 md:col-span-1">
                     <div class="flex items-center gap-3 mb-4 md:mb-6">
-                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
-                            <i data-lucide="scan" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>
+                        <div class="relative w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl">
+                            <div class="absolute inset-0 rounded-xl md:rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 blur-sm opacity-75"></div>
+                            <div class="relative w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                                <i data-lucide="scan" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>
+                            </div>
                         </div>
                         <span class="text-lg md:text-xl font-bold">Site Doctor</span>
                     </div>
