@@ -737,14 +737,14 @@
             </div>
             
             <!-- Main features -->
-            <div class="grid md:grid-cols-3 gap-8 mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
                 <!-- SEO -->
-                <div class="card p-10 reveal icon-bounce">
-                    <div class="card-icon mb-8">
-                        <i data-lucide="search" class="w-9 h-9 text-indigo-400"></i>
+                <div class="card p-6 md:p-10 reveal icon-bounce">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                        <i data-lucide="search" class="w-7 h-7 md:w-9 md:h-9 text-indigo-400"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">SEO анализ</h3>
-                    <p class="text-gray-400 mb-8">
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">SEO анализ</h3>
+                    <p class="text-gray-400 mb-6 md:mb-8 text-sm md:text-base">
                         Полный SEO аудит: meta теги, структура заголовков, 
                         Open Graph, robots.txt и многое другое.
                     </p>
@@ -777,12 +777,12 @@
                 </div>
                 
                 <!-- Auto Fixes -->
-                <div class="card p-10 reveal icon-bounce">
-                    <div class="card-icon mb-8">
-                        <i data-lucide="wand-2" class="w-9 h-9 text-purple-400"></i>
+                <div class="card p-6 md:p-10 reveal icon-bounce">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                        <i data-lucide="wand-2" class="w-7 h-7 md:w-9 md:h-9 text-purple-400"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Авто-исправления</h3>
-                    <p class="text-gray-400 mb-8">
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Авто-исправления</h3>
+                    <p class="text-gray-400 mb-6 md:mb-8 text-sm md:text-base">
                         Одно нажатие = исправленная проблема. 
                         Не нужно копаться в коде - мы дадим готовый код.
                     </p>
@@ -815,12 +815,12 @@
                 </div>
                 
                 <!-- Compare -->
-                <div class="card p-10 reveal icon-bounce">
-                    <div class="card-icon mb-8">
-                        <i data-lucide="git-compare" class="w-9 h-9 text-pink-400"></i>
+                <div class="card p-6 md:p-10 reveal icon-bounce">
+                    <div class="card-icon mb-6 md:mb-8 w-16 h-16 md:w-20 md:h-20">
+                        <i data-lucide="git-compare" class="w-7 h-7 md:w-9 md:h-9 text-pink-400"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Сравнение</h3>
-                    <p class="text-gray-400 mb-8">
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Сравнение</h3>
+                    <p class="text-gray-400 mb-6 md:mb-8 text-sm md:text-base">
                         Сравнивай сайты до и после исправлений. 
                         Отслеживай прогресс и экономь время.
                     </p>
@@ -854,34 +854,34 @@
             </div>
             
             <!-- Additional features grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-scale">
-                <div class="card p-6 text-center group cursor-pointer">
-                    <div class="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="gauge" class="w-8 h-8 text-green-400"></i>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 reveal-scale">
+                <div class="card p-4 md:p-6 text-center group cursor-pointer">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="gauge" class="w-6 h-6 md:w-8 md:h-8 text-green-400"></i>
                     </div>
-                    <h4 class="font-semibold mb-2">Скорость</h4>
-                    <p class="text-xs text-gray-500">Google Lighthouse метрики</p>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Скорость</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Google Lighthouse метрики</p>
                 </div>
-                <div class="card p-6 text-center group cursor-pointer">
-                    <div class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="smartphone" class="w-8 h-8 text-blue-400"></i>
+                <div class="card p-4 md:p-6 text-center group cursor-pointer">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="smartphone" class="w-6 h-6 md:w-8 md:h-8 text-blue-400"></i>
                     </div>
-                    <h4 class="font-semibold mb-2">Мобильные</h4>
-                    <p class="text-xs text-gray-500">Viewport, размеры шрифтов</p>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Мобильные</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Viewport, размеры шрифтов</p>
                 </div>
-                <div class="card p-6 text-center group cursor-pointer">
-                    <div class="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="link" class="w-8 h-8 text-yellow-400"></i>
+                <div class="card p-4 md:p-6 text-center group cursor-pointer">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="link" class="w-6 h-6 md:w-8 md:h-8 text-yellow-400"></i>
                     </div>
-                    <h4 class="font-semibold mb-2">Ссылки</h4>
-                    <p class="text-xs text-gray-500">Битые и внутренние</p>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Ссылки</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Битые и внутренние</p>
                 </div>
-                <div class="card p-6 text-center group cursor-pointer">
-                    <div class="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="shield" class="w-8 h-8 text-red-400"></i>
+                <div class="card p-4 md:p-6 text-center group cursor-pointer">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shield" class="w-6 h-6 md:w-8 md:h-8 text-red-400"></i>
                     </div>
-                    <h4 class="font-semibold mb-2">Безопасность</h4>
-                    <p class="text-xs text-gray-500">HTTPS, CSP, Mixed Content</p>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Безопасность</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">HTTPS, CSP, Mixed Content</p>
                 </div>
             </div>
         </div>
@@ -938,16 +938,16 @@
                 <h2 class="text-4xl font-bold mt-4">Что говорят пользователи</h2>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-8 reveal">
-                <div class="card p-8 shine">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 reveal">
+                <div class="card p-6 md:p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-xl font-bold">АК</div>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-lg md:text-xl font-bold">АК</div>
                         <div>
                             <div class="font-semibold">Алексей К.</div>
                             <div class="text-sm text-gray-500">Веб-разработчик</div>
                         </div>
                     </div>
-                    <p class="text-gray-400 mb-4">
+                    <p class="text-gray-400 mb-4 text-sm md:text-base">
                         "Отличный инструмент! Нашёл 15 проблем на своём сайте за 2 минуты. 
                         Особенно понравились авто-исправления."
                     </p>
@@ -960,15 +960,15 @@
                     </div>
                 </div>
                 
-                <div class="card p-8 shine">
+                <div class="card p-6 md:p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-xl font-bold">МС</div>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-lg md:text-xl font-bold">МС</div>
                         <div>
                             <div class="font-semibold">Мария С.</div>
                             <div class="text-sm text-gray-500">SEO специалист</div>
                         </div>
                     </div>
-                    <p class="text-gray-400 mb-4">
+                    <p class="text-gray-400 mb-4 text-sm md:text-base">
                         "Использую для быстрого аудита клиентских сайтов. 
                         Экономит массу времени. Рекомендую!"
                     </p>
@@ -981,15 +981,15 @@
                     </div>
                 </div>
                 
-                <div class="card p-8 shine">
+                <div class="card p-6 md:p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-xl font-bold">ДВ</div>
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-lg md:text-xl font-bold">ДВ</div>
                         <div>
                             <div class="font-semibold">Дмитрий В.</div>
                             <div class="text-sm text-gray-500">Владелец бизнеса</div>
                         </div>
                     </div>
-                    <p class="text-gray-400 mb-4">
+                    <p class="text-gray-400 mb-4 text-sm md:text-base">
                         "Наконец-то понятно что исправлять на сайте. 
                         Без знаний программирования нашёл и исправил проблемы."
                     </p>
@@ -1013,26 +1013,26 @@
                 <h2 class="text-4xl font-bold mt-4 mb-12">Для кого это</h2>
             </div>
             
-            <div class="flex flex-wrap justify-center gap-5 reveal">
-                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                    <i data-lucide="code-2" class="w-6 h-6 text-indigo-400"></i>
-                    <span class="font-semibold">Разработчики</span>
+            <div class="flex flex-wrap justify-center items-center gap-4 md:gap-5 reveal">
+                <div class="card px-6 md:px-8 py-4 md:py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="code-2" class="w-5 h-5 md:w-6 md:h-6 text-indigo-400"></i>
+                    <span class="font-semibold text-sm md:text-base">Разработчики</span>
                 </div>
-                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                    <i data-lucide="globe" class="w-6 h-6 text-purple-400"></i>
-                    <span class="font-semibold">Веб-мастера</span>
+                <div class="card px-6 md:px-8 py-4 md:py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="globe" class="w-5 h-5 md:w-6 md:h-6 text-purple-400"></i>
+                    <span class="font-semibold text-sm md:text-base">Веб-мастера</span>
                 </div>
-                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-pink-400"></i>
-                    <span class="font-semibold">SEO специалисты</span>
+                <div class="card px-6 md:px-8 py-4 md:py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="trending-up" class="w-5 h-5 md:w-6 md:h-6 text-pink-400"></i>
+                    <span class="font-semibold text-sm md:text-base">SEO специалисты</span>
                 </div>
-                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                    <i data-lucide="briefcase" class="w-6 h-6 text-blue-400"></i>
-                    <span class="font-semibold">Владельцы бизнеса</span>
+                <div class="card px-6 md:px-8 py-4 md:py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="briefcase" class="w-5 h-5 md:w-6 md:h-6 text-blue-400"></i>
+                    <span class="font-semibold text-sm md:text-base">Владельцы бизнеса</span>
                 </div>
-                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                    <i data-lucide="users" class="w-6 h-6 text-green-400"></i>
-                    <span class="font-semibold">Маркетологи</span>
+                <div class="card px-6 md:px-8 py-4 md:py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="users" class="w-5 h-5 md:w-6 md:h-6 text-green-400"></i>
+                    <span class="font-semibold text-sm md:text-base">Маркетологи</span>
                 </div>
             </div>
         </div>
