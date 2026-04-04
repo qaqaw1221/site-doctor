@@ -1569,26 +1569,36 @@
                 `}
                 
                 <!-- Category Scores -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('seo')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.seo)}">${scores.seo || 0}</div>
-                        <div class="text-xs text-gray-500 mt-1" data-i18n="seo">SEO</div>
+                        <div class="text-xs text-gray-500 mt-1">SEO</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.seo?.checks?.length || 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('performance')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.performance)}">${scores.performance || 0}</div>
-                        <div class="text-xs text-gray-500 mt-1" data-i18n="performance">Скорость</div>
+                        <div class="text-xs text-gray-500 mt-1">Скорость</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.performance?.checks?.length || 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('accessibility')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.accessibility)}">${scores.accessibility || 0}</div>
-                        <div class="text-xs text-gray-500 mt-1" data-i18n="accessibility">Доступность</div>
+                        <div class="text-xs text-gray-500 mt-1">Доступность</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.accessibility?.checks?.length || 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('links')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.links)}">${scores.links || 0}</div>
-                        <div class="text-xs text-gray-500 mt-1" data-i18n="links">Ссылки</div>
+                        <div class="text-xs text-gray-500 mt-1">Ссылки</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.links?.checks?.length || 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('mobile')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.mobile)}">${scores.mobile || 0}</div>
-                        <div class="text-xs text-gray-500 mt-1" data-i18n="mobile">Мобильные</div>
+                        <div class="text-xs text-gray-500 mt-1">Мобильные</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.mobile?.checks?.length || 0} checks</div>
+                    </div>
+                    <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('security')">
+                        <div class="text-2xl font-bold ${getScoreColor(scores.security)}">${scores.security || 0}</div>
+                        <div class="text-xs text-gray-500 mt-1">Безопасность</div>
+                        <div class="text-xs text-gray-600 mt-1">${data.security?.checks?.length || 0} checks</div>
                     </div>
                 </div>
                 
@@ -1639,7 +1649,8 @@
                                     performance: 'from-green-500 to-green-600',
                                     accessibility: 'from-purple-500 to-purple-600',
                                     mobile: 'from-pink-500 to-pink-600',
-                                    links: 'from-yellow-500 to-yellow-600'
+                                    links: 'from-yellow-500 to-yellow-600',
+                                    security: 'from-red-500 to-red-600'
                                 };
                                 const cat = fix.category || 'seo';
                                 const gradient = categoryColors[cat] || categoryColors.seo;
@@ -1807,7 +1818,8 @@
                 performance: { title: 'Производительность', icon: 'zap', bgClass: 'bg-green-500/20', textClass: 'text-green-400' },
                 accessibility: { title: 'Доступность', icon: 'eye', bgClass: 'bg-purple-500/20', textClass: 'text-purple-400' },
                 links: { title: 'Ссылки', icon: 'link', bgClass: 'bg-yellow-500/20', textClass: 'text-yellow-400' },
-                mobile: { title: 'Мобильные', icon: 'smartphone', bgClass: 'bg-pink-500/20', textClass: 'text-pink-400' }
+                mobile: { title: 'Мобильные', icon: 'smartphone', bgClass: 'bg-pink-500/20', textClass: 'text-pink-400' },
+                security: { title: 'Безопасность', icon: 'shield', bgClass: 'bg-red-500/20', textClass: 'text-red-400' }
             };
             
             const cat = categoryNames[category] || { title: category, icon: 'info', bgClass: 'bg-gray-500/20', textClass: 'text-gray-400' };
