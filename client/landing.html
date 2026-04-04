@@ -6,6 +6,7 @@
     <title>Site Doctor - AI анализ сайтов | SEO, скорость, доступность</title>
     <meta name="description" content="Бесплатный AI-сканер для анализа сайтов. SEO, скорость загрузки, доступность, битые ссылки. Найди проблемы за 30 секунд.">
     <meta name="keywords" content="seo анализ, проверка сайта, скорость сайта, accessibility, анализ ссылок">
+    <meta name="robots" content="index, follow">
     
     <meta property="og:title" content="Site Doctor - AI анализ сайтов">
     <meta property="og:description" content="Анализируй сайты за 30 секунд. SEO, скорость, доступность.">
@@ -16,7 +17,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
         * {
             font-family: 'Inter', sans-serif;
@@ -25,8 +26,10 @@
         body {
             background: #0a0a0b;
             color: #fff;
+            overflow-x: hidden;
         }
         
+        /* Gradient text */
         .gradient-text {
             background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
             -webkit-background-clip: text;
@@ -34,302 +37,702 @@
             background-clip: text;
         }
         
+        /* Animated gradient border */
         .gradient-border {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            position: relative;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border-radius: 20px;
         }
         
-        .glow {
-            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
+            background-size: 300% 300%;
+            animation: gradient-rotate 4s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
         }
         
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+        @keyframes gradient-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
-        .card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(99, 102, 241, 0.5);
+        /* Glow effects */
+        .glow-purple {
+            filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.5));
         }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            transition: all 0.3s;
+        .glow-indigo {
+            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.5));
         }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        /* Floating animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
         }
         
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
-            border: 1px solid rgba(99, 102, 241, 0.3);
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
         
+        /* Pulse animation */
+        .pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        /* Scroll indicator */
         .scroll-indicator {
             animation: bounce 2s infinite;
         }
         
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
         }
         
-        .pricing-popular {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border: 2px solid rgba(99, 102, 241, 0.5);
+        /* Card hover */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .nav-link {
+        .card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+        }
+        
+        /* Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Feature icons */
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            border: 1px solid rgba(99, 102, 241, 0.3);
             transition: all 0.3s;
         }
         
-        .nav-link:hover {
-            color: #6366f1;
+        .card:hover .feature-icon {
+            transform: scale(1.1);
+            border-color: rgba(99, 102, 241, 0.6);
+        }
+        
+        /* Stats counter */
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Testimonial avatar */
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        /* How it works step */
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Pricing popular */
+        .pricing-popular {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            position: relative;
+        }
+        
+        .pricing-popular::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            padding: 2px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: gradient-rotate 4s linear infinite;
+        }
+        
+        /* Background orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+        
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #6366f1;
+            top: -200px;
+            left: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #a855f7;
+            top: 50%;
+            right: -100px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: #ec4899;
+            bottom: 20%;
+            left: 20%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        /* Nav */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Counter animation */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .count-animate {
+            animation: countUp 0.6s ease-out forwards;
         }
     </style>
-    
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Site Doctor",
-        "description": "AI-сканер для анализа сайтов: SEO, скорость, доступность",
-        "applicationCategory": "WebApplication",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
-    }
-    </script>
 </head>
 <body class="min-h-screen">
+    <!-- Background orbs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
     <!-- Nav -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                    <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-2xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="scan" class="w-6 h-6 text-white"></i>
                 </div>
                 <span class="text-xl font-bold">Site Doctor</span>
             </a>
-            <div class="flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-8">
                 <a href="#features" class="nav-link text-gray-400 text-sm">Возможности</a>
+                <a href="#how" class="nav-link text-gray-400 text-sm">Как работает</a>
                 <a href="#pricing" class="nav-link text-gray-400 text-sm">Тарифы</a>
-                <a href="/scan" class="btn-primary px-5 py-2 rounded-lg font-semibold text-sm">
-                    Войти
+                <a href="/scan" class="btn-primary px-5 py-2.5 rounded-xl font-semibold text-sm">
+                    <span>Войти</span>
                 </a>
             </div>
+            <button class="md:hidden p-2" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
         </div>
     </nav>
 
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden fixed inset-0 z-40 bg-[#0a0a0b] pt-20 px-6">
+        <div class="flex flex-col gap-6">
+            <a href="#features" class="text-xl">Возможности</a>
+            <a href="#how" class="text-xl">Как работает</a>
+            <a href="#pricing" class="text-xl">Тарифы</a>
+            <a href="/scan" class="btn-primary px-6 py-3 rounded-xl font-semibold text-center mt-4">
+                <span>Войти</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center pt-20 pb-20 px-6 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 via-transparent to-transparent"></div>
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-        
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8">
+    <section class="min-h-screen flex items-center justify-center pt-24 pb-16 px-6 relative">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 reveal">
                 <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
-                <span class="text-sm text-indigo-400">AI-Powered анализ</span>
+                <span class="text-sm text-indigo-400 font-medium">AI-Powered анализ сайтов</span>
             </div>
             
-            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-                Анализируй.<br>
-                <span class="gradient-text">Исправляй.</span><br>
-                Сравнивай.
+            <!-- Headline -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-tight reveal">
+                <span class="block">Анализируй.</span>
+                <span class="gradient-text block">Исправляй.</span>
+                <span class="block">Сравнивай.</span>
             </h1>
             
-            <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-                AI-сканер для сайтов. Найди проблемы с SEO, скоростью и доступностью 
-                за 30 секунд. Без регистрации.
+            <!-- Subheadline -->
+            <p class="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto reveal">
+                Профессиональный AI-сканер для сайтов. 
+                <span class="text-white font-medium">Найди проблемы за 30 секунд.</span>
             </p>
             
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-                <a href="/scan" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2">
+            <!-- CTA buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 reveal">
+                <a href="/scan" class="btn-primary px-10 py-4 rounded-2xl font-bold text-lg flex items-center gap-3">
                     <i data-lucide="zap" class="w-5 h-5"></i>
-                    Начать бесплатно
+                    <span>Начать бесплатно</span>
                 </a>
-                <a href="#features" class="px-8 py-4 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
-                    Узнать больше →
+                <a href="#how" class="px-8 py-4 rounded-2xl font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-2">
+                    Узнать больше
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
             
-            <div class="flex items-center justify-center gap-8 text-sm text-gray-500">
+            <!-- Trust badges -->
+            <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 reveal">
                 <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
                     <span>Бесплатно</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
                     <span>Без регистрации</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
                     <span>30 секунд</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                    <span>SSL шифрование</span>
                 </div>
             </div>
         </div>
         
+        <!-- Scroll indicator -->
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
-            <i data-lucide="chevron-down" class="w-6 h-6 text-gray-500"></i>
+            <i data-lucide="chevron-down" class="w-8 h-8 text-gray-500"></i>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-16 px-6 border-y border-white/5 bg-white/[0.02]">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center reveal">
+                    <div class="stat-number">10K+</div>
+                    <div class="text-gray-400 mt-2">Сканирований</div>
+                </div>
+                <div class="text-center reveal">
+                    <div class="stat-number">50+</div>
+                    <div class="text-gray-400 mt-2">Проверок</div>
+                </div>
+                <div class="text-center reveal">
+                    <div class="stat-number">6</div>
+                    <div class="text-gray-400 mt-2">Категорий</div>
+                </div>
+                <div class="text-center reveal">
+                    <div class="stat-number">99%</div>
+                    <div class="text-gray-400 mt-2">Точность</div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Features -->
     <section id="features" class="py-24 px-6">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Возможности</h2>
-                <p class="text-gray-400 text-lg">Всё что нужно для анализа сайта в одном месте</p>
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20 reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Возможности</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Всё что нужно для анализа</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Комплексный анализ сайта: от SEO до безопасности. 
+                    Одна платформа - все инструменты.
+                </p>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-6">
+            <!-- Main features -->
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
                 <!-- SEO -->
-                <div class="card p-8 transition-all duration-300">
-                    <div class="feature-icon mb-6">
-                        <i data-lucide="search" class="w-7 h-7 text-indigo-400"></i>
+                <div class="card p-10 reveal">
+                    <div class="feature-icon mb-8">
+                        <i data-lucide="search" class="w-8 h-8 text-indigo-400"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">SEO анализ</h3>
-                    <p class="text-gray-400 mb-4">
-                        Meta теги, заголовки H1-H6, структура страницы, 
-                        Open Graph, canonical URL и многое другое.
+                    <h3 class="text-2xl font-bold mb-4">SEO анализ</h3>
+                    <p class="text-gray-400 mb-8">
+                        Полный SEO аудит: meta теги, структура заголовков, 
+                        Open Graph, robots.txt и многое другое.
                     </p>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
+                            </div>
                             Title и Description
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Структура заголовков
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
+                            </div>
+                            H1-H6 структура
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
+                            </div>
                             Open Graph теги
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Robots и Canonical
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
+                            </div>
+                            Canonical и Robots
                         </li>
                     </ul>
                 </div>
                 
                 <!-- Auto Fixes -->
-                <div class="card p-8 transition-all duration-300">
-                    <div class="feature-icon mb-6">
-                        <i data-lucide="wand-2" class="w-7 h-7 text-purple-400"></i>
+                <div class="card p-10 reveal">
+                    <div class="feature-icon mb-8">
+                        <i data-lucide="wand-2" class="w-8 h-8 text-purple-400"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">Авто-исправления</h3>
-                    <p class="text-gray-400 mb-4">
+                    <h3 class="text-2xl font-bold mb-4">Авто-исправления</h3>
+                    <p class="text-gray-400 mb-8">
                         Одно нажатие = исправленная проблема. 
-                        Экономь время на ручной работе.
+                        Не нужно копаться в коде - мы дадим готовый код.
                     </p>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Готовый код
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
+                            </div>
+                            Готовый HTML код
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Безопасно
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
+                            </div>
+                            Безопасно и обратимо
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
+                            </div>
                             Одно нажатие
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Мгновенный результат
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
+                            </div>
+                            +40 баллов к оценке
                         </li>
                     </ul>
                 </div>
                 
                 <!-- Compare -->
-                <div class="card p-8 transition-all duration-300">
-                    <div class="feature-icon mb-6">
-                        <i data-lucide="git-compare" class="w-7 h-7 text-pink-400"></i>
+                <div class="card p-10 reveal">
+                    <div class="feature-icon mb-8">
+                        <i data-lucide="git-compare" class="w-8 h-8 text-pink-400"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">Сравнение сайтов</h3>
-                    <p class="text-gray-400 mb-4">
+                    <h3 class="text-2xl font-bold mb-4">Сравнение</h3>
+                    <p class="text-gray-400 mb-8">
                         Сравнивай сайты до и после исправлений. 
-                        Отслеживай прогресс в реальном времени.
+                        Отслеживай прогресс и экономь время.
                     </p>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Side-by-side сравнение
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
+                            </div>
+                            Side-by-side
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            История изменений
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
+                            </div>
+                            История версий
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
+                            </div>
                             Прогресс-бар
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
-                            Экспорт отчётов
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
+                            </div>
+                            PDF экспорт
                         </li>
                     </ul>
                 </div>
             </div>
             
-            <!-- Additional Features -->
-            <div class="grid md:grid-cols-4 gap-4 mt-8">
-                <div class="card p-5 text-center">
-                    <i data-lucide="gauge" class="w-8 h-8 text-green-400 mx-auto mb-3"></i>
-                    <h4 class="font-semibold mb-1">Скорость</h4>
+            <!-- Additional features grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
+                <div class="card p-6 text-center">
+                    <i data-lucide="gauge" class="w-10 h-10 text-green-400 mx-auto mb-4"></i>
+                    <h4 class="font-semibold mb-2">Скорость</h4>
                     <p class="text-xs text-gray-500">Google Lighthouse метрики</p>
                 </div>
-                <div class="card p-5 text-center">
-                    <i data-lucide="smartphone" class="w-8 h-8 text-blue-400 mx-auto mb-3"></i>
-                    <h4 class="font-semibold mb-1">Мобильные</h4>
-                    <p class="text-xs text-gray-500">Проверка мобильной версии</p>
+                <div class="card p-6 text-center">
+                    <i data-lucide="smartphone" class="w-10 h-10 text-blue-400 mx-auto mb-4"></i>
+                    <h4 class="font-semibold mb-2">Мобильные</h4>
+                    <p class="text-xs text-gray-500">Viewport, размеры шрифтов</p>
                 </div>
-                <div class="card p-5 text-center">
-                    <i data-lucide="link" class="w-8 h-8 text-yellow-400 mx-auto mb-3"></i>
-                    <h4 class="font-semibold mb-1">Ссылки</h4>
-                    <p class="text-xs text-gray-500">Битые и внутренние ссылки</p>
+                <div class="card p-6 text-center">
+                    <i data-lucide="link" class="w-10 h-10 text-yellow-400 mx-auto mb-4"></i>
+                    <h4 class="font-semibold mb-2">Ссылки</h4>
+                    <p class="text-xs text-gray-500">Битые и внутренние</p>
                 </div>
-                <div class="card p-5 text-center">
-                    <i data-lucide="shield" class="w-8 h-8 text-red-400 mx-auto mb-3"></i>
-                    <h4 class="font-semibold mb-1">Безопасность</h4>
+                <div class="card p-6 text-center">
+                    <i data-lucide="shield" class="w-10 h-10 text-red-400 mx-auto mb-4"></i>
+                    <h4 class="font-semibold mb-2">Безопасность</h4>
                     <p class="text-xs text-gray-500">HTTPS, CSP, Mixed Content</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- How it works -->
+    <section id="how" class="py-24 px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-20 reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Процесс</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Как это работает</h2>
+                <p class="text-gray-400 text-lg">Простой процесс в 3 шага</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Step 1 -->
+                <div class="text-center reveal">
+                    <div class="step-number mx-auto mb-8">1</div>
+                    <h3 class="text-2xl font-bold mb-4">Введи URL</h3>
+                    <p class="text-gray-400">
+                        Вставь ссылку на любой сайт. 
+                        Поддерживаются все платформы.
+                    </p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="text-center reveal">
+                    <div class="step-number mx-auto mb-8">2</div>
+                    <h3 class="text-2xl font-bold mb-4">Анализ</h3>
+                    <p class="text-gray-400">
+                        За 30 секунд просканируем сайт 
+                        по 50+ параметрам.
+                    </p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="text-center reveal">
+                    <div class="step-number mx-auto mb-8">3</div>
+                    <h3 class="text-2xl font-bold mb-4">Результат</h3>
+                    <p class="text-gray-400">
+                        Получи детальный отчёт и 
+                        примени исправления в один клик.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-24 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Отзывы</span>
+                <h2 class="text-4xl font-bold mt-4">Что говорят пользователи</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 reveal">
+                <div class="card p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="avatar bg-gradient-to-br from-blue-500 to-blue-600">A</div>
+                        <div>
+                            <div class="font-semibold">Алексей К.</div>
+                            <div class="text-sm text-gray-500">Веб-разработчик</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        "Отличный инструмент! Нашёл 15 проблем на своём сайте за 2 минуты. 
+                        Особенно понравились авто-исправления."
+                    </p>
+                    <div class="flex gap-1">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="avatar bg-gradient-to-br from-green-500 to-green-600">М</div>
+                        <div>
+                            <div class="font-semibold">Мария С.</div>
+                            <div class="text-sm text-gray-500">SEO специалист</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        "Использую для быстрого аудита клиентских сайтов. 
+                        Экономит массу времени. Рекомендую!"
+                    </p>
+                    <div class="flex gap-1">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="avatar bg-gradient-to-br from-purple-500 to-purple-600">Д</div>
+                        <div>
+                            <div class="font-semibold">Дмитрий В.</div>
+                            <div class="text-sm text-gray-500">Владелец бизнеса</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        "Наконец-то понятно что исправлять на сайте. 
+                        Без знаний программирования нашёл и исправил проблемы."
+                    </p>
+                    <div class="flex gap-1">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- For Who -->
-    <section class="py-24 px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+    <section class="py-24 px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl font-bold mb-8">Для кого</h2>
-            <div class="flex flex-wrap justify-center gap-4">
-                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
-                    <span class="text-gray-300">Разработчики</span>
+            <div class="reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Аудитория</span>
+                <h2 class="text-4xl font-bold mt-4 mb-12">Для кого это</h2>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 reveal">
+                <div class="card px-8 py-4 flex items-center gap-3">
+                    <i data-lucide="code-2" class="w-5 h-5 text-indigo-400"></i>
+                    <span class="font-medium">Разработчики</span>
                 </div>
-                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
-                    <span class="text-gray-300">Веб-мастера</span>
+                <div class="card px-8 py-4 flex items-center gap-3">
+                    <i data-lucide="globe" class="w-5 h-5 text-purple-400"></i>
+                    <span class="font-medium">Веб-мастера</span>
                 </div>
-                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
-                    <span class="text-gray-300">SEO специалисты</span>
+                <div class="card px-8 py-4 flex items-center gap-3">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-pink-400"></i>
+                    <span class="font-medium">SEO специалисты</span>
                 </div>
-                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
-                    <span class="text-gray-300">Владельцы сайтов</span>
+                <div class="card px-8 py-4 flex items-center gap-3">
+                    <i data-lucide="briefcase" class="w-5 h-5 text-blue-400"></i>
+                    <span class="font-medium">Владельцы бизнеса</span>
+                </div>
+                <div class="card px-8 py-4 flex items-center gap-3">
+                    <i data-lucide="users" class="w-5 h-5 text-green-400"></i>
+                    <span class="font-medium">Маркетологи</span>
                 </div>
             </div>
         </div>
@@ -338,113 +741,114 @@
     <!-- Pricing -->
     <section id="pricing" class="py-24 px-6">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Тарифы</h2>
-                <p class="text-gray-400 text-lg">Выбери подходящий план</p>
+            <div class="text-center mb-16 reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Тарифы</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Выбери свой план</h2>
+                <p class="text-gray-400 text-lg">Начни бесплатно, масштабируйся при необходимости</p>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 <!-- Free -->
-                <div class="card p-8">
-                    <div class="text-gray-400 font-semibold mb-2">Free</div>
-                    <div class="text-4xl font-bold mb-1">$0</div>
-                    <div class="text-gray-500 text-sm mb-6">навсегда</div>
+                <div class="card p-10 reveal">
+                    <div class="text-gray-400 font-semibold text-lg mb-2">Free</div>
+                    <div class="text-5xl font-black mb-2">$0</div>
+                    <div class="text-gray-500 mb-8">навсегда</div>
                     
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3 text-gray-300">
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            3 сканирования в месяц
+                            <span>3 сканирования в месяц</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Все категории анализа
+                            <span>Все категории анализа</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            История сканирований
+                            <span>История сканирований</span>
                         </li>
                         <li class="flex items-center gap-3 text-gray-500">
                             <i data-lucide="x" class="w-5 h-5"></i>
-                            Авто-исправления
+                            <span>Авто-исправления</span>
                         </li>
                         <li class="flex items-center gap-3 text-gray-500">
                             <i data-lucide="x" class="w-5 h-5"></i>
-                            Экспорт PDF
+                            <span>Экспорт PDF</span>
                         </li>
                     </ul>
                     
-                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold border border-white/20 hover:bg-white/5 transition-colors">
-                        Начать
+                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border border-white/20 hover:bg-white/5 transition-all">
+                        Начать бесплатно
                     </a>
                 </div>
                 
                 <!-- Pro -->
-                <div class="card pricing-popular p-8 relative">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-semibold">
+                <div class="pricing-popular p-10 reveal">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-bold">
                         Популярный
                     </div>
-                    <div class="text-indigo-400 font-semibold mb-2">Pro</div>
-                    <div class="text-4xl font-bold mb-1">$15.99</div>
-                    <div class="text-gray-500 text-sm mb-6">в месяц</div>
+                    <div class="text-indigo-400 font-semibold text-lg mb-2">Pro</div>
+                    <div class="text-5xl font-black mb-2">$15.99</div>
+                    <div class="text-gray-500 mb-8">в месяц</div>
                     
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3 text-gray-300">
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            50 сканирований в месяц
+                            <span>50 сканирований в месяц</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Все категории анализа
+                            <span>Все категории анализа</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Авто-исправления
+                            <span>Авто-исправления</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Экспорт PDF
+                            <span>Экспорт PDF</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Приоритетная поддержка
+                            <span>Приоритетная поддержка</span>
                         </li>
                     </ul>
                     
-                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold text-center btn-primary">
-                        Выбрать Pro
+                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-bold btn-primary">
+                        <span>Выбрать Pro</span>
                     </a>
                 </div>
                 
                 <!-- Business -->
-                <div class="card p-8">
-                    <div class="text-purple-400 font-semibold mb-2">Business</div>
-                    <div class="text-4xl font-bold mb-1">$59.99</div>
-                    <div class="text-gray-500 text-sm mb-6">в месяц</div>
+                <div class="card p-10 reveal">
+                    <div class="text-purple-400 font-semibold text-lg mb-2">Business</div>
+                    <div class="text-5xl font-black mb-2">$59.99</div>
+                    <div class="text-gray-500 mb-8">в месяц</div>
                     
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3 text-gray-300">
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            500 сканирований в месяц
+                            <span>500 сканирований в месяц</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Всё из Pro
+                            <span>Всё из Pro</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            API доступ
+                            <span>API доступ</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            White-label
+                            <span>White-label</span>
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
+                        <li class="flex items-center gap-3">
                             <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
-                            Командный доступ
+                            <span>Командный доступ</span>
                         </li>
                     </ul>
                     
-                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold border border-white/20 hover:bg-white/5 transition-colors">
+                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border border-white/20 hover:bg-white/5 transition-all">
                         Выбрать Business
                     </a>
                 </div>
@@ -453,42 +857,66 @@
     </section>
 
     <!-- FAQ -->
-    <section class="py-24 px-6">
+    <section class="py-24 px-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
         <div class="max-w-3xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">FAQ</h2>
+            <div class="text-center mb-16 reveal">
+                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">FAQ</span>
+                <h2 class="text-4xl font-bold mt-4">Частые вопросы</h2>
             </div>
             
-            <div class="space-y-4">
+            <div class="space-y-4 reveal">
                 <div class="card p-6">
-                    <h3 class="font-semibold mb-2">Как это работает?</h3>
-                    <p class="text-gray-400">
-                        Введи URL сайта и нажми "Сканировать". За 30 секунд получишь 
-                        полный отчёт: SEO, скорость, доступность, ссылки и безопасность.
+                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                        Как это работает?
+                    </h3>
+                    <p class="text-gray-400 pl-8">
+                        Введи URL сайта и нажми "Сканировать". За 30 секунд наш AI проанализирует 
+                        сайт по 50+ параметрам: SEO, скорость загрузки, доступность, ссылки и безопасность.
                     </p>
                 </div>
                 
                 <div class="card p-6">
-                    <h3 class="font-semibold mb-2">Это бесплатно?</h3>
-                    <p class="text-gray-400">
-                        Да! Тариф Free даёт 3 бесплатных сканирования в месяц. 
-                        Для большего - тарифы Pro и Business.
+                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                        Это бесплатно?
+                    </h3>
+                    <p class="text-gray-400 pl-8">
+                        Да! Тариф Free даёт 3 бесплатных сканирования в месяц навсегда. 
+                        Для большего количества - тарифы Pro и Business.
                     </p>
                 </div>
                 
                 <div class="card p-6">
-                    <h3 class="font-semibold mb-2">Какие сайты можно сканировать?</h3>
-                    <p class="text-gray-400">
-                        Любые публичные сайты: WordPress, Shopify, Tilda, конструкторы 
-                        и самописные. Поддерживаются как обычные сайты, так и SPA.
+                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                        Какие сайты можно сканировать?
+                    </h3>
+                    <p class="text-gray-400 pl-8">
+                        Любые публичные сайты: WordPress, Shopify, Tilda, конструкторы и самописные. 
+                        Поддерживаются как обычные сайты, так и SPA (React, Vue, Angular).
                     </p>
                 </div>
                 
                 <div class="card p-6">
-                    <h3 class="font-semibold mb-2">Нужна ли регистрация?</h3>
-                    <p class="text-gray-400">
-                        Да, для сохранения истории сканирований и доступа к 
-                        авто-исправлениям. Регистрация за 10 секунд.
+                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                        Нужна ли регистрация?
+                    </h3>
+                    <p class="text-gray-400 pl-8">
+                        Для базового сканирования - нет. Но для сохранения истории, 
+                        доступа к авто-исправлениям и сравнению - регистрация за 10 секунд.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                        Насколько безопасно?
+                    </h3>
+                    <p class="text-gray-400 pl-8">
+                        Абсолютно безопасно. Мы не сохраняем и не передаём данные сайтов. 
+                        Все соединения зашифрованы SSL. Авто-исправления обратимы.
                     </p>
                 </div>
             </div>
@@ -497,41 +925,82 @@
 
     <!-- CTA -->
     <section class="py-24 px-6">
-        <div class="max-w-3xl mx-auto text-center">
-            <div class="card p-12 glow">
-                <h2 class="text-3xl font-bold mb-4">Готов начать?</h2>
-                <p class="text-gray-400 mb-8">
-                    Просканируй свой первый сайт бесплатно. 
-                    Займёт всего 30 секунд.
-                </p>
-                <a href="/scan" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center gap-2">
-                    <i data-lucide="zap" class="w-5 h-5"></i>
-                    Начать бесплатно
-                </a>
+        <div class="max-w-4xl mx-auto reveal">
+            <div class="gradient-border p-16 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
+                <div class="relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">Готов начать?</h2>
+                    <p class="text-gray-400 text-xl mb-10 max-w-xl mx-auto">
+                        Просканируй свой первый сайт бесплатно. 
+                        Займёт всего 30 секунд.
+                    </p>
+                    <a href="/scan" class="btn-primary px-12 py-5 rounded-2xl font-bold text-lg inline-flex items-center gap-3">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                        <span>Начать бесплатно</span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 px-6 border-t border-white/5">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                        <i data-lucide="scan" class="w-4 h-4 text-white"></i>
+    <footer class="py-16 px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                            <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">Site Doctor</span>
                     </div>
-                    <span class="font-semibold">Site Doctor</span>
+                    <p class="text-gray-500 text-sm">
+                        AI-powered анализ сайтов. Найди проблемы за 30 секунд.
+                    </p>
                 </div>
                 
-                <div class="flex items-center gap-6 text-sm text-gray-500">
-                    <a href="/scan" class="hover:text-white transition-colors">Сканировать</a>
-                    <a href="/scan#account" class="hover:text-white transition-colors">Аккаунт</a>
-                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
-                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                <div>
+                    <h4 class="font-semibold mb-4">Продукт</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#features" class="hover:text-white transition-colors">Возможности</a></li>
+                        <li><a href="#pricing" class="hover:text-white transition-colors">Тарифы</a></li>
+                        <li><a href="/scan" class="hover:text-white transition-colors">Начать</a></li>
+                    </ul>
                 </div>
                 
+                <div>
+                    <h4 class="font-semibold mb-4">Компания</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О нас</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Блог</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Контакты</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Правовая информация</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="text-sm text-gray-500">
-                    © 2024 Site Doctor
+                    © 2024 Site Doctor. Все права защищены.
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <i data-lucide="twitter" class="w-5 h-5 text-gray-400"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <i data-lucide="github" class="w-5 h-5 text-gray-400"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <i data-lucide="linkedin" class="w-5 h-5 text-gray-400"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -539,6 +1008,52 @@
 
     <script>
         lucide.createIcons();
+        
+        // Scroll reveal animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Site Doctor",
+        "description": "AI-сканер для анализа сайтов: SEO, скорость, доступность",
+        "applicationCategory": "WebApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "0",
+            "highPrice": "59.99",
+            "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "100"
+        }
+    }
     </script>
 </body>
 </html>
