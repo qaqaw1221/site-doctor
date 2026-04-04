@@ -1721,20 +1721,22 @@
                                 low: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-400' }
                             };
                             const colors = severityColors[issue.severity] || severityColors.low;
-                            const categoryIcons = { seo: 'search', performance: 'zap', mobile: 'smartphone', accessibility: 'eye', links: 'link' };
+                            const categoryIcons = { seo: 'search', performance: 'zap', mobile: 'smartphone', accessibility: 'eye', links: 'link', security: 'shield' };
                             
                             return `
                                 <div class="card p-6 ${colors.bg} border ${colors.border}">
                                     <div class="flex items-start gap-4">
                                         <div class="w-10 h-10 rounded-lg bg-[#222] flex items-center justify-center flex-shrink-0">
-                                            <i data-lucide="${categoryIcons[issue.category] || 'alert-circle'}" class="w-5 h-5 ${colors.text}"></i>
+                                            <i data-lucide="${categoryIcons[issue.type] || 'alert-circle'}" class="w-5 h-5 ${colors.text}"></i>
                                         </div>
                                         <div class="flex-1">
-                                            <div class="flex items-center gap-3 mb-2">
-                                                <h4 class="font-semibold">${issue.message}</h4>
-                                                <span class="px-2 py-0.5 rounded text-xs uppercase ${colors.bg} ${colors.text} border ${colors.border}">${issue.severity}</span>
-                                                <span class="px-2 py-0.5 rounded text-xs bg-gray-500/20 text-gray-400">${issue.category}</span>
+                                            <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                                <h4 class="font-semibold">${issue.title || issue.description || 'Проблема'}</h4>
+                                                <span class="px-2 py-0.5 rounded text-xs uppercase ${colors.bg} ${colors.text} border ${colors.border}">${issue.severity || 'low'}</span>
+                                                <span class="px-2 py-0.5 rounded text-xs bg-gray-500/20 text-gray-400">${issue.type || 'other'}</span>
                                             </div>
+                                            <p class="text-sm text-gray-400">${issue.description || ''}</p>
+                                            ${issue.recommendation ? `<p class="text-sm text-indigo-400 mt-2"><strong>Рекомендация:</strong> ${issue.recommendation}</p>` : ''}
                                         </div>
                                     </div>
                                 </div>
