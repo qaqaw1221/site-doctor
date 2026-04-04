@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://site--site-doctor--4rfn89yxsfpw.code.run/sitemap.xml

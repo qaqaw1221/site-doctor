@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Doctor - AI анализ сайтов | SEO, скорость, доступность</title>
+    <meta name="description" content="Бесплатный AI-сканер для анализа сайтов. SEO, скорость загрузки, доступность, битые ссылки. Найди проблемы за 30 секунд.">
+    <meta name="keywords" content="seo анализ, проверка сайта, скорость сайта, accessibility, анализ ссылок">
+    
+    <meta property="og:title" content="Site Doctor - AI анализ сайтов">
+    <meta property="og:description" content="Анализируй сайты за 30 секунд. SEO, скорость, доступность.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://site--site-doctor--4rfn89yxsfpw.code.run/">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #0a0a0b;
+            color: #fff;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-border {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .glow {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .pricing-popular {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid rgba(99, 102, 241, 0.5);
+        }
+        
+        .nav-link {
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: #6366f1;
+        }
+    </style>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Site Doctor",
+        "description": "AI-сканер для анализа сайтов: SEO, скорость, доступность",
+        "applicationCategory": "WebApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+</head>
+<body class="min-h-screen">
+    <!-- Nav -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="text-xl font-bold">Site Doctor</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="#features" class="nav-link text-gray-400 text-sm">Возможности</a>
+                <a href="#pricing" class="nav-link text-gray-400 text-sm">Тарифы</a>
+                <a href="/scan" class="btn-primary px-5 py-2 rounded-lg font-semibold text-sm">
+                    Войти
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex items-center justify-center pt-20 pb-20 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 via-transparent to-transparent"></div>
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+        
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8">
+                <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
+                <span class="text-sm text-indigo-400">AI-Powered анализ</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                Анализируй.<br>
+                <span class="gradient-text">Исправляй.</span><br>
+                Сравнивай.
+            </h1>
+            
+            <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+                AI-сканер для сайтов. Найди проблемы с SEO, скоростью и доступностью 
+                за 30 секунд. Без регистрации.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                <a href="/scan" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                    Начать бесплатно
+                </a>
+                <a href="#features" class="px-8 py-4 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+                    Узнать больше →
+                </a>
+            </div>
+            
+            <div class="flex items-center justify-center gap-8 text-sm text-gray-500">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <span>Бесплатно</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <span>Без регистрации</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                    <span>30 секунд</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
+            <i data-lucide="chevron-down" class="w-6 h-6 text-gray-500"></i>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-24 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Возможности</h2>
+                <p class="text-gray-400 text-lg">Всё что нужно для анализа сайта в одном месте</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- SEO -->
+                <div class="card p-8 transition-all duration-300">
+                    <div class="feature-icon mb-6">
+                        <i data-lucide="search" class="w-7 h-7 text-indigo-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">SEO анализ</h3>
+                    <p class="text-gray-400 mb-4">
+                        Meta теги, заголовки H1-H6, структура страницы, 
+                        Open Graph, canonical URL и многое другое.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Title и Description
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Структура заголовков
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Open Graph теги
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Robots и Canonical
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Auto Fixes -->
+                <div class="card p-8 transition-all duration-300">
+                    <div class="feature-icon mb-6">
+                        <i data-lucide="wand-2" class="w-7 h-7 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Авто-исправления</h3>
+                    <p class="text-gray-400 mb-4">
+                        Одно нажатие = исправленная проблема. 
+                        Экономь время на ручной работе.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Готовый код
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Безопасно
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Одно нажатие
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Мгновенный результат
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Compare -->
+                <div class="card p-8 transition-all duration-300">
+                    <div class="feature-icon mb-6">
+                        <i data-lucide="git-compare" class="w-7 h-7 text-pink-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Сравнение сайтов</h3>
+                    <p class="text-gray-400 mb-4">
+                        Сравнивай сайты до и после исправлений. 
+                        Отслеживай прогресс в реальном времени.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Side-by-side сравнение
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            История изменений
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Прогресс-бар
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+                            Экспорт отчётов
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Additional Features -->
+            <div class="grid md:grid-cols-4 gap-4 mt-8">
+                <div class="card p-5 text-center">
+                    <i data-lucide="gauge" class="w-8 h-8 text-green-400 mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-1">Скорость</h4>
+                    <p class="text-xs text-gray-500">Google Lighthouse метрики</p>
+                </div>
+                <div class="card p-5 text-center">
+                    <i data-lucide="smartphone" class="w-8 h-8 text-blue-400 mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-1">Мобильные</h4>
+                    <p class="text-xs text-gray-500">Проверка мобильной версии</p>
+                </div>
+                <div class="card p-5 text-center">
+                    <i data-lucide="link" class="w-8 h-8 text-yellow-400 mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-1">Ссылки</h4>
+                    <p class="text-xs text-gray-500">Битые и внутренние ссылки</p>
+                </div>
+                <div class="card p-5 text-center">
+                    <i data-lucide="shield" class="w-8 h-8 text-red-400 mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-1">Безопасность</h4>
+                    <p class="text-xs text-gray-500">HTTPS, CSP, Mixed Content</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Who -->
+    <section class="py-24 px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Для кого</h2>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
+                    <span class="text-gray-300">Разработчики</span>
+                </div>
+                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
+                    <span class="text-gray-300">Веб-мастера</span>
+                </div>
+                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
+                    <span class="text-gray-300">SEO специалисты</span>
+                </div>
+                <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10">
+                    <span class="text-gray-300">Владельцы сайтов</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-24 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Тарифы</h2>
+                <p class="text-gray-400 text-lg">Выбери подходящий план</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <!-- Free -->
+                <div class="card p-8">
+                    <div class="text-gray-400 font-semibold mb-2">Free</div>
+                    <div class="text-4xl font-bold mb-1">$0</div>
+                    <div class="text-gray-500 text-sm mb-6">навсегда</div>
+                    
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            3 сканирования в месяц
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Все категории анализа
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            История сканирований
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-500">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                            Авто-исправления
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-500">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                            Экспорт PDF
+                        </li>
+                    </ul>
+                    
+                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold border border-white/20 hover:bg-white/5 transition-colors">
+                        Начать
+                    </a>
+                </div>
+                
+                <!-- Pro -->
+                <div class="card pricing-popular p-8 relative">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-semibold">
+                        Популярный
+                    </div>
+                    <div class="text-indigo-400 font-semibold mb-2">Pro</div>
+                    <div class="text-4xl font-bold mb-1">$15.99</div>
+                    <div class="text-gray-500 text-sm mb-6">в месяц</div>
+                    
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            50 сканирований в месяц
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Все категории анализа
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Авто-исправления
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Экспорт PDF
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Приоритетная поддержка
+                        </li>
+                    </ul>
+                    
+                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold text-center btn-primary">
+                        Выбрать Pro
+                    </a>
+                </div>
+                
+                <!-- Business -->
+                <div class="card p-8">
+                    <div class="text-purple-400 font-semibold mb-2">Business</div>
+                    <div class="text-4xl font-bold mb-1">$59.99</div>
+                    <div class="text-gray-500 text-sm mb-6">в месяц</div>
+                    
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            500 сканирований в месяц
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Всё из Pro
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            API доступ
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            White-label
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400"></i>
+                            Командный доступ
+                        </li>
+                    </ul>
+                    
+                    <a href="/scan" class="block w-full py-3 rounded-lg text-center font-semibold border border-white/20 hover:bg-white/5 transition-colors">
+                        Выбрать Business
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-24 px-6">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">FAQ</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="card p-6">
+                    <h3 class="font-semibold mb-2">Как это работает?</h3>
+                    <p class="text-gray-400">
+                        Введи URL сайта и нажми "Сканировать". За 30 секунд получишь 
+                        полный отчёт: SEO, скорость, доступность, ссылки и безопасность.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <h3 class="font-semibold mb-2">Это бесплатно?</h3>
+                    <p class="text-gray-400">
+                        Да! Тариф Free даёт 3 бесплатных сканирования в месяц. 
+                        Для большего - тарифы Pro и Business.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <h3 class="font-semibold mb-2">Какие сайты можно сканировать?</h3>
+                    <p class="text-gray-400">
+                        Любые публичные сайты: WordPress, Shopify, Tilda, конструкторы 
+                        и самописные. Поддерживаются как обычные сайты, так и SPA.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <h3 class="font-semibold mb-2">Нужна ли регистрация?</h3>
+                    <p class="text-gray-400">
+                        Да, для сохранения истории сканирований и доступа к 
+                        авто-исправлениям. Регистрация за 10 секунд.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 px-6">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="card p-12 glow">
+                <h2 class="text-3xl font-bold mb-4">Готов начать?</h2>
+                <p class="text-gray-400 mb-8">
+                    Просканируй свой первый сайт бесплатно. 
+                    Займёт всего 30 секунд.
+                </p>
+                <a href="/scan" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center gap-2">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                    Начать бесплатно
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                        <i data-lucide="scan" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <span class="font-semibold">Site Doctor</span>
+                </div>
+                
+                <div class="flex items-center gap-6 text-sm text-gray-500">
+                    <a href="/scan" class="hover:text-white transition-colors">Сканировать</a>
+                    <a href="/scan#account" class="hover:text-white transition-colors">Аккаунт</a>
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                </div>
+                
+                <div class="text-sm text-gray-500">
+                    © 2024 Site Doctor
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -76,8 +76,13 @@ app.get('/api/debug/db', (req, res) => {
     });
 });
 
-// Serve index.html for root route
+// Serve landing page for root route
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/landing.html'));
+});
+
+// Serve app for /scan route
+app.get('/scan', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
