@@ -1419,18 +1419,33 @@
             const resultsSection = document.getElementById('results');
             const container = document.getElementById('resultsContainer');
             
+            // Ensure data has all required properties
+            if (!data) {
+                console.error('No data provided to displayResults');
+                return;
+            }
+            
             // Normalize data format from SimpleScanner
-            const overallScore = data.score || data.overallScore || 0;
-            const scores = data.scores || {
-                seo: data.seo?.score || 0,
-                performance: data.performance?.score || 0,
-                accessibility: data.accessibility?.score || 0,
-                links: data.links?.score || 0,
-                mobile: data.mobile?.score || 0
+            const overallScore = data.overallScore || data.score || 0;
+            const scores = {
+                seo: (data.scores && data.scores.seo) || (data.seo && data.seo.score) || 0,
+                performance: (data.scores && data.scores.performance) || (data.performance && data.performance.score) || 0,
+                accessibility: (data.scores && data.scores.accessibility) || (data.accessibility && data.accessibility.score) || 0,
+                links: (data.scores && data.scores.links) || (data.links && data.links.score) || 0,
+                mobile: (data.scores && data.scores.mobile) || (data.mobile && data.mobile.score) || 0,
+                security: (data.scores && data.scores.security) || (data.security && data.security.score) || 0
             };
             const stats = data.stats || {};
-            const fixes = data.fixes || {};
+            const fixes = data.fixes || { fixes: [], totalFixes: 0 };
             const losses = calculateLosses(data);
+            
+            // Ensure seo, performance etc have checks arrays
+            data.seo = data.seo || { score: scores.seo, checks: [] };
+            data.performance = data.performance || { score: scores.performance, checks: [] };
+            data.accessibility = data.accessibility || { score: scores.accessibility, checks: [] };
+            data.links = data.links || { score: scores.links, checks: [] };
+            data.mobile = data.mobile || { score: scores.mobile, checks: [] };
+            data.security = data.security || { score: scores.security, checks: [] };
             
             const getScoreColor = (score) => {
                 if (score >= 80) return 'text-green-400';
@@ -1446,10 +1461,10 @@
             
             container.innerHTML = `
                 <div class="mb-8">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
                         <div>
-                            <h2 class="text-3xl font-bold mb-2" data-i18n="results">Результаты анализа</h2>
-                            <p class="text-gray-400">${data.url}</p>
+                            <h2 class="text-3xl font-bold mb-2">Результаты анализа</h2>
+                            <p class="text-gray-400">${data.url || 'N/A'}</p>
                         </div>
                         <div class="flex gap-3">
                             <button onclick="shareResults('${data.url}')" class="px-4 py-2 rounded-lg border border-[#333] hover:border-[#555] transition-colors flex items-center gap-2">
@@ -1571,34 +1586,34 @@
                 <!-- Category Scores -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('seo')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.seo)}">${scores.seo || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.seo)}">${scores.seo}</div>
                         <div class="text-xs text-gray-500 mt-1">SEO</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.seo?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.seo && data.seo.checks) ? data.seo.checks.length : 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('performance')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.performance)}">${scores.performance || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.performance)}">${scores.performance}</div>
                         <div class="text-xs text-gray-500 mt-1">Скорость</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.performance?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.performance && data.performance.checks) ? data.performance.checks.length : 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('accessibility')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.accessibility)}">${scores.accessibility || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.accessibility)}">${scores.accessibility}</div>
                         <div class="text-xs text-gray-500 mt-1">Доступность</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.accessibility?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.accessibility && data.accessibility.checks) ? data.accessibility.checks.length : 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('links')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.links)}">${scores.links || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.links)}">${scores.links}</div>
                         <div class="text-xs text-gray-500 mt-1">Ссылки</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.links?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.links && data.links.checks) ? data.links.checks.length : 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('mobile')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.mobile)}">${scores.mobile || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.mobile)}">${scores.mobile}</div>
                         <div class="text-xs text-gray-500 mt-1">Мобильные</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.mobile?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.mobile && data.mobile.checks) ? data.mobile.checks.length : 0} checks</div>
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('security')">
-                        <div class="text-2xl font-bold ${getScoreColor(scores.security)}">${scores.security || 0}</div>
+                        <div class="text-2xl font-bold ${getScoreColor(scores.security)}">${scores.security}</div>
                         <div class="text-xs text-gray-500 mt-1">Безопасность</div>
-                        <div class="text-xs text-gray-600 mt-1">${data.security?.checks?.length || 0} checks</div>
+                        <div class="text-xs text-gray-600 mt-1">${(data.security && data.security.checks) ? data.security.checks.length : 0} checks</div>
                     </div>
                 </div>
                 
