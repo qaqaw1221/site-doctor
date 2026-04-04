@@ -29,49 +29,72 @@
             overflow-x: hidden;
         }
         
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+        
         /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f472b6);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: gradient-shift 5s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         
         /* Animated gradient border */
-        .gradient-border {
+        .gradient-border-animated {
             position: relative;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border-radius: 20px;
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
         }
         
-        .gradient-border::before {
+        .gradient-border-animated::before {
             content: '';
             position: absolute;
-            inset: -1px;
-            border-radius: 20px;
-            padding: 1px;
-            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
-            background-size: 300% 300%;
-            animation: gradient-rotate 4s linear infinite;
+            inset: -2px;
+            border-radius: 26px;
+            padding: 2px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f472b6, #6366f1);
+            background-size: 400% 400%;
+            animation: border-gradient 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
+            opacity: 0.7;
         }
         
-        @keyframes gradient-rotate {
+        @keyframes border-gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
         }
         
         /* Glow effects */
-        .glow-purple {
-            filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.5));
+        .glow-text {
+            text-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
         }
         
-        .glow-indigo {
-            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.5));
+        .glow-box {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3), 0 0 100px rgba(168, 85, 247, 0.2);
         }
         
         /* Floating animation */
@@ -79,19 +102,36 @@
             animation: float 6s ease-in-out infinite;
         }
         
+        .float-delay-1 { animation-delay: -1s; }
+        .float-delay-2 { animation-delay: -2s; }
+        .float-delay-3 { animation-delay: -3s; }
+        .float-delay-4 { animation-delay: -4s; }
+        .float-delay-5 { animation-delay: -5s; }
+        
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-15px) rotate(1deg); }
+            66% { transform: translateY(-8px) rotate(-1deg); }
         }
         
         /* Pulse animation */
-        .pulse-slow {
-            animation: pulse-slow 3s ease-in-out infinite;
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
         }
         
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        /* Glow pulse */
+        .glow-pulse {
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6), 0 0 60px rgba(168, 85, 247, 0.4); }
         }
         
         /* Scroll indicator */
@@ -101,28 +141,48 @@
         
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-15px); }
-            60% { transform: translateY(-7px); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
         }
         
-        /* Card hover */
+        /* Cursor glow */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+        }
+        
+        /* Card styling */
         .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .card:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(99, 102, 241, 0.4);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+            background: rgba(30, 30, 30, 0.8);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
         }
         
-        /* Button */
+        .card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* Button styling */
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            background-size: 200% 200%;
+            animation: btn-gradient 3s ease infinite;
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
@@ -132,7 +192,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
+            background: linear-gradient(135deg, #a855f7, #ec4899, #f472b6);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -142,8 +202,8 @@
         }
         
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
         }
         
         .btn-primary span {
@@ -151,57 +211,52 @@
             z-index: 1;
         }
         
+        @keyframes btn-gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
         /* Feature icons */
-        .feature-icon {
-            width: 70px;
-            height: 70px;
+        .card-icon {
+            width: 80px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 18px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
             border: 1px solid rgba(99, 102, 241, 0.3);
-            transition: all 0.3s;
-        }
-        
-        .card:hover .feature-icon {
-            transform: scale(1.1);
-            border-color: rgba(99, 102, 241, 0.6);
+            transition: all 0.4s;
         }
         
         /* Stats counter */
         .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
+            font-size: 3.5rem;
+            font-weight: 900;
             background: linear-gradient(135deg, #fff, #a5b4fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(165, 180, 252, 0.3);
         }
         
-        /* Testimonial avatar */
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        
-        /* How it works step */
+        /* Step number */
         .step-number {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, #6366f1, #a855f7);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+            animation: step-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes step-glow {
+            0%, 100% { box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 15px 50px rgba(99, 102, 241, 0.6), 0 0 30px rgba(168, 85, 247, 0.4); }
         }
         
         /* Pricing popular */
@@ -218,49 +273,93 @@
             border-radius: 22px;
             padding: 2px;
             background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            background-size: 300% 300%;
+            animation: border-gradient 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            animation: gradient-rotate 4s linear infinite;
         }
         
         /* Background orbs */
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
+            filter: blur(100px);
+            opacity: 0.5;
+            will-change: transform;
         }
         
         .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: #6366f1;
-            top: -200px;
-            left: -100px;
-            animation: float 8s ease-in-out infinite;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #6366f1, transparent);
+            top: -250px;
+            left: -150px;
+            animation: orb-float-1 15s ease-in-out infinite;
         }
         
         .orb-2 {
-            width: 400px;
-            height: 400px;
-            background: #a855f7;
-            top: 50%;
-            right: -100px;
-            animation: float 10s ease-in-out infinite reverse;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #a855f7, transparent);
+            top: 30%;
+            right: -150px;
+            animation: orb-float-2 18s ease-in-out infinite;
         }
         
         .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: #ec4899;
-            bottom: 20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #ec4899, transparent);
+            bottom: 10%;
             left: 20%;
-            animation: float 7s ease-in-out infinite;
+            animation: orb-float-3 12s ease-in-out infinite;
         }
         
-        /* Nav */
+        .orb-4 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #22c55e, transparent);
+            bottom: 40%;
+            right: 10%;
+            animation: orb-float-4 20s ease-in-out infinite;
+        }
+        
+        @keyframes orb-float-1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, 30px) scale(1.1); }
+            50% { transform: translate(30px, 60px) scale(0.95); }
+            75% { transform: translate(-20px, 30px) scale(1.05); }
+        }
+        
+        @keyframes orb-float-2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-40px, 50px) scale(1.15); }
+            66% { transform: translate(-20px, -30px) scale(0.9); }
+        }
+        
+        @keyframes orb-float-3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(40px, -40px) rotate(180deg); }
+        }
+        
+        @keyframes orb-float-4 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-30px, -20px); }
+            50% { transform: translate(20px, -40px); }
+            75% { transform: translate(40px, 20px); }
+        }
+        
+        /* Grid pattern */
+        .grid-pattern {
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        
+        /* Nav link */
         .nav-link {
             position: relative;
             transition: all 0.3s;
@@ -269,7 +368,7 @@
         .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: -6px;
             left: 0;
             width: 0;
             height: 2px;
@@ -284,7 +383,7 @@
         /* Scroll reveal */
         .reveal {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
@@ -293,150 +392,339 @@
             transform: translateY(0);
         }
         
-        /* Counter animation */
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .count-animate {
-            animation: countUp 0.6s ease-out forwards;
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Marquee */
+        .marquee {
+            animation: marquee 30s linear infinite;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* Ticker */
+        .ticker-wrap {
+            overflow: hidden;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        }
+        
+        .ticker {
+            display: flex;
+            animation: ticker 20s linear infinite;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        /* FAQ accordion */
+        .faq-item {
+            transition: all 0.3s;
+        }
+        
+        .faq-item:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Typing effect */
+        .typing {
+            overflow: hidden;
+            border-right: 3px solid #6366f1;
+            white-space: nowrap;
+            animation: typing 3s steps(30) forwards, blink 0.8s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        
+        /* Number counter animation */
+        .counter {
+            display: inline-block;
+        }
+        
+        /* Shine effect */
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 6s ease-in-out infinite;
+        }
+        
+        @keyframes shine {
+            0%, 100% { transform: translateX(-100%) rotate(30deg); }
+            50% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        /* Icon bounce on hover */
+        .icon-bounce:hover i {
+            animation: icon-bounce 0.5s ease;
+        }
+        
+        @keyframes icon-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* Ripple effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple:hover::before {
+            width: 300px;
+            height: 300px;
         }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Cursor glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+    
     <!-- Background orbs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="absolute inset-0 grid-pattern"></div>
     </div>
 
     <!-- Nav -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-2xl border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <a href="/" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     <i data-lucide="scan" class="w-6 h-6 text-white"></i>
                 </div>
                 <span class="text-xl font-bold">Site Doctor</span>
             </a>
-            <div class="hidden md:flex items-center gap-8">
-                <a href="#features" class="nav-link text-gray-400 text-sm">Возможности</a>
-                <a href="#how" class="nav-link text-gray-400 text-sm">Как работает</a>
-                <a href="#pricing" class="nav-link text-gray-400 text-sm">Тарифы</a>
-                <a href="/scan" class="btn-primary px-5 py-2.5 rounded-xl font-semibold text-sm">
-                    <span>Войти</span>
+            <div class="hidden md:flex items-center gap-10">
+                <a href="#features" class="nav-link text-gray-400 text-sm font-medium">Возможности</a>
+                <a href="#how" class="nav-link text-gray-400 text-sm font-medium">Как работает</a>
+                <a href="#pricing" class="nav-link text-gray-400 text-sm font-medium">Тарифы</a>
+                <a href="/scan" class="btn-primary px-6 py-3 rounded-xl font-semibold text-sm">
+                    <span class="flex items-center gap-2"><i data-lucide="log-in" class="w-4 h-4"></i> Войти</span>
                 </a>
             </div>
-            <button class="md:hidden p-2" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+            <button class="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
                 <i data-lucide="menu" class="w-6 h-6"></i>
             </button>
         </div>
     </nav>
 
     <!-- Mobile menu -->
-    <div id="mobileMenu" class="hidden fixed inset-0 z-40 bg-[#0a0a0b] pt-20 px-6">
+    <div id="mobileMenu" class="hidden fixed inset-0 z-40 bg-[#0a0a0b] pt-24 px-6">
         <div class="flex flex-col gap-6">
-            <a href="#features" class="text-xl">Возможности</a>
-            <a href="#how" class="text-xl">Как работает</a>
-            <a href="#pricing" class="text-xl">Тарифы</a>
-            <a href="/scan" class="btn-primary px-6 py-3 rounded-xl font-semibold text-center mt-4">
-                <span>Войти</span>
+            <a href="#features" class="text-2xl font-medium">Возможности</a>
+            <a href="#how" class="text-2xl font-medium">Как работает</a>
+            <a href="#pricing" class="text-2xl font-medium">Тарифы</a>
+            <a href="/scan" class="btn-primary px-6 py-4 rounded-xl font-semibold text-center mt-4">
+                <span class="flex items-center justify-center gap-2"><i data-lucide="log-in" class="w-5 h-5"></i> Войти</span>
             </a>
         </div>
     </div>
 
     <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center pt-24 pb-16 px-6 relative">
+    <section class="min-h-screen flex items-center justify-center pt-28 pb-20 px-6 relative">
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 reveal">
-                <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
+            <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-10 reveal">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                </span>
                 <span class="text-sm text-indigo-400 font-medium">AI-Powered анализ сайтов</span>
             </div>
             
             <!-- Headline -->
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-tight reveal">
-                <span class="block">Анализируй.</span>
-                <span class="gradient-text block">Исправляй.</span>
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-black mb-10 leading-tight reveal">
+                <span class="block mb-2">Анализируй.</span>
+                <span class="gradient-text block mb-2 glow-text">Исправляй.</span>
                 <span class="block">Сравнивай.</span>
             </h1>
             
             <!-- Subheadline -->
-            <p class="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto reveal">
+            <p class="text-xl md:text-2xl text-gray-400 mb-14 max-w-2xl mx-auto reveal">
                 Профессиональный AI-сканер для сайтов. 
-                <span class="text-white font-medium">Найди проблемы за 30 секунд.</span>
+                <span class="text-white font-semibold">Найди проблемы за 30 секунд.</span>
             </p>
             
             <!-- CTA buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 reveal">
-                <a href="/scan" class="btn-primary px-10 py-4 rounded-2xl font-bold text-lg flex items-center gap-3">
-                    <i data-lucide="zap" class="w-5 h-5"></i>
-                    <span>Начать бесплатно</span>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mb-16 reveal">
+                <a href="/scan" class="btn-primary px-12 py-5 rounded-2xl font-bold text-lg glow-pulse ripple">
+                    <span class="flex items-center gap-3">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                        Начать бесплатно
+                    </span>
                 </a>
-                <a href="#how" class="px-8 py-4 rounded-2xl font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-2">
+                <a href="#how" class="group px-8 py-5 rounded-2xl font-semibold text-gray-400 hover:text-white transition-all flex items-center gap-3">
                     Узнать больше
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
             
             <!-- Trust badges -->
-            <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 reveal">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+            <div class="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 reveal">
+                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     <span>Бесплатно</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     <span>Без регистрации</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     <span>30 секунд</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
                     <span>SSL шифрование</span>
                 </div>
             </div>
         </div>
         
+        <!-- Floating elements -->
+        <div class="absolute top-1/4 left-10 opacity-30 float">
+            <i data-lucide="code" class="w-12 h-12 text-indigo-400"></i>
+        </div>
+        <div class="absolute top-1/3 right-16 opacity-30 float float-delay-2">
+            <i data-lucide="globe" class="w-10 h-10 text-purple-400"></i>
+        </div>
+        <div class="absolute bottom-1/4 left-1/4 opacity-30 float float-delay-3">
+            <i data-lucide="search" class="w-14 h-14 text-pink-400"></i>
+        </div>
+        <div class="absolute bottom-1/3 right-1/4 opacity-30 float float-delay-4">
+            <i data-lucide="gauge" class="w-10 h-10 text-green-400"></i>
+        </div>
+        
         <!-- Scroll indicator -->
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
-            <i data-lucide="chevron-down" class="w-8 h-8 text-gray-500"></i>
+            <div class="w-8 h-12 rounded-full border-2 border-gray-600 flex items-start justify-center p-2">
+                <div class="w-1.5 h-3 bg-indigo-400 rounded-full animate-bounce"></div>
+            </div>
         </div>
     </section>
 
+    <!-- Ticker -->
+    <div class="ticker-wrap py-4">
+        <div class="ticker">
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">⚡ SEO АНАЛИЗ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🚀 СКОРОСТЬ САЙТА</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">♿ ДОСТУПНОСТЬ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🔗 ПРОВЕРКА ССЫЛОК</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">📱 МОБИЛЬНЫЕ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🔒 БЕЗОПАСНОСТЬ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">⚡ SEO АНАЛИЗ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🚀 СКОРОСТЬ САЙТА</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">♿ ДОСТУПНОСТЬ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🔗 ПРОВЕРКА ССЫЛОК</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">📱 МОБИЛЬНЫЕ</span>
+            <span class="text-white/50 mx-4">•</span>
+            <span class="text-white font-bold text-sm mx-8 whitespace-nowrap">🔒 БЕЗОПАСНОСТЬ</span>
+        </div>
+    </div>
+
     <!-- Stats -->
-    <section class="py-16 px-6 border-y border-white/5 bg-white/[0.02]">
+    <section class="py-20 px-6 border-y border-white/5 bg-white/[0.02]">
         <div class="max-w-6xl mx-auto">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-10">
                 <div class="text-center reveal">
-                    <div class="stat-number">10K+</div>
-                    <div class="text-gray-400 mt-2">Сканирований</div>
+                    <div class="stat-number counter" data-target="10000">10K+</div>
+                    <div class="text-gray-400 mt-3">Сканирований</div>
                 </div>
                 <div class="text-center reveal">
-                    <div class="stat-number">50+</div>
-                    <div class="text-gray-400 mt-2">Проверок</div>
+                    <div class="stat-number counter" data-target="50">50+</div>
+                    <div class="text-gray-400 mt-3">Проверок</div>
                 </div>
                 <div class="text-center reveal">
-                    <div class="stat-number">6</div>
-                    <div class="text-gray-400 mt-2">Категорий</div>
+                    <div class="stat-number counter" data-target="6">6</div>
+                    <div class="text-gray-400 mt-3">Категорий</div>
                 </div>
                 <div class="text-center reveal">
-                    <div class="stat-number">99%</div>
-                    <div class="text-gray-400 mt-2">Точность</div>
+                    <div class="stat-number counter" data-target="99">99%</div>
+                    <div class="text-gray-400 mt-3">Точность</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features -->
-    <section id="features" class="py-24 px-6">
+    <section id="features" class="py-28 px-6">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-20 reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Возможности</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">Возможности</span>
                 <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Всё что нужно для анализа</h2>
                 <p class="text-gray-400 text-lg max-w-2xl mx-auto">
                     Комплексный анализ сайта: от SEO до безопасности. 
@@ -447,9 +735,9 @@
             <!-- Main features -->
             <div class="grid md:grid-cols-3 gap-8 mb-16">
                 <!-- SEO -->
-                <div class="card p-10 reveal">
-                    <div class="feature-icon mb-8">
-                        <i data-lucide="search" class="w-8 h-8 text-indigo-400"></i>
+                <div class="card p-10 reveal icon-bounce">
+                    <div class="card-icon mb-8">
+                        <i data-lucide="search" class="w-9 h-9 text-indigo-400"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">SEO анализ</h3>
                     <p class="text-gray-400 mb-8">
@@ -457,26 +745,26 @@
                         Open Graph, robots.txt и многое другое.
                     </p>
                     <ul class="space-y-4">
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
                             </div>
                             Title и Description
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
                             </div>
                             H1-H6 структура
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
                             </div>
                             Open Graph теги
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-indigo-400"></i>
                             </div>
                             Canonical и Robots
@@ -485,9 +773,9 @@
                 </div>
                 
                 <!-- Auto Fixes -->
-                <div class="card p-10 reveal">
-                    <div class="feature-icon mb-8">
-                        <i data-lucide="wand-2" class="w-8 h-8 text-purple-400"></i>
+                <div class="card p-10 reveal icon-bounce">
+                    <div class="card-icon mb-8">
+                        <i data-lucide="wand-2" class="w-9 h-9 text-purple-400"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Авто-исправления</h3>
                     <p class="text-gray-400 mb-8">
@@ -495,27 +783,27 @@
                         Не нужно копаться в коде - мы дадим готовый код.
                     </p>
                     <ul class="space-y-4">
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
                             </div>
                             Готовый HTML код
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
                             </div>
                             Безопасно и обратимо
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
                             </div>
                             Одно нажатие
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-4 h-4 text-purple-400"></i>
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-purple-400"></i>
                             </div>
                             +40 баллов к оценке
                         </li>
@@ -523,9 +811,9 @@
                 </div>
                 
                 <!-- Compare -->
-                <div class="card p-10 reveal">
-                    <div class="feature-icon mb-8">
-                        <i data-lucide="git-compare" class="w-8 h-8 text-pink-400"></i>
+                <div class="card p-10 reveal icon-bounce">
+                    <div class="card-icon mb-8">
+                        <i data-lucide="git-compare" class="w-9 h-9 text-pink-400"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Сравнение</h3>
                     <p class="text-gray-400 mb-8">
@@ -533,27 +821,27 @@
                         Отслеживай прогресс и экономь время.
                     </p>
                     <ul class="space-y-4">
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
                             </div>
                             Side-by-side
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
                             </div>
                             История версий
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
                             </div>
                             Прогресс-бар
                         </li>
-                        <li class="flex items-center gap-3 text-gray-300">
-                            <div class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-4 h-4 text-pink-400"></i>
+                        <li class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="file-text" class="w-4 h-4 text-pink-400"></i>
                             </div>
                             PDF экспорт
                         </li>
@@ -562,24 +850,32 @@
             </div>
             
             <!-- Additional features grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
-                <div class="card p-6 text-center">
-                    <i data-lucide="gauge" class="w-10 h-10 text-green-400 mx-auto mb-4"></i>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-scale">
+                <div class="card p-6 text-center group cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="gauge" class="w-8 h-8 text-green-400"></i>
+                    </div>
                     <h4 class="font-semibold mb-2">Скорость</h4>
                     <p class="text-xs text-gray-500">Google Lighthouse метрики</p>
                 </div>
-                <div class="card p-6 text-center">
-                    <i data-lucide="smartphone" class="w-10 h-10 text-blue-400 mx-auto mb-4"></i>
+                <div class="card p-6 text-center group cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="smartphone" class="w-8 h-8 text-blue-400"></i>
+                    </div>
                     <h4 class="font-semibold mb-2">Мобильные</h4>
                     <p class="text-xs text-gray-500">Viewport, размеры шрифтов</p>
                 </div>
-                <div class="card p-6 text-center">
-                    <i data-lucide="link" class="w-10 h-10 text-yellow-400 mx-auto mb-4"></i>
+                <div class="card p-6 text-center group cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="link" class="w-8 h-8 text-yellow-400"></i>
+                    </div>
                     <h4 class="font-semibold mb-2">Ссылки</h4>
                     <p class="text-xs text-gray-500">Битые и внутренние</p>
                 </div>
-                <div class="card p-6 text-center">
-                    <i data-lucide="shield" class="w-10 h-10 text-red-400 mx-auto mb-4"></i>
+                <div class="card p-6 text-center group cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shield" class="w-8 h-8 text-red-400"></i>
+                    </div>
                     <h4 class="font-semibold mb-2">Безопасность</h4>
                     <p class="text-xs text-gray-500">HTTPS, CSP, Mixed Content</p>
                 </div>
@@ -588,10 +884,10 @@
     </section>
 
     <!-- How it works -->
-    <section id="how" class="py-24 px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+    <section id="how" class="py-28 px-6 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-20 reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Процесс</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">Процесс</span>
                 <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Как это работает</h2>
                 <p class="text-gray-400 text-lg">Простой процесс в 3 шага</p>
             </div>
@@ -631,17 +927,17 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="py-24 px-6">
+    <section class="py-28 px-6">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16 reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Отзывы</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">Отзывы</span>
                 <h2 class="text-4xl font-bold mt-4">Что говорят пользователи</h2>
             </div>
             
             <div class="grid md:grid-cols-3 gap-8 reveal">
-                <div class="card p-8">
+                <div class="card p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="avatar bg-gradient-to-br from-blue-500 to-blue-600">A</div>
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-xl font-bold">АК</div>
                         <div>
                             <div class="font-semibold">Алексей К.</div>
                             <div class="text-sm text-gray-500">Веб-разработчик</div>
@@ -652,17 +948,17 @@
                         Особенно понравились авто-исправления."
                     </p>
                     <div class="flex gap-1">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
                     </div>
                 </div>
                 
-                <div class="card p-8">
+                <div class="card p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="avatar bg-gradient-to-br from-green-500 to-green-600">М</div>
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-xl font-bold">МС</div>
                         <div>
                             <div class="font-semibold">Мария С.</div>
                             <div class="text-sm text-gray-500">SEO специалист</div>
@@ -673,17 +969,17 @@
                         Экономит массу времени. Рекомендую!"
                     </p>
                     <div class="flex gap-1">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
                     </div>
                 </div>
                 
-                <div class="card p-8">
+                <div class="card p-8 shine">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="avatar bg-gradient-to-br from-purple-500 to-purple-600">Д</div>
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-xl font-bold">ДВ</div>
                         <div>
                             <div class="font-semibold">Дмитрий В.</div>
                             <div class="text-sm text-gray-500">Владелец бизнеса</div>
@@ -694,11 +990,11 @@
                         Без знаний программирования нашёл и исправил проблемы."
                     </p>
                     <div class="flex gap-1">
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
-                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
                     </div>
                 </div>
             </div>
@@ -706,50 +1002,50 @@
     </section>
 
     <!-- For Who -->
-    <section class="py-24 px-6">
+    <section class="py-28 px-6">
         <div class="max-w-4xl mx-auto text-center">
             <div class="reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Аудитория</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">Аудитория</span>
                 <h2 class="text-4xl font-bold mt-4 mb-12">Для кого это</h2>
             </div>
             
-            <div class="flex flex-wrap justify-center gap-4 reveal">
-                <div class="card px-8 py-4 flex items-center gap-3">
-                    <i data-lucide="code-2" class="w-5 h-5 text-indigo-400"></i>
-                    <span class="font-medium">Разработчики</span>
+            <div class="flex flex-wrap justify-center gap-5 reveal">
+                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="code-2" class="w-6 h-6 text-indigo-400"></i>
+                    <span class="font-semibold">Разработчики</span>
                 </div>
-                <div class="card px-8 py-4 flex items-center gap-3">
-                    <i data-lucide="globe" class="w-5 h-5 text-purple-400"></i>
-                    <span class="font-medium">Веб-мастера</span>
+                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="globe" class="w-6 h-6 text-purple-400"></i>
+                    <span class="font-semibold">Веб-мастера</span>
                 </div>
-                <div class="card px-8 py-4 flex items-center gap-3">
-                    <i data-lucide="trending-up" class="w-5 h-5 text-pink-400"></i>
-                    <span class="font-medium">SEO специалисты</span>
+                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-pink-400"></i>
+                    <span class="font-semibold">SEO специалисты</span>
                 </div>
-                <div class="card px-8 py-4 flex items-center gap-3">
-                    <i data-lucide="briefcase" class="w-5 h-5 text-blue-400"></i>
-                    <span class="font-medium">Владельцы бизнеса</span>
+                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-blue-400"></i>
+                    <span class="font-semibold">Владельцы бизнеса</span>
                 </div>
-                <div class="card px-8 py-4 flex items-center gap-3">
-                    <i data-lucide="users" class="w-5 h-5 text-green-400"></i>
-                    <span class="font-medium">Маркетологи</span>
+                <div class="card px-8 py-5 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                    <i data-lucide="users" class="w-6 h-6 text-green-400"></i>
+                    <span class="font-semibold">Маркетологи</span>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Pricing -->
-    <section id="pricing" class="py-24 px-6">
+    <section id="pricing" class="py-28 px-6">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16 reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">Тарифы</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">Тарифы</span>
                 <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Выбери свой план</h2>
                 <p class="text-gray-400 text-lg">Начни бесплатно, масштабируйся при необходимости</p>
             </div>
             
             <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 <!-- Free -->
-                <div class="card p-10 reveal">
+                <div class="card p-10 reveal icon-bounce">
                     <div class="text-gray-400 font-semibold text-lg mb-2">Free</div>
                     <div class="text-5xl font-black mb-2">$0</div>
                     <div class="text-gray-500 mb-8">навсегда</div>
@@ -777,14 +1073,14 @@
                         </li>
                     </ul>
                     
-                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border border-white/20 hover:bg-white/5 transition-all">
+                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border-2 border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all">
                         Начать бесплатно
                     </a>
                 </div>
                 
                 <!-- Pro -->
-                <div class="pricing-popular p-10 reveal">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-bold">
+                <div class="pricing-popular p-10 reveal icon-bounce">
+                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-bold">
                         Популярный
                     </div>
                     <div class="text-indigo-400 font-semibold text-lg mb-2">Pro</div>
@@ -820,7 +1116,7 @@
                 </div>
                 
                 <!-- Business -->
-                <div class="card p-10 reveal">
+                <div class="card p-10 reveal icon-bounce">
                     <div class="text-purple-400 font-semibold text-lg mb-2">Business</div>
                     <div class="text-5xl font-black mb-2">$59.99</div>
                     <div class="text-gray-500 mb-8">в месяц</div>
@@ -848,7 +1144,7 @@
                         </li>
                     </ul>
                     
-                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border border-white/20 hover:bg-white/5 transition-all">
+                    <a href="/scan" class="block w-full py-4 rounded-xl text-center font-semibold border-2 border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all">
                         Выбрать Business
                     </a>
                 </div>
@@ -857,64 +1153,79 @@
     </section>
 
     <!-- FAQ -->
-    <section class="py-24 px-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
+    <section class="py-28 px-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
         <div class="max-w-3xl mx-auto">
             <div class="text-center mb-16 reveal">
-                <span class="text-indigo-400 font-semibold text-sm uppercase tracking-wider">FAQ</span>
+                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-6">FAQ</span>
                 <h2 class="text-4xl font-bold mt-4">Частые вопросы</h2>
             </div>
             
             <div class="space-y-4 reveal">
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
-                        Как это работает?
-                    </h3>
-                    <p class="text-gray-400 pl-8">
+                <div class="faq-item card p-6 cursor-pointer" onclick="toggleFaq(this)">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg flex items-center gap-3">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                            Как это работает?
+                        </h3>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gray-400 transition-transform"></i>
+                    </div>
+                    <p class="faq-answer text-gray-400 pl-10 mt-4">
                         Введи URL сайта и нажми "Сканировать". За 30 секунд наш AI проанализирует 
                         сайт по 50+ параметрам: SEO, скорость загрузки, доступность, ссылки и безопасность.
                     </p>
                 </div>
                 
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
-                        Это бесплатно?
-                    </h3>
-                    <p class="text-gray-400 pl-8">
+                <div class="faq-item card p-6 cursor-pointer" onclick="toggleFaq(this)">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg flex items-center gap-3">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                            Это бесплатно?
+                        </h3>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gray-400 transition-transform"></i>
+                    </div>
+                    <p class="faq-answer text-gray-400 pl-10 mt-4">
                         Да! Тариф Free даёт 3 бесплатных сканирования в месяц навсегда. 
                         Для большего количества - тарифы Pro и Business.
                     </p>
                 </div>
                 
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
-                        Какие сайты можно сканировать?
-                    </h3>
-                    <p class="text-gray-400 pl-8">
+                <div class="faq-item card p-6 cursor-pointer" onclick="toggleFaq(this)">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg flex items-center gap-3">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                            Какие сайты можно сканировать?
+                        </h3>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gray-400 transition-transform"></i>
+                    </div>
+                    <p class="faq-answer text-gray-400 pl-10 mt-4">
                         Любые публичные сайты: WordPress, Shopify, Tilda, конструкторы и самописные. 
                         Поддерживаются как обычные сайты, так и SPA (React, Vue, Angular).
                     </p>
                 </div>
                 
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
-                        Нужна ли регистрация?
-                    </h3>
-                    <p class="text-gray-400 pl-8">
+                <div class="faq-item card p-6 cursor-pointer" onclick="toggleFaq(this)">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg flex items-center gap-3">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                            Нужна ли регистрация?
+                        </h3>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gray-400 transition-transform"></i>
+                    </div>
+                    <p class="faq-answer text-gray-400 pl-10 mt-4">
                         Для базового сканирования - нет. Но для сохранения истории, 
                         доступа к авто-исправлениям и сравнению - регистрация за 10 секунд.
                     </p>
                 </div>
                 
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-3 flex items-center gap-3">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
-                        Насколько безопасно?
-                    </h3>
-                    <p class="text-gray-400 pl-8">
+                <div class="faq-item card p-6 cursor-pointer" onclick="toggleFaq(this)">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg flex items-center gap-3">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-400"></i>
+                            Насколько безопасно?
+                        </h3>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gray-400 transition-transform"></i>
+                    </div>
+                    <p class="faq-answer text-gray-400 pl-10 mt-4">
                         Абсолютно безопасно. Мы не сохраняем и не передаём данные сайтов. 
                         Все соединения зашифрованы SSL. Авто-исправления обратимы.
                     </p>
@@ -924,9 +1235,9 @@
     </section>
 
     <!-- CTA -->
-    <section class="py-24 px-6">
+    <section class="py-28 px-6">
         <div class="max-w-4xl mx-auto reveal">
-            <div class="gradient-border p-16 text-center relative overflow-hidden">
+            <div class="gradient-border-animated p-20 text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
                 <div class="relative z-10">
                     <h2 class="text-4xl md:text-5xl font-bold mb-6">Готов начать?</h2>
@@ -934,8 +1245,8 @@
                         Просканируй свой первый сайт бесплатно. 
                         Займёт всего 30 секунд.
                     </p>
-                    <a href="/scan" class="btn-primary px-12 py-5 rounded-2xl font-bold text-lg inline-flex items-center gap-3">
-                        <i data-lucide="zap" class="w-6 h-6"></i>
+                    <a href="/scan" class="btn-primary px-14 py-6 rounded-2xl font-bold text-lg glow-pulse ripple inline-flex items-center gap-3">
+                        <i data-lucide="zap" class="w-7 h-7"></i>
                         <span>Начать бесплатно</span>
                     </a>
                 </div>
@@ -949,8 +1260,8 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div>
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                            <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                            <i data-lucide="scan" class="w-6 h-6 text-white"></i>
                         </div>
                         <span class="text-xl font-bold">Site Doctor</span>
                     </div>
@@ -992,13 +1303,13 @@
                     © 2024 Site Doctor. Все права защищены.
                 </div>
                 <div class="flex items-center gap-4">
-                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <a href="#" class="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:scale-110 transition-all">
                         <i data-lucide="twitter" class="w-5 h-5 text-gray-400"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <a href="#" class="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:scale-110 transition-all">
                         <i data-lucide="github" class="w-5 h-5 text-gray-400"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <a href="#" class="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:scale-110 transition-all">
                         <i data-lucide="linkedin" class="w-5 h-5 text-gray-400"></i>
                     </a>
                 </div>
@@ -1009,6 +1320,13 @@
     <script>
         lucide.createIcons();
         
+        // Cursor glow effect
+        const cursorGlow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = e.clientX + 'px';
+            cursorGlow.style.top = e.clientY + 'px';
+        });
+        
         // Scroll reveal animation
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1018,7 +1336,7 @@
             });
         }, { threshold: 0.1 });
         
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        document.querySelectorAll('.reveal, .reveal-scale').forEach(el => observer.observe(el));
         
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1029,6 +1347,23 @@
                     target.scrollIntoView({ behavior: 'smooth' });
                     document.getElementById('mobileMenu').classList.add('hidden');
                 }
+            });
+        });
+        
+        // FAQ toggle
+        function toggleFaq(item) {
+            document.querySelectorAll('.faq-item').forEach(i => {
+                if (i !== item) i.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        }
+        
+        // Parallax effect on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            document.querySelectorAll('.orb').forEach((orb, i) => {
+                const speed = 0.1 + (i * 0.05);
+                orb.style.transform = `translateY(${scrolled * speed}px)`;
             });
         });
     </script>
