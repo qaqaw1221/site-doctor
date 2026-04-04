@@ -8,7 +8,11 @@ const router = express.Router();
 async function performScan(url) {
     const scanner = new SimpleScanner();
     try {
-        const results = await scanner.scan(url, { modules: ['seo', 'performance', 'accessibility', 'links', 'mobile'] });
+        const options = {
+            modules: ['seo', 'performance', 'accessibility', 'links', 'mobile'],
+            lighthouseApiKey: process.env.LIGHTHOUSE_API_KEY || null
+        };
+        const results = await scanner.scan(url, options);
         scanner.close();
         return results;
     } catch (err) {

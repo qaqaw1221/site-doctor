@@ -1592,8 +1592,12 @@
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('performance')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.performance)}">${scores.performance}</div>
-                        <div class="text-xs text-gray-500 mt-1">Скорость</div>
+                        <div class="text-xs text-gray-500 mt-1">Скорость${data.lighthouse ? ' 🏆' : ''}</div>
                         <div class="text-xs text-gray-600 mt-1">${(data.performance && data.performance.checks) ? data.performance.checks.length : 0} checks</div>
+                        ${data.lighthouse && data.lighthouse.metrics ? `
+                            <div class="text-xs text-green-400 mt-1">FCP: ${data.lighthouse.metrics.fcp || '-'}</div>
+                            <div class="text-xs text-green-400">LCP: ${data.lighthouse.metrics.lcp || '-'}</div>
+                        ` : ''}
                     </div>
                     <div class="card p-4 text-center cursor-pointer hover:border-indigo-500/30 transition-colors" onclick="showCategoryDetails('accessibility')">
                         <div class="text-2xl font-bold ${getScoreColor(scores.accessibility)}">${scores.accessibility}</div>
@@ -1851,8 +1855,50 @@
             
             const checksContainer = document.getElementById('categoryChecks');
             
+            let lighthouseMetricsHtml = '';
+            if (category === 'performance' && currentScanData.lighthouse && currentScanData.lighthouse.metrics) {
+                const m = currentScanData.lighthouse.metrics;
+                lighthouseMetricsHtml = `
+                    <div class="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg border border-green-500/20">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="gauge" class="w-5 h-5 text-green-400"></i>
+                            <span class="font-semibold text-green-400">Google Lighthouse Metrics (Core Web Vitals)</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.fcp || '-'}</div>
+                                <div class="text-xs text-gray-400">FCP (First Contentful Paint)</div>
+                                <div class="text-xs ${parseFloat(m.fcp) <= 1.8 ? 'text-green-400' : 'text-red-400'}">${parseFloat(m.fcp) <= 1.8 ? '✓ Хорошо' : '✗ Нужно улучшить'}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.lcp || '-'}</div>
+                                <div class="text-xs text-gray-400">LCP (Largest Contentful Paint)</div>
+                                <div class="text-xs ${parseFloat(m.lcp) <= 2.5 ? 'text-green-400' : 'text-red-400'}">${parseFloat(m.lcp) <= 2.5 ? '✓ Хорошо' : '✗ Нужно улучшить'}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.cls || '-'}</div>
+                                <div class="text-xs text-gray-400">CLS (Cumulative Layout Shift)</div>
+                                <div class="text-xs ${parseFloat(m.cls) <= 0.1 ? 'text-green-400' : 'text-red-400'}">${parseFloat(m.cls) <= 0.1 ? '✓ Хорошо' : '✗ Нужно улучшить'}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.tbt || '-'}</div>
+                                <div class="text-xs text-gray-400">TBT (Total Blocking Time)</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.si || '-'}</div>
+                                <div class="text-xs text-gray-400">SI (Speed Index)</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${m.interactive || '-'}</div>
+                                <div class="text-xs text-gray-400">Time to Interactive</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
             if (!checks || checks.length === 0) {
-                checksContainer.innerHTML = `
+                checksContainer.innerHTML = lighthouseMetricsHtml + `
                     <div class="text-center py-12 text-gray-400">
                         <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
                         <p class="text-lg">Все проверки пройдены!</p>
@@ -1860,7 +1906,7 @@
                     </div>
                 `;
             } else {
-                checksContainer.innerHTML = checks.map(check => {
+                checksContainer.innerHTML = lighthouseMetricsHtml + checks.map(check => {
                     const statusConfig = {
                         pass: { icon: 'check-circle', color: 'green', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-400' },
                         error: { icon: 'x-circle', color: 'red', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400' },
