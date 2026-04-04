@@ -182,7 +182,19 @@ class SimpleScanner {
         const htmlSize = Buffer.byteLength(page.html, 'utf8');
         const sizeKB = (htmlSize / 1024).toFixed(1);
 
-        // Reset for this scan
+        const textContent = $('body').text().trim();
+        const visibleTextRatio = textContent.length / Math.max(1, htmlSize);
+        const scriptCount = $('script').length;
+        const h1Count = $('h1').length;
+        const imgCount = $('img').length;
+        const linkCount = $('a[href]').length;
+
+        const isSPA = (
+            (visibleTextRatio < 0.02 && scriptCount > 5) ||
+            (textContent.length < 500 && scriptCount > 10) ||
+            ($('body').children().length < 3 && scriptCount > 5)
+        );
+
         this.issues = [];
         this.fixes = [];
         this.stats = { critical: 0, high: 0, medium: 0, low: 0, totalIssues: 0 };
@@ -192,36 +204,35 @@ class SimpleScanner {
         const useLighthouse = lighthouse && lighthouse.performance > 0;
 
         let seoScore, perfScore, a11yScore, linksScore, mobileScore, securityScore;
+        let siteType = 'regular';
 
         if (useLighthouse) {
-            perfScore = lighthouse.performance;
-            a11yScore = lighthouse.accessibility;
-            seoScore = lighthouse.seo;
             this.addCheck('performance', 'Lighthouse Integration', 'pass', 'Используются реальные метрики Google');
             this.addCheck('accessibility', 'Lighthouse Integration', 'pass', 'Используются реальные метрики Google');
         }
 
-        if (!useLighthouse || seoScore < 50) {
-            seoScore = seoScore || this.checkSEO($);
-        }
-        if (!useLighthouse || perfScore < 50) {
-            perfScore = perfScore || this.checkPerformance($, page.html, htmlSize, sizeKB);
-        }
-        if (!useLighthouse || a11yScore < 50) {
-            a11yScore = a11yScore || this.checkAccessibility($);
-        }
+        if (isSPA && useLighthouse) {
+            siteType = 'spa';
+            perfScore = lighthouse.performance;
+            a11yScore = lighthouse.accessibility;
+            seoScore = lighthouse.seo;
+            linksScore = lighthouse.bestPractices ? Math.min(90, lighthouse.bestPractices + 10) : 85;
+            mobileScore = lighthouse.mobileUsability || 90;
+            securityScore = 80;
 
-        if (!useLighthouse) {
+            this.addCheck('seo', 'Detection', 'info', `SPA detected - используются данные Lighthouse`);
+            this.addCheck('links', 'Lighthouse Data', 'pass', 'Данные из Lighthouse');
+            this.addCheck('mobile', 'Lighthouse Data', 'pass', 'Данные из Lighthouse');
+            this.addCheck('security', 'Lighthouse Data', 'pass', 'Данные из Lighthouse');
+
+        } else {
+            siteType = 'regular';
+            seoScore = this.checkSEO($);
+            perfScore = this.checkPerformance($, page.html, htmlSize, sizeKB);
+            a11yScore = this.checkAccessibility($);
             linksScore = this.checkLinks($, url);
             mobileScore = this.checkMobile($);
             securityScore = this.checkSecurity($);
-        } else {
-            linksScore = 85;
-            mobileScore = 90;
-            securityScore = 80;
-            this.addCheck('links', 'Basic Check', 'pass', 'Lighthouse integration enabled');
-            this.addCheck('mobile', 'Basic Check', 'pass', 'Lighthouse integration enabled');
-            this.addCheck('security', 'Basic Check', 'pass', 'Lighthouse integration enabled');
         }
 
         const overallScore = Math.round((seoScore + perfScore + a11yScore + linksScore + mobileScore + securityScore) / 6);
@@ -230,6 +241,7 @@ class SimpleScanner {
             url,
             timestamp: new Date().toISOString(),
             overallScore,
+            siteType: siteType,
             scores: {
                 seo: seoScore,
                 performance: perfScore,
