@@ -533,19 +533,399 @@
         }
         
         /* ========== SECTION DIVIDER ========== */
-        .section-glow {
+        .section-divider {
             position: relative;
+            height: 1px;
         }
         
-        .section-glow::before {
+        .section-divider::before {
             content: '';
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 60%;
+            width: 30%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), transparent);
+        }
+        
+        .section-divider::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #6366f1;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+        }
+        
+        /* ========== DECORATIVE ELEMENTS ========== */
+        .decoration-dots {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.5);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decoration-dots:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .decoration-dots:nth-child(2) { top: 20%; right: 15%; animation-delay: -2s; background: rgba(168, 85, 247, 0.5); }
+        .decoration-dots:nth-child(3) { bottom: 30%; left: 5%; animation-delay: -4s; background: rgba(236, 72, 153, 0.5); }
+        .decoration-dots:nth-child(4) { bottom: 15%; right: 10%; animation-delay: -1s; background: rgba(99, 102, 241, 0.5); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
+        }
+        
+        /* ========== DECORATIVE LINES ========== */
+        .corner-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            pointer-events: none;
+        }
+        
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 20px;
+        }
+        
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+            border-top-right-radius: 20px;
+        }
+        
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+            border-bottom-left-radius: 20px;
+        }
+        
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 20px;
+        }
+        
+        /* ========== FEATURE LIST ITEMS ========== */
+        .feature-list-item {
+            position: relative;
+            padding-left: 28px;
+        }
+        
+        .feature-list-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        /* ========== TRUSTED BADGES ========== */
+        .trusted-badge {
+            position: relative;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .trusted-badge::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), transparent, rgba(168, 85, 247, 0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+        
+        /* ========== STATS CARD ========== */
+        .stat-card {
+            position: relative;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s;
+        }
+        
+        .stat-card:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-4px);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0.5;
+        }
+        
+        .stat-card.color-1 { color: #818cf8; }
+        .stat-card.color-2 { color: #a78bfa; }
+        .stat-card.color-3 { color: #c084fc; }
+        .stat-card.color-4 { color: #f472b6; }
+        .stat-card.color-5 { color: #fbbf24; }
+        
+        /* ========== TESTIMONIAL AVATAR ========== */
+        .avatar {
+            position: relative;
+        }
+        
+        .avatar::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .avatar:hover::after {
+            opacity: 1;
+        }
+        
+        /* ========== STEP CONNECTOR ========== */
+        .step-connector {
+            position: absolute;
+            top: 35px;
+            left: calc(50% + 50px);
+            width: calc(100% - 100px);
+            height: 2px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.5));
+        }
+        
+        /* ========== FLOATING SHAPES ========== */
+        .floating-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: shape-float 15s ease-in-out infinite;
+        }
+        
+        @keyframes shape-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        
+        /* ========== PRICING FEATURE CHECK ========== */
+        .pricing-feature {
+            position: relative;
+            padding-left: 24px;
+        }
+        
+        .pricing-feature::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+        
+        .pricing-feature.disabled::before {
+            content: '✕';
+            color: #6b7280;
+        }
+        
+        /* ========== HERO DECORATIONS ========== */
+        .hero-decoration {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            animation: hero-ring 10s linear infinite;
+        }
+        
+        .hero-decoration:nth-child(1) { animation-duration: 20s; }
+        .hero-decoration:nth-child(2) { animation-duration: 15s; animation-direction: reverse; }
+        .hero-decoration:nth-child(3) { animation-duration: 25s; }
+        
+        @keyframes hero-ring {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ========== TRUSTED BADGE ENHANCED ========== */
+        .trust-item {
+            position: relative;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px;
+            transition: all 0.4s;
+        }
+        
+        .trust-item:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* ========== FAQ ACCORDION ENHANCED ========== */
+        .faq-question {
+            position: relative;
+            padding-left: 32px;
+        }
+        
+        .faq-question::before {
+            content: 'Q';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* ========== DEMO INPUT ENHANCED ========== */
+        .demo-input {
+            position: relative;
+        }
+        
+        .demo-input::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='2' y1='12' x2='22' y2='12'/%3E%3Cpath d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E") no-repeat center;
+            opacity: 0.5;
+        }
+        
+        .demo-input input {
+            padding-left: 50px;
+        }
+        
+        /* ========== PRICING CARD ENHANCED ========== */
+        .pricing-card {
+            position: relative;
+        }
+        
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        
+        /* ========== CTA SECTION DECORATIONS ========== */
+        .cta-decoration {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .cta-decoration.left {
+            top: -100px;
+            left: -100px;
+            animation: cta-float 8s ease-in-out infinite;
+        }
+        
+        .cta-decoration.right {
+            bottom: -100px;
+            right: -100px;
+            animation: cta-float 10s ease-in-out infinite reverse;
+        }
+        
+        @keyframes cta-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+        }
+        
+        /* ========== GRID PATTERN OVERLAY ========== */
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+        
+        /* ========== TESTIMONIAL CARD ENHANCED ========== */
+        .testimonial-card {
+            position: relative;
+        }
+        
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 80px;
+            font-family: Georgia, serif;
+            color: rgba(99, 102, 241, 0.1);
+            line-height: 1;
+        }
+        
+        /* ========== FEATURE NUMBER BADGE ========== */
+        .feature-number {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
     </style>
 </head>
@@ -597,7 +977,26 @@
     </div>
 
     <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center pt-20 md:pt-28 pb-12 md:pb-20 px-4 md:px-6 relative">
+    <section class="min-h-screen flex items-center justify-center pt-20 md:pt-28 pb-12 md:pb-20 px-4 md:px-6 relative overflow-hidden">
+        <!-- Grid pattern overlay -->
+        <div class="grid-pattern opacity-50"></div>
+        
+        <!-- Decorative elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="corner-decoration top-left"></div>
+            <div class="corner-decoration top-right"></div>
+            <div class="corner-decoration bottom-left"></div>
+            <div class="corner-decoration bottom-right"></div>
+            <div class="decoration-dots"></div>
+            <div class="decoration-dots"></div>
+            <div class="decoration-dots"></div>
+            <div class="decoration-dots"></div>
+            
+            <!-- Floating rings -->
+            <div class="hero-decoration" style="top: 10%; left: 10%;"></div>
+            <div class="hero-decoration" style="bottom: 20%; right: 5%;"></div>
+        </div>
+        
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <!-- Badge -->
             <div class="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/40 mb-6 md:mb-10">
@@ -636,21 +1035,21 @@
             </div>
             
             <!-- Trust badges -->
-            <div class="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 reveal">
-                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+            <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4 reveal">
+                <div class="trust-item flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
                     <span>Бесплатно</span>
                 </div>
-                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <div class="trust-item flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
                     <span>Без регистрации</span>
                 </div>
-                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <div class="trust-item flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
                     <span>30 секунд</span>
                 </div>
-                <div class="flex items-center gap-2 hover:text-green-400 transition-colors">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <div class="trust-item flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
                     <span>SSL шифрование</span>
                 </div>
             </div>
@@ -667,24 +1066,24 @@
     <!-- Stats -->
     <section class="py-16 md:py-24 px-4 md:px-6 border-y border-white/[0.05] bg-gradient-to-b from-indigo-500/[0.03] via-transparent to-indigo-500/[0.03]">
         <div class="max-w-6xl mx-auto">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
-                <div class="text-center reveal">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+                <div class="stat-card text-center reveal color-1">
                     <div class="stat-number text-2xl md:text-3xl">10K+</div>
                     <div class="text-gray-400 mt-2 md:mt-4 text-xs md:text-sm">Сайтов проверено</div>
                 </div>
-                <div class="text-center reveal">
+                <div class="stat-card text-center reveal color-2">
                     <div class="stat-number text-2xl md:text-3xl">50+</div>
                     <div class="text-gray-400 mt-2 md:mt-4 text-xs md:text-sm">Проверок</div>
                 </div>
-                <div class="text-center reveal">
+                <div class="stat-card text-center reveal color-3">
                     <div class="stat-number text-2xl md:text-3xl">6</div>
                     <div class="text-gray-400 mt-2 md:mt-4 text-xs md:text-sm">Категорий</div>
                 </div>
-                <div class="text-center reveal">
+                <div class="stat-card text-center reveal color-4">
                     <div class="stat-number text-2xl md:text-3xl">98%</div>
                     <div class="text-gray-400 mt-2 md:mt-4 text-xs md:text-sm">Точность</div>
                 </div>
-                <div class="text-center reveal col-span-2 md:col-span-1">
+                <div class="stat-card text-center reveal col-span-2 md:col-span-1 color-5">
                     <div class="stat-number text-2xl md:text-3xl">4.9★</div>
                     <div class="text-gray-400 mt-2 md:mt-4 text-xs md:text-sm">Рейтинг</div>
                 </div>
@@ -907,9 +1306,9 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 reveal">
-                <div class="card p-6 md:p-8">
+                <div class="card testimonial-card p-6 md:p-8">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-lg md:text-xl font-bold">АК</div>
+                        <div class="avatar w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-lg md:text-xl font-bold">АК</div>
                         <div>
                             <div class="font-semibold">Алексей К.</div>
                             <div class="text-sm text-gray-500">Веб-разработчик</div>
@@ -928,9 +1327,9 @@
                     </div>
                 </div>
                 
-                <div class="card p-6 md:p-8">
+                <div class="card testimonial-card p-6 md:p-8">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-lg md:text-xl font-bold">МС</div>
+                        <div class="avatar w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-lg md:text-xl font-bold">МС</div>
                         <div>
                             <div class="font-semibold">Мария С.</div>
                             <div class="text-sm text-gray-500">SEO специалист</div>
@@ -949,9 +1348,9 @@
                     </div>
                 </div>
                 
-                <div class="card p-6 md:p-8">
+                <div class="card testimonial-card p-6 md:p-8">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-lg md:text-xl font-bold">ДВ</div>
+                        <div class="avatar w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-lg md:text-xl font-bold">ДВ</div>
                         <div>
                             <div class="font-semibold">Дмитрий В.</div>
                             <div class="text-sm text-gray-500">Владелец бизнеса</div>
@@ -1354,6 +1753,16 @@
     <section class="py-16 md:py-28 px-4 md:px-6">
         <div class="max-w-4xl mx-auto reveal">
             <div class="gradient-border-animated p-8 md:p-16 lg:p-20 text-center relative overflow-hidden">
+                <!-- Decorative circles -->
+                <div class="cta-decoration left"></div>
+                <div class="cta-decoration right"></div>
+                
+                <!-- Decorative dots -->
+                <div class="absolute top-8 left-8 w-2 h-2 rounded-full bg-indigo-500/50 animate-pulse"></div>
+                <div class="absolute top-12 right-12 w-3 h-3 rounded-full bg-purple-500/30 animate-pulse" style="animation-delay: 0.5s;"></div>
+                <div class="absolute bottom-8 left-1/4 w-2 h-2 rounded-full bg-pink-500/50 animate-pulse" style="animation-delay: 1s;"></div>
+                <div class="absolute bottom-12 right-1/4 w-2 h-2 rounded-full bg-indigo-500/40 animate-pulse" style="animation-delay: 1.5s;"></div>
+                
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
                 <div class="relative z-10">
                     <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">Готов начать?</h2>
