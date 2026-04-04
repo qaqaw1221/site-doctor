@@ -44,97 +44,208 @@
             background: #a855f7;
         }
         
-        /* Gradient text - static for professional look */
+        /* ========== BACKGROUND EFFECTS ========== */
+        .bg-gradient-slow {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0a0a0b 0%, #0f0f14 25%, #0a0a0b 50%, #0f0f14 75%, #0a0a0b 100%);
+            background-size: 400% 400%;
+            animation: gradient-shift 30s ease infinite;
+            z-index: -2;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Subtle orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: -1;
+            animation: orb-float 20s ease-in-out infinite;
+        }
+        
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+        }
+        
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
+            top: 40%;
+            right: -150px;
+            animation-delay: -10s;
+        }
+        
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.05) 0%, transparent 70%);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -5s;
+        }
+        
+        @keyframes orb-float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -20px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+        
+        /* ========== GRADIENT TEXT ========== */
         .gradient-text {
-            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            background: linear-gradient(135deg, #818cf8 0%, #a78bfa 25%, #c084fc 50%, #a78bfa 75%, #818cf8 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: text-gradient 8s ease infinite;
+        }
+        
+        @keyframes text-gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 40px rgba(129, 140, 248, 0.4);
+            filter: drop-shadow(0 0 20px rgba(129, 140, 248, 0.3));
+        }
+        
+        /* ========== CTA SECTION ========== */
+        .gradient-border-animated {
+            position: relative;
+            background: rgba(17, 17, 17, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        
+        .gradient-border-animated::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 26px;
+            padding: 2px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #a855f7, #6366f1);
+            background-size: 300% 300%;
+            animation: border-flow 8s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.6;
+        }
+        
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+        
+        /* ========== CARDS ========== */
+        .card {
+            background: rgba(17, 17, 17, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            background: rgba(25, 25, 35, 0.8);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(99, 102, 241, 0.1);
+        }
+        
+        .card-icon {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover .card-icon {
+            transform: scale(1.08) translateY(-2px);
+        }
+        
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background-size: 200% 200%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .btn-primary:hover::after {
+            opacity: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.35);
+            background-position: 100% 50%;
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .btn-primary span, .btn-primary i {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* ========== SCROLL REVEAL ========== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* ========== STATS ========== */
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        /* Static border for CTA */
-        .gradient-border-animated {
-            position: relative;
-            background: rgba(17, 17, 17, 0.8);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Glow effects - subtle */
-        .glow-text {
-            text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-        
-        .glow-box {
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
-        }
-        
-        /* Scroll indicator */
-        .scroll-indicator {
-            opacity: 0.5;
-        }
-        
-        /* Card styling */
-        .card {
-            background: rgba(17, 17, 17, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            background: rgba(30, 30, 30, 0.8);
-            border-color: rgba(99, 102, 241, 0.3);
-        }
-        
-        .card:hover .card-icon {
-            transform: scale(1.05);
-        }
-        
-        /* Button styling - professional static gradient */
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-        }
-        
-        .btn-primary span {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Feature icons */
-        .card-icon {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            transition: all 0.4s;
-        }
-        
-        /* Stats counter */
-        .stat-number {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #fff, #a5b4fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(165, 180, 252, 0.3);
-        }
-        
-        /* Step number */
+        /* ========== STEPS ========== */
         .step-number {
             width: 70px;
             height: 70px;
@@ -146,16 +257,37 @@
             font-size: 1.8rem;
             font-weight: 800;
             box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            transition: all 0.4s;
         }
         
-        /* Pricing popular */
+        .step-card:hover .step-number {
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+            transform: scale(1.05);
+        }
+        
+        /* ========== PRICING ========== */
         .pricing-popular {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border: 2px solid rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
+            border: 2px solid rgba(99, 102, 241, 0.4);
             position: relative;
+            transition: all 0.4s;
         }
         
-        /* Nav link */
+        .pricing-popular:hover {
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+        
+        .popular-badge {
+            animation: subtle-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes subtle-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+        }
+        
+        /* ========== NAVIGATION ========== */
         .nav-link {
             position: relative;
             transition: all 0.3s;
@@ -169,46 +301,111 @@
             width: 0;
             height: 2px;
             background: linear-gradient(90deg, #6366f1, #a855f7);
-            transition: width 0.3s;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .nav-link:hover::after {
             width: 100%;
         }
         
-        /* FAQ accordion */
+        .nav-link:hover {
+            color: #fff;
+        }
+        
+        /* ========== FAQ ========== */
         .faq-item {
-            transition: all 0.3s;
+            transition: all 0.4s;
         }
         
         .faq-item:hover {
-            border-color: rgba(99, 102, 241, 0.5);
+            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(25, 25, 35, 0.5);
         }
         
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s;
+            padding-top: 0;
+            padding-bottom: 0;
         }
         
         .faq-item.active .faq-answer {
             max-height: 200px;
+            padding-top: 16px;
+            padding-bottom: 4px;
+        }
+        
+        .faq-icon {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .faq-item.active .faq-icon {
             transform: rotate(180deg);
         }
         
-        /* Number counter animation */
-        .counter {
+        /* ========== SCROLL INDICATOR ========== */
+        .scroll-indicator {
+            animation: scroll-bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes scroll-bounce {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(8px); opacity: 0.8; }
+        }
+        
+        /* ========== TRUSTED LOGOS ========== */
+        .trusted-logo {
+            opacity: 0.4;
+            transition: all 0.4s;
+        }
+        
+        .trusted-logo:hover {
+            opacity: 0.8;
+        }
+        
+        /* ========== FEATURE ICONS ========== */
+        .feature-icon-box {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover .feature-icon-box {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* ========== HERO TEXT ANIMATION ========== */
+        .hero-line {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: hero-line-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .hero-line:nth-child(1) { animation-delay: 0.2s; }
+        .hero-line:nth-child(2) { animation-delay: 0.4s; }
+        .hero-line:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes hero-line-in {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ========== COUNTER ANIMATION ========== */
+        .counter-value {
             display: inline-block;
         }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Subtle background gradient -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0b] via-[#0f0f12] to-[#0a0a0b]"></div>
+    <!-- Background Effects -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="bg-gradient-slow"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
 
     <!-- Nav -->
@@ -256,10 +453,10 @@
             </div>
             
             <!-- Headline -->
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 md:mb-10 leading-tight reveal">
-                <span class="block mb-1 md:mb-2">Анализируй.</span>
-                <span class="gradient-text block mb-1 md:mb-2 glow-text">Исправляй.</span>
-                <span class="block">Сравнивай.</span>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 md:mb-10 leading-tight">
+                <span class="hero-line block mb-1 md:mb-2">Анализируй.</span>
+                <span class="hero-line gradient-text block mb-1 md:mb-2 glow-text">Исправляй.</span>
+                <span class="hero-line block">Сравнивай.</span>
             </h1>
             
             <!-- Subheadline -->
@@ -471,28 +668,28 @@
             <!-- Additional features grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 reveal-scale">
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="gauge" class="w-6 h-6 md:w-8 md:h-8 text-green-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Скорость</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Google Lighthouse метрики</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="smartphone" class="w-6 h-6 md:w-8 md:h-8 text-blue-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Мобильные</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Viewport, размеры шрифтов</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="link" class="w-6 h-6 md:w-8 md:h-8 text-yellow-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Ссылки</h4>
                     <p class="text-xs text-gray-500 hidden md:block">Битые и внутренние</p>
                 </div>
                 <div class="card p-4 md:p-6 text-center group cursor-pointer">
-                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                    <div class="feature-icon-box w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
                         <i data-lucide="shield" class="w-6 h-6 md:w-8 md:h-8 text-red-400"></i>
                     </div>
                     <h4 class="font-semibold mb-1 text-sm md:text-base">Безопасность</h4>
@@ -513,7 +710,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
                 <!-- Step 1 -->
-                <div class="text-center reveal">
+                <div class="step-card text-center reveal cursor-default">
                     <div class="step-number mx-auto mb-4 md:mb-8 w-14 h-14 md:w-16 md:h-16 text-xl md:text-2xl">1</div>
                     <h3 class="text-lg md:text-2xl font-bold mb-2 md:mb-4">Введи URL</h3>
                     <p class="text-gray-400 text-sm md:text-base">
@@ -523,7 +720,7 @@
                 </div>
                 
                 <!-- Step 2 -->
-                <div class="text-center reveal">
+                <div class="step-card text-center reveal cursor-default">
                     <div class="step-number mx-auto mb-4 md:mb-8 w-14 h-14 md:w-16 md:h-16 text-xl md:text-2xl">2</div>
                     <h3 class="text-lg md:text-2xl font-bold mb-2 md:mb-4">Анализ</h3>
                     <p class="text-gray-400 text-sm md:text-base">
@@ -533,7 +730,7 @@
                 </div>
                 
                 <!-- Step 3 -->
-                <div class="text-center reveal">
+                <div class="step-card text-center reveal cursor-default">
                     <div class="step-number mx-auto mb-4 md:mb-8 w-14 h-14 md:w-16 md:h-16 text-xl md:text-2xl">3</div>
                     <h3 class="text-lg md:text-2xl font-bold mb-2 md:mb-4">Результат</h3>
                     <p class="text-gray-400 text-sm md:text-base">
@@ -801,7 +998,7 @@
                 
                 <!-- Pro -->
                 <div class="pricing-popular p-10 reveal icon-bounce">
-                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-bold">
+                    <div class="popular-badge absolute -top-5 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-xs font-bold">
                         Популярный
                     </div>
                     <div class="text-indigo-400 font-semibold text-lg mb-2">Pro</div>
@@ -1083,6 +1280,65 @@
     <script>
         lucide.createIcons();
         
+        // Mobile menu
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.style.transition = 'opacity 0.3s, transform 0.3s';
+        
+        // Scroll reveal with stagger
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.dataset.delay || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        
+        document.querySelectorAll('.reveal, .reveal-scale').forEach((el, i) => {
+            el.dataset.delay = (i % 3) * 100;
+            revealObserver.observe(el);
+        });
+        
+        // Counter animation
+        function animateCounter(element, target, suffix = '') {
+            const duration = 2000;
+            const start = 0;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (target - start) * easeOut);
+                
+                element.textContent = current + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = target + suffix;
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    entry.target.dataset.animated = 'true';
+                    const text = entry.target.textContent;
+                    const num = parseInt(text.replace(/\D/g, ''));
+                    const suffix = text.replace(/[\d,]/g, '');
+                    animateCounter(entry.target, num, suffix);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        document.querySelectorAll('.stat-number').forEach(el => counterObserver.observe(el));
+        
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
@@ -1090,17 +1346,22 @@
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth' });
-                    document.getElementById('mobileMenu').classList.add('hidden');
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.opacity = '0';
+                    mobileMenu.style.transform = 'translateY(-20px)';
                 }
             });
         });
         
         // FAQ toggle
         function toggleFaq(item) {
+            const isActive = item.classList.contains('active');
             document.querySelectorAll('.faq-item').forEach(i => {
-                if (i !== item) i.classList.remove('active');
+                i.classList.remove('active');
             });
-            item.classList.toggle('active');
+            if (!isActive) {
+                item.classList.add('active');
+            }
         }
         
         // Demo scan
