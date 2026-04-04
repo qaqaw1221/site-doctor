@@ -1803,26 +1803,26 @@
             const score = categoryData.score || 0;
             
             const categoryNames = {
-                seo: { title: 'SEO анализ', icon: 'search', color: 'blue' },
-                performance: { title: 'Производительность', icon: 'zap', color: 'green' },
-                accessibility: { title: 'Доступность', icon: 'eye', color: 'purple' },
-                links: { title: 'Ссылки', icon: 'link', color: 'yellow' },
-                mobile: { title: 'Мобильные', icon: 'smartphone', color: 'pink' }
+                seo: { title: 'SEO анализ', icon: 'search', bgClass: 'bg-blue-500/20', textClass: 'text-blue-400' },
+                performance: { title: 'Производительность', icon: 'zap', bgClass: 'bg-green-500/20', textClass: 'text-green-400' },
+                accessibility: { title: 'Доступность', icon: 'eye', bgClass: 'bg-purple-500/20', textClass: 'text-purple-400' },
+                links: { title: 'Ссылки', icon: 'link', bgClass: 'bg-yellow-500/20', textClass: 'text-yellow-400' },
+                mobile: { title: 'Мобильные', icon: 'smartphone', bgClass: 'bg-pink-500/20', textClass: 'text-pink-400' }
             };
             
-            const cat = categoryNames[category] || { title: category, icon: 'info', color: 'gray' };
+            const cat = categoryNames[category] || { title: category, icon: 'info', bgClass: 'bg-gray-500/20', textClass: 'text-gray-400' };
             const scoreColor = score >= 80 ? 'text-green-400' : score >= 60 ? 'text-yellow-400' : 'text-red-400';
             
             document.getElementById('categoryTitle').textContent = cat.title;
             document.getElementById('categoryScore').innerHTML = `Оценка: <span class="font-semibold ${scoreColor}">${score}/100</span>`;
             
             const iconEl = document.getElementById('categoryIcon');
-            iconEl.className = `w-12 h-12 rounded-xl bg-${cat.color}-500/20 flex items-center justify-center`;
-            iconEl.innerHTML = `<i data-lucide="${cat.icon}" class="w-6 h-6 text-${cat.color}-400"></i>`;
+            iconEl.className = `w-12 h-12 rounded-xl ${cat.bgClass} flex items-center justify-center`;
+            iconEl.innerHTML = `<i data-lucide="${cat.icon}" class="w-6 h-6 ${cat.textClass}"></i>`;
             
             const checksContainer = document.getElementById('categoryChecks');
             
-            if (checks.length === 0) {
+            if (!checks || checks.length === 0) {
                 checksContainer.innerHTML = `
                     <div class="text-center py-12 text-gray-400">
                         <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
@@ -1833,23 +1833,26 @@
             } else {
                 checksContainer.innerHTML = checks.map(check => {
                     const statusConfig = {
-                        pass: { icon: 'check-circle', color: 'green', bg: 'bg-green-500/10', border: 'border-green-500/20' },
-                        error: { icon: 'x-circle', color: 'red', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-                        warning: { icon: 'alert-circle', color: 'yellow', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-                        info: { icon: 'info', color: 'blue', bg: 'bg-blue-500/10', border: 'border-blue-500/20' }
+                        pass: { icon: 'check-circle', color: 'green', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-400' },
+                        error: { icon: 'x-circle', color: 'red', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400' },
+                        warning: { icon: 'alert-circle', color: 'yellow', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400' },
+                        info: { icon: 'info', color: 'blue', bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400' }
                     };
                     const status = statusConfig[check.status] || statusConfig.info;
+                    const itemName = check.item || 'Неизвестно';
+                    const message = check.message || 'Нет описания';
+                    const statusText = check.status || 'info';
                     
                     return `
                         <div class="card p-4 border-l-4 ${status.border} ${status.bg}">
                             <div class="flex items-start gap-3">
-                                <i data-lucide="${status.icon}" class="w-5 h-5 text-${status.color}-400 flex-shrink-0 mt-0.5"></i>
+                                <i data-lucide="${status.icon}" class="w-5 h-5 ${status.text} flex-shrink-0 mt-0.5"></i>
                                 <div class="flex-1">
                                     <div class="flex items-center justify-between mb-1">
-                                        <span class="font-semibold">${check.item}</span>
-                                        <span class="text-xs text-gray-500 uppercase">${check.status}</span>
+                                        <span class="font-semibold">${itemName}</span>
+                                        <span class="text-xs text-gray-500 uppercase">${statusText}</span>
                                     </div>
-                                    <p class="text-sm text-gray-400">${check.message}</p>
+                                    <p class="text-sm text-gray-400">${message}</p>
                                 </div>
                             </div>
                         </div>
