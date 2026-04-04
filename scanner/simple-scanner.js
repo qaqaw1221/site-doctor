@@ -657,7 +657,7 @@ class SimpleScanner {
         // Viewport
         if (!viewport) {
             this.addCheck('mobile', 'Viewport Meta', 'error', 'Viewport отсутствует');
-            this.addIssue('mobile', 'critical', 'Viewport не настроен', 'Без viewport страница не адаптируется под мобильные. Это критично.`, 30, true, '2 мин', 'Добавьте <meta name="viewport" content="width=device-width, initial-scale=1">');
+            this.addIssue('mobile', 'critical', 'Viewport не настроен', 'Без viewport страница не адаптируется под мобильные. Это критично.', 30, true, '2 мин', 'Добавьте <meta name="viewport" content="width=device-width, initial-scale=1">');
             this.addFix('mobile', 'Добавить viewport', 'Настройте viewport', 'Критично', '<meta name="viewport" content="width=device-width, initial-scale=1">');
             score -= 30;
         } else {
@@ -669,7 +669,7 @@ class SimpleScanner {
             this.addCheck('mobile', 'Responsive CSS', 'pass', '✓ Media queries найдены');
         } else {
             this.addCheck('mobile', 'Responsive CSS', 'warning', 'Media queries не найдены');
-            this.addIssue('mobile', 'medium', 'Возможно нет адаптивного дизайна', 'Не найдены @media запросы. Страница может не адаптироваться.`, 10, true, '60 мин', 'Добавьте @media запросы в CSS');
+            this.addIssue('mobile', 'medium', 'Возможно нет адаптивного дизайна', 'Не найдены @media запросы. Страница может не адаптироваться.', 10, true, '60 мин', 'Добавьте @media запросы в CSS');
             score -= 10;
         }
 
@@ -679,7 +679,7 @@ class SimpleScanner {
         // Viewport zoom
         if (viewport && viewport.includes('user-scalable=no')) {
             this.addCheck('mobile', 'User Scalable', 'warning', 'Масштабирование отключено пользователем');
-            this.addIssue('mobile', 'medium', 'Масштабирование отключено', 'Пользователи не могут масштабировать страницу. Это нарушает accessibility.`, 10, true, '2 мин', 'Удалите user-scalable=no из viewport');
+            this.addIssue('mobile', 'medium', 'Масштабирование отключено', 'Пользователи не могут масштабировать страницу. Это нарушает accessibility.', 10, true, '2 мин', 'Удалите user-scalable=no из viewport');
             score -= 10;
         } else if (viewport) {
             this.addCheck('mobile', 'User Scalable', 'pass', '✓ Масштабирование разрешено');
@@ -703,7 +703,7 @@ class SimpleScanner {
 
         if (!isHttps) {
             this.addCheck('security', 'HTTPS', 'warning', 'HTTPS не используется');
-            this.addIssue('security', 'high', 'Сайт не использует HTTPS', 'HTTPS важен для безопасности и SEO.`, 20, false, '60 мин', 'Установите SSL сертификат');
+            this.addIssue('security', 'high', 'Сайт не использует HTTPS', 'HTTPS важен для безопасности и SEO.', 20, false, '60 мин', 'Установите SSL сертификат');
             score -= 20;
         } else {
             this.addCheck('security', 'HTTPS', 'pass', '✓ HTTPS используется');
