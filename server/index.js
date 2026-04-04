@@ -35,6 +35,11 @@ app.get('/scan', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
+// Serve favicon
+app.get('/favicon.svg', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/favicon.svg'));
+});
+
 // Serve static files from client directory (but not root)
 app.use(express.static(path.join(__dirname, '../client'), {
     index: false // Don't serve index.html for root
