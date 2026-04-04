@@ -25,8 +25,20 @@ app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json());
 
-// Serve static files from client directory
-app.use(express.static(path.join(__dirname, '../client')));
+// Serve landing page for root route (MUST be before static!)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/landing.html'));
+});
+
+// Serve app for /scan route
+app.get('/scan', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
+// Serve static files from client directory (but not root)
+app.use(express.static(path.join(__dirname, '../client'), {
+    index: false // Don't serve index.html for root
+}));
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -74,16 +86,6 @@ app.get('/api/debug/db', (req, res) => {
             res.json({ usersSchema: rows[0]?.sql });
         }
     });
-});
-
-// Serve landing page for root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/landing.html'));
-});
-
-// Serve app for /scan route
-app.get('/scan', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 const PORT = process.env.PORT || 8080;
