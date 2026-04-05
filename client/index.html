@@ -721,7 +721,8 @@
                         
                         <!-- Logged In -->
                         <div id="authLoggedIn" style="display: none;">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-3">
+                                <span id="userPlanBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-gray-500/20 text-gray-400">Free</span>
                                 <a href="/account.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                     <span class="text-white text-sm" data-i18n="account">Мой аккаунт</span>
@@ -756,6 +757,10 @@
                     </div>
                     
                     <div id="mobileAuthLoggedIn" style="display: none;" class="border-t border-[#333] pt-4 flex flex-col gap-3">
+                        <div class="flex items-center gap-2">
+                            <span id="mobileUserPlanBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-gray-500/20 text-gray-400">Free</span>
+                            <span class="text-gray-400 text-sm">Мой план</span>
+                        </div>
                         <a href="/account.html" onclick="toggleMobileMenu()" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
                             <i data-lucide="user" class="w-4 h-4"></i>
                             <span>Мой аккаунт</span>
@@ -3029,12 +3034,77 @@
                 if (authLoggedIn) authLoggedIn.style.display = 'block';
                 if (mobileAuthLoggedOut) mobileAuthLoggedOut.style.display = 'none';
                 if (mobileAuthLoggedIn) mobileAuthLoggedIn.style.display = 'flex';
+                
+                // Update plan badge
+                const planBadge = document.getElementById('userPlanBadge');
+                const mobilePlanBadge = document.getElementById('mobileUserPlanBadge');
+                const plan = user.plan || 'free';
+                
+                const planInfo = {
+                    'free': { text: 'Free', class: 'bg-gray-500/20 text-gray-400' },
+                    'pro': { text: 'Pro', class: 'bg-indigo-500/20 text-indigo-400' },
+                    'business': { text: 'Business', class: 'bg-purple-500/20 text-purple-400' }
+                };
+                
+                const info = planInfo[plan] || planInfo['free'];
+                
+                if (planBadge) {
+                    planBadge.textContent = info.text;
+                    planBadge.className = `inline-block px-3 py-1 rounded-full text-sm font-semibold ${info.class}`;
+                }
+                if (mobilePlanBadge) {
+                    mobilePlanBadge.textContent = info.text;
+                    mobilePlanBadge.className = `inline-block px-3 py-1 rounded-full text-sm font-semibold ${info.class}`;
+                }
+                
+                // Update scans counter
+                const limit = plan === 'free' ? 3 : plan === 'pro' ? 50 : 500;
+                const left = user.scans_left !== undefined ? user.scans_left : limit;
+                updateScansLeft(limit - left, limit);
+                
+                // Show/hide features based on plan
+                updateFeaturesVisibility(plan);
             } else {
                 // Show logged-out, hide logged-in
                 if (authLoggedOut) authLoggedOut.style.display = 'block';
                 if (authLoggedIn) authLoggedIn.style.display = 'none';
                 if (mobileAuthLoggedOut) mobileAuthLoggedOut.style.display = 'flex';
                 if (mobileAuthLoggedIn) mobileAuthLoggedIn.style.display = 'none';
+            }
+        }
+        
+        function updateFeaturesVisibility(plan) {
+            const isPro = plan === 'pro' || plan === 'business';
+            const isBusiness = plan === 'business';
+            
+            // Auto-fixes button
+            const fixBtns = document.querySelectorAll('.auto-fix-btn');
+            fixBtns.forEach(btn => {
+                if (isPro) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            
+            // PDF export button
+            const pdfBtns = document.querySelectorAll('.pdf-export-btn');
+            pdfBtns.forEach(btn => {
+                if (isPro) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            
+            // Scheduled scans section
+            const scheduledSection = document.getElementById('scheduledScansSection');
+            if (scheduledSection) {
+                if (isBusiness) {
+                    scheduledSection.style.display = 'block';
+                } else {
+                    scheduledSection.style.display = 'none';
+                }
             }
         }
 
