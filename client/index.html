@@ -1292,6 +1292,22 @@
                 </div>
             </div>
             
+            <!-- Payment Methods -->
+            <div class="flex flex-wrap items-center justify-center gap-6 mt-12 text-gray-400 fade-up">
+                <div class="flex items-center gap-2 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    <span>NovaPay (Visa, MasterCard)</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Криптовалюта</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span>Безопасные платежи</span>
+                </div>
+            </div>
+            
             <!-- Money back guarantee -->
             <div class="flex items-center justify-center gap-4 mt-12 text-gray-400 fade-up">
                 <i data-lucide="shield-check" class="w-6 h-6 text-green-500"></i>
@@ -3206,10 +3222,10 @@
         </div>
     </div>
 
-    <script>
+        <script>
         const API_URL = window.location.origin;
         let selectedPeriod = 'monthly';
-        let selectedMethod = 'crypto';
+        let selectedMethod = 'novapay';
         
         const PRICES = {
             pro: { monthly: '$15.99', yearly: '$159.99' },
@@ -3241,7 +3257,7 @@
         
         function setPaymentMethod(method) {
             selectedMethod = method;
-            ['card', 'crypto', 'sbp'].forEach(m => {
+            ['card', 'crypto', 'sbp', 'novapay'].forEach(m => {
                 const btn = document.getElementById('method' + m.charAt(0).toUpperCase() + m.slice(1));
                 if (btn) {
                     if (m === method) {
@@ -3249,6 +3265,10 @@
                             btn.style.borderColor = 'rgba(74, 222, 128, 0.5)';
                             btn.style.background = 'rgba(74, 222, 128, 0.1)';
                             btn.style.color = '#4ade80';
+                        } else if (m === 'novapay') {
+                            btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                            btn.style.background = 'rgba(59, 130, 246, 0.1)';
+                            btn.style.color = '#60a5fa';
                         } else {
                             btn.style.borderColor = 'rgba(99, 102, 241, 0.5)';
                             btn.style.background = 'rgba(99, 102, 241, 0.1)';
@@ -3261,6 +3281,21 @@
                     }
                 }
             });
+            updatePayButton();
+        }
+        
+        function updatePayButton() {
+            const btn = document.getElementById('payButton');
+            if (!btn) return;
+            
+            const methodNames = {
+                'novapay': 'Банковская карта (Visa/MasterCard)',
+                'crypto': 'Криптовалюта',
+                'card': 'Банковская карта',
+                'sbp': 'СБП'
+            };
+            
+            btn.textContent = `Оплатить через ${methodNames[selectedMethod] || 'карту'}`;
         }
         
         function openPaymentModal(plan) {
@@ -3306,11 +3341,11 @@
                         
                         <!-- Pay Button -->
                         <button onclick="selectPlan('${plan}')" id="payButton" style="width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(to right, ${planColor}, #ec4899); color: white; font-size: 18px; font-weight: bold; cursor: pointer;">
-                            Оплатить через NOWPayments
+                            Оплатить через Банковская карта (Visa/MasterCard)
                         </button>
                         
                         <p style="text-align: center; color: #666; font-size: 12px; margin-top: 15px;">
-                            💳 Безопасная оплата через NOWPayments
+                            💳 Безопасная оплата через NovaPay (Visa, MasterCard)
                         </p>
                     </div>
                 </div>
@@ -3378,13 +3413,13 @@
                     const modal = document.getElementById('paymentModalTemp');
                     if (modal) modal.remove();
                     
-                    if (selectedMethod === 'crypto' && data.checkoutUrl) {
+                    if (data.checkoutUrl) {
                         showNotification('Перенаправляем на оплату...', 'info');
                         setTimeout(() => {
-                            window.open(data.checkoutUrl, '_blank');
+                            window.location.href = data.checkoutUrl;
                         }, 1000);
                     } else {
-                        showNotification('Скоро: оплата картой. Пока используйте криптовалюту.', 'info');
+                        showNotification('Платеж создан. Ожидайте перенаправления на страницу оплаты.', 'info');
                     }
                 } else {
                     showNotification(data.error || 'Ошибка при создании платежа', 'error');
