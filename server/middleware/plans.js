@@ -8,8 +8,8 @@ const PLAN_FEATURES = dbModule.PLAN_FEATURES || {
 
 const PLAN_PRICES = {
     pro: {
-        monthly: { amount: 15.99, currency: 'usd' },
-        yearly: { amount: 159.99, currency: 'usd' }
+        monthly: { amount: 9.99, currency: 'usd' },
+        yearly: { amount: 99.99, currency: 'usd' }
     },
     business: {
         monthly: { amount: 59.99, currency: 'usd' },
