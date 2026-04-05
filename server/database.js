@@ -159,6 +159,10 @@ const dbModule = {
             });
     },
     get(sql, params = [], callback) {
+        if (!pool) {
+            if (callback) callback(new Error('Database not connected'));
+            return;
+        }
         pool.query(sql, params)
             .then((result) => {
                 if (callback) callback(null, result.rows[0]);
@@ -169,12 +173,30 @@ const dbModule = {
             });
     },
     all(sql, params = [], callback) {
+        if (!pool) {
+            if (callback) callback(new Error('Database not connected'));
+            return;
+        }
         pool.query(sql, params)
             .then((result) => {
                 if (callback) callback(null, result.rows);
             })
             .catch((err) => {
                 console.error('DB all error:', err);
+                if (callback) callback(err);
+            });
+    },
+    runWithReturn(sql, params = [], callback) {
+        if (!pool) {
+            if (callback) callback(new Error('Database not connected'));
+            return;
+        }
+        pool.query(sql, params)
+            .then((result) => {
+                if (callback) callback(null, result.rows[0]);
+            })
+            .catch((err) => {
+                console.error('DB runWithReturn error:', err);
                 if (callback) callback(err);
             });
     }

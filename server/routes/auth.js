@@ -38,27 +38,26 @@ router.post('/register', [
         const verificationCode = generateVerificationCode();
         const verificationExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-        db.run(
-            'INSERT INTO users (email, password, name, plan, scans_used, verification_code, verification_expires, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        db.runWithReturn(
+            'INSERT INTO users (email, password, name, plan, scans_used, verification_code, verification_expires, email_verified) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
             [email, hashedPassword, userName, 'free', 0, verificationCode, verificationExpires, 0],
-            function(err) {
+            function(err, result) {
                 if (err) {
                     console.error('Registration error:', err.message);
-                    if (err.message.includes('UNIQUE constraint failed: email')) {
+                    if (err.message.includes('duplicate key') || err.message.includes('UNIQUE constraint') || err.message.includes('unique constraint')) {
                         return res.status(400).json({ success: false, error: 'Пользователь с таким email уже существует' });
-                    }
-                    if (err.message.includes('UNIQUE constraint failed: name')) {
-                        return res.status(400).json({ success: false, error: 'Это имя пользователя уже занято' });
                     }
                     return res.status(500).json({ success: false, error: 'Failed to create user: ' + err.message });
                 }
 
+                const userId = result?.id || 0;
+                
                 sendVerificationCode(email, userName, verificationCode).then(sent => {
                     res.json({
                         success: true,
                         message: sent ? 'Код отправлен на email!' : 'Ошибка отправки email. Попробуйте позже.',
                         emailSent: sent,
-                        userId: this.lastID,
+                        userId: userId,
                         email: email
                     });
                 });

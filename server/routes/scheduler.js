@@ -38,10 +38,10 @@ router.post('/create', authenticateToken, (req, res) => {
     
     const nextScanAt = calculateNextScan(freq);
     
-    db.run(
-        `INSERT INTO scheduled_scans (user_id, url, name, frequency, next_scan_at) VALUES (?, ?, ?, ?, ?)`,
+    db.runWithReturn(
+        `INSERT INTO scheduled_scans (user_id, url, name, frequency, next_scan_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [req.user.id, url, name || '', freq, nextScanAt],
-        function(err) {
+        function(err, result) {
             if (err) {
                 return res.status(500).json({
                     success: false,
@@ -51,7 +51,7 @@ router.post('/create', authenticateToken, (req, res) => {
             
             res.json({
                 success: true,
-                id: this.lastID,
+                id: result?.id || 0,
                 message: 'Скан добавлен в расписание'
             });
         }
