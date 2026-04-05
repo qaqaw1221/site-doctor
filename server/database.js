@@ -147,9 +147,21 @@ initializeDatabase();
 
 const dbReady = Promise.resolve();
 
+// Convert SQLite-style ? to PostgreSQL-style $1, $2, etc.
+function convertPlaceholders(sql) {
+    if (!sql.includes('?')) return sql;
+    let paramIndex = 0;
+    return sql.replace(/\?/g, () => `$${++paramIndex}`);
+}
+
 const dbModule = {
     run(sql, params = [], callback) {
-        pool.query(sql, params)
+        if (!pool) {
+            if (callback) callback(new Error('Database not connected'));
+            return;
+        }
+        const convertedSql = convertPlaceholders(sql);
+        pool.query(convertedSql, params)
             .then(() => {
                 if (callback) callback(null);
             })
@@ -163,7 +175,8 @@ const dbModule = {
             if (callback) callback(new Error('Database not connected'));
             return;
         }
-        pool.query(sql, params)
+        const convertedSql = convertPlaceholders(sql);
+        pool.query(convertedSql, params)
             .then((result) => {
                 if (callback) callback(null, result.rows[0]);
             })
@@ -177,7 +190,8 @@ const dbModule = {
             if (callback) callback(new Error('Database not connected'));
             return;
         }
-        pool.query(sql, params)
+        const convertedSql = convertPlaceholders(sql);
+        pool.query(convertedSql, params)
             .then((result) => {
                 if (callback) callback(null, result.rows);
             })
@@ -191,7 +205,8 @@ const dbModule = {
             if (callback) callback(new Error('Database not connected'));
             return;
         }
-        pool.query(sql, params)
+        const convertedSql = convertPlaceholders(sql);
+        pool.query(convertedSql, params)
             .then((result) => {
                 if (callback) callback(null, result.rows[0]);
             })

@@ -79,8 +79,9 @@ router.post('/verify-code', [
 
     const { email, code } = req.body;
 
-    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    db.get('SELECT * FROM users WHERE email = $1', [email], (err, user) => {
         if (err) {
+            console.error('DB error:', err);
             return res.status(500).json({ success: false, error: 'Database error' });
         }
         if (!user) {
@@ -99,7 +100,7 @@ router.post('/verify-code', [
         }
 
         db.run(
-            'UPDATE users SET email_verified = 1, verification_code = NULL, verification_expires = NULL WHERE id = ?',
+            'UPDATE users SET email_verified = 1, verification_code = NULL, verification_expires = NULL WHERE id = $1',
             [user.id],
             (err) => {
                 if (err) {
