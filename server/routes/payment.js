@@ -10,6 +10,56 @@ const { sendPaymentConfirmation } = require('../utils/email');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+// Activate plan by Stripe session ID
+router.post('/activate-session', authenticateToken, async (req, res) => {
+    const { session_id } = req.body;
+    const userId = req.user.id;
+    
+    if (!session_id) {
+        return res.status(400).json({ success: false, error: 'Missing session_id' });
+    }
+    
+    try {
+        // Get session from Stripe
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        
+        if (session.payment_status !== 'paid') {
+            return res.json({ success: false, message: 'Payment not completed', status: session.payment_status });
+        }
+        
+        // Find payment record
+        db.get('SELECT * FROM payments WHERE external_id = $1', [session_id], (err, payment) => {
+            if (err || !payment) {
+                return res.status(404).json({ success: false, error: 'Payment not found' });
+            }
+            
+            if (payment.status === 'completed') {
+                return res.json({ success: true, message: 'Plan already activated', plan: payment.plan });
+            }
+            
+            // Activate the plan
+            const periodMonths = payment.period === 'yearly' ? 12 : 1;
+            
+            db.run('UPDATE payments SET status = $1, completed_at = CURRENT_TIMESTAMP WHERE payment_id = $2', ['completed', payment.payment_id]);
+            
+            db.run('UPDATE users SET plan = $1, subscription_end = datetime("now", "+" || $2 || " months"), subscription_cancelled = 0, scans_used = 0, scans_left = $3 WHERE id = $4', 
+                [payment.plan, periodMonths, payment.plan === 'business' ? 500 : 50, userId]);
+            
+            // Get updated user
+            db.get('SELECT id, email, name, plan, scans_left, email_verified FROM users WHERE id = $1', [userId], (err, user) => {
+                if (err || !user) {
+                    return res.json({ success: true, message: 'Plan activated!', plan: payment.plan });
+                }
+                
+                return res.json({ success: true, message: 'Plan activated!', plan: payment.plan, user: user });
+            });
+        });
+    } catch (error) {
+        console.error('Activate session error:', error);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Create payment - create Stripe Checkout Session
 router.post('/create', authenticateToken, async (req, res) => {
     const { plan, period } = req.body;

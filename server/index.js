@@ -103,9 +103,59 @@ app.get('/payment/success', (req, res) => {
     <div class="container">
         <div class="success-icon">✅</div>
         <h1>Оплата прошла успешно!</h1>
-        <p>Спасибо за покупку! Ваш план активирован. Теперь вы можете пользоваться всеми функциями Site Doctor без ограничений.</p>
-        <a href="/scan" class="btn">Перейти к сканированию</a>
+        <p id="statusMsg">Обрабатываем вашу оплату...</p>
+        <p id="planMsg" style="display:none; margin-top: 20px; padding: 15px; background: rgba(74, 222, 128, 0.1); border-radius: 10px;"></p>
+        <a href="/scan" class="btn" id="goBtn" style="display:none; margin-top: 20px;">Перейти к сканированию</a>
     </div>
+    <script>
+        const BASE_URL = 'https://site--site-doctor--4rfn89yxsfpw.code.run';
+        async function activatePlan() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            const token = localStorage.getItem('auth_token');
+            
+            if (!sessionId) {
+                document.getElementById('statusMsg').textContent = 'Ошибка: нет данных сессии';
+                return;
+            }
+            
+            if (!token) {
+                document.getElementById('statusMsg').textContent = 'Войдите в аккаунт для активации плана';
+                return;
+            }
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/payment/activate-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('statusMsg').textContent = 'Оплата подтверждена!';
+                    document.getElementById('planMsg').textContent = 'Ваш план ' + data.plan.toUpperCase() + ' активирован!';
+                    document.getElementById('planMsg').style.display = 'block';
+                    document.getElementById('goBtn').style.display = 'inline-block';
+                    
+                    // Update localStorage
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                } else {
+                    document.getElementById('statusMsg').textContent = 'Статус: ' + data.message;
+                }
+            } catch (err) {
+                document.getElementById('statusMsg').textContent = 'Ошибка проверки. Попробуйте обновить страницу.';
+            }
+        }
+        
+        activatePlan();
+    </script>
 </body>
 </html>
     `);
