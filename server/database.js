@@ -1,42 +1,29 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
-
-let db = null;
-
-const dbReady = initSqlJs().then(SQL => {
-    try {
-        if (fs.existsSync(dbPath)) {
-            const fileBuffer = fs.readFileSync(dbPath);
-            db = new SQL.Database(fileBuffer);
-            console.log('Loaded existing SQLite database');
-        } else {
-            db = new SQL.Database();
-            console.log('Created new SQLite database');
-        }
-        initializeDatabase();
-    } catch (err) {
-        console.error('Error initializing database:', err);
-        db = new SQL.Database();
-        initializeDatabase();
-    }
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-function initializeDatabase() {
+pool.on('error', (err) => {
+    console.error('Unexpected database error:', err);
+});
+
+async function initializeDatabase() {
+    const client = await pool.connect();
     try {
-        db.run(`
+        // Users table
+        await client.query(`
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 email TEXT UNIQUE NOT NULL,
                 name TEXT,
                 password TEXT NOT NULL,
                 plan TEXT DEFAULT 'free',
                 scans_used INTEGER DEFAULT 0,
-                scans_reset_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                last_login DATETIME,
+                scans_reset_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_login TIMESTAMP,
                 subscription_end TEXT,
                 subscription_cancelled INTEGER DEFAULT 0,
                 email_verified INTEGER DEFAULT 0,
@@ -48,21 +35,23 @@ function initializeDatabase() {
         `);
         console.log('Users table ready');
 
-        db.run(`
+        // Scan history table
+        await client.query(`
             CREATE TABLE IF NOT EXISTS scan_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER,
                 url TEXT NOT NULL,
                 results TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         `);
         console.log('Scan history table ready');
 
-        db.run(`
+        // Payments table
+        await client.query(`
             CREATE TABLE IF NOT EXISTS payments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 payment_id TEXT UNIQUE NOT NULL,
                 user_id INTEGER NOT NULL,
                 plan TEXT NOT NULL,
@@ -72,103 +61,86 @@ function initializeDatabase() {
                 method TEXT,
                 status TEXT DEFAULT 'pending',
                 external_id TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                completed_at DATETIME,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                completed_at TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         `);
         console.log('Payments table ready');
 
-        db.run(`
+        // Comparison history table
+        await client.query(`
             CREATE TABLE IF NOT EXISTS comparison_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 main_url TEXT NOT NULL,
                 competitors TEXT NOT NULL,
                 results TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         `);
         console.log('Comparison history table ready');
 
-        db.run(`
+        // Scheduled scans table
+        await client.query(`
             CREATE TABLE IF NOT EXISTS scheduled_scans (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 url TEXT NOT NULL,
                 name TEXT,
                 frequency TEXT DEFAULT 'daily',
-                last_scan_at DATETIME,
-                next_scan_at DATETIME,
+                last_scan_at TIMESTAMP,
+                next_scan_at TIMESTAMP,
                 is_active INTEGER DEFAULT 1,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         `);
         console.log('Scheduled scans table ready');
 
-        saveDatabase();
     } catch (err) {
         console.error('Error creating tables:', err);
+    } finally {
+        client.release();
     }
 }
 
-function saveDatabase() {
-    try {
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(dbPath, buffer);
-    } catch (err) {
-        console.error('Error saving database:', err);
-    }
-}
+// Initialize tables on startup
+initializeDatabase();
+
+const dbReady = Promise.resolve();
 
 const dbModule = {
     run(sql, params = [], callback) {
-        dbReady.then(() => {
-            try {
-                db.run(sql, params);
-                saveDatabase();
+        pool.query(sql, params)
+            .then(() => {
                 if (callback) callback(null);
-            } catch (err) {
+            })
+            .catch((err) => {
+                console.error('DB run error:', err);
                 if (callback) callback(err);
-            }
-        });
+            });
     },
     get(sql, params = [], callback) {
-        dbReady.then(() => {
-            try {
-                const stmt = db.prepare(sql);
-                stmt.bind(params);
-                if (stmt.step()) {
-                    const row = stmt.getAsObject();
-                    stmt.free();
-                    if (callback) callback(null, row);
-                } else {
-                    stmt.free();
-                    if (callback) callback(null, undefined);
-                }
-            } catch (err) {
+        pool.query(sql, params)
+            .then((result) => {
+                if (callback) callback(null, result.rows[0]);
+            })
+            .catch((err) => {
+                console.error('DB get error:', err);
                 if (callback) callback(err);
-            }
-        });
+            });
     },
     all(sql, params = [], callback) {
-        dbReady.then(() => {
-            try {
-                const stmt = db.prepare(sql);
-                stmt.bind(params);
-                const results = [];
-                while (stmt.step()) {
-                    results.push(stmt.getAsObject());
-                }
-                stmt.free();
-                if (callback) callback(null, results);
-            } catch (err) {
+        pool.query(sql, params)
+            .then((result) => {
+                if (callback) callback(null, result.rows);
+            })
+            .catch((err) => {
+                console.error('DB all error:', err);
                 if (callback) callback(err);
-            }
-        });
+            });
     }
 };
 
@@ -198,3 +170,4 @@ module.exports.PLAN_FEATURES = PLAN_FEATURES;
 module.exports.getScanLimit = getScanLimit;
 module.exports.getComparisonLimit = getComparisonLimit;
 module.exports.dbReady = dbReady;
+module.exports.pool = pool;
