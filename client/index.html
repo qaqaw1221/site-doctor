@@ -2868,36 +2868,6 @@
                 const key = el.getAttribute('data-i18n-placeholder');
                 el.placeholder = t(key);
             });
-        }
-        
-        async function syncUserPlan() {
-            const token = localStorage.getItem('auth_token');
-            if (!token) return;
-            
-            try {
-                const response = await fetch('/api/auth/me', {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const data = await response.json();
-                
-                if (data.success && data.user) {
-                    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-                    
-                    if (data.user.plan !== storedUser.plan || data.user.scans_left !== storedUser.scans_left) {
-                        localStorage.setItem('user', JSON.stringify({
-                            ...storedUser,
-                            plan: data.user.plan,
-                            scans_left: data.user.scans_left
-                        }));
-                        
-                        updateUserUI(data.user);
-                    }
-                }
-            } catch (err) {
-                console.error('Sync user plan error:', err);
-            }
-        }
-            });
             
             // Update lang button
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -2924,9 +2894,6 @@
             } else {
                 updateUserUI(null);
             }
-            
-            // Синхронизировать план с сервером
-            syncUserPlan();
         });
 
         async function handleLogin(e) {
