@@ -39,11 +39,12 @@ router.post('/activate-session', authenticateToken, async (req, res) => {
             
             // Activate the plan
             const periodMonths = payment.period === 'yearly' ? 12 : 1;
+            const subscriptionEnd = new Date(Date.now() + periodMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
             
             db.run('UPDATE payments SET status = $1, completed_at = CURRENT_TIMESTAMP WHERE payment_id = $2', ['completed', payment.payment_id]);
             
-            db.run('UPDATE users SET plan = $1, subscription_end = datetime("now", "+" || $2 || " months"), subscription_cancelled = 0, scans_used = 0, scans_left = $3 WHERE id = $4', 
-                [payment.plan, periodMonths, payment.plan === 'business' ? 500 : 50, userId]);
+            db.run('UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0, scans_left = $3 WHERE id = $4', 
+                [payment.plan, subscriptionEnd, payment.plan === 'business' ? 500 : 50, userId]);
             
             // Get updated user
             db.get('SELECT id, email, name, plan, scans_left, email_verified FROM users WHERE id = $1', [userId], (err, user) => {
@@ -276,9 +277,10 @@ function handleSuccessfulPayment(session) {
                 });
 
             const periodMonths = payment.period === 'yearly' ? 12 : 1;
+            const subscriptionEnd = new Date(Date.now() + periodMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
             db.run(
-                'UPDATE users SET plan = ?, subscription_end = datetime("now", "+" || ? || " months"), subscription_cancelled = 0, scans_used = 0 WHERE id = ?',
-                [payment.plan, periodMonths, payment.user_id],
+                'UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0 WHERE id = $3',
+                [payment.plan, subscriptionEnd, payment.user_id],
                 (err) => {
                     if (err) console.error('Error updating user:', err);
                 }
