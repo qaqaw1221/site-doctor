@@ -2183,6 +2183,14 @@
         document.getElementById('demoUrlInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') startDemoScan();
         });
+
+        function openLoginModal() {
+            window.location.href = '/scan?modal=login';
+        }
+
+        function openRegisterModal() {
+            window.location.href = '/scan?modal=register';
+        }
     </script>
     
     <!-- Schema.org -->

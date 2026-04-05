@@ -2879,13 +2879,20 @@
             const user = getCurrentUser();
             if (user) {
                 updateUserUI(user);
-                // Показать счётчик сканов
                 const limit = user.plan === 'free' ? 3 : user.plan === 'pro' ? 50 : 500;
                 const left = user.scans_left || limit;
                 const used = limit - left;
                 updateScansLeft(used, limit);
             } else {
                 updateUserUI(null);
+            }
+            
+            const params = new URLSearchParams(window.location.search);
+            const modal = params.get('modal');
+            if (modal === 'login') {
+                setTimeout(() => openLoginModal(), 100);
+            } else if (modal === 'register') {
+                setTimeout(() => openRegisterModal(), 100);
             }
         });
 
