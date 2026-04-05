@@ -1200,7 +1200,7 @@
                     
                     <div class="text-lg font-semibold text-indigo-400 mb-2" data-i18n="pro">Pro</div>
                     <div class="flex items-baseline gap-1 mb-6">
-                        <span class="text-5xl font-bold gradient-text">$9.99</span>
+                        <span class="text-5xl font-bold gradient-text">$49</span>
                         <span class="text-gray-500" data-i18n="perMonth">/ месяц</span>
                     </div>
                     <p class="text-gray-400 mb-8">Для агентств и активных пользователей</p>
@@ -1245,7 +1245,7 @@
                 <div class="card p-8 fade-up">
                     <div class="text-lg font-semibold text-purple-400 mb-2">Business</div>
                     <div class="flex items-baseline gap-1 mb-6">
-                        <span class="text-5xl font-bold text-purple-400">$59.99</span>
+                        <span class="text-5xl font-bold text-purple-400">$99</span>
                         <span class="text-gray-500">/ месяц</span>
                     </div>
                     <p class="text-gray-400 mb-8">Для команд и enterprise</p>
@@ -2086,7 +2086,7 @@
                                         ${isLocked ? `
                                             <div class="absolute inset-0 flex items-center justify-center z-20">
                                                 <button onclick="showUpgradeModal('fixes')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/30">
-                                                    Разблокировать за $19/мес
+                                                    Разблокировать за $49/мес
                                                 </button>
                                             </div>
                                         ` : ''}
@@ -3304,8 +3304,8 @@
         let selectedPeriod = 'monthly';
         
         const PRICES = {
-            pro: { monthly: '$9.99', yearly: '$99.99' },
-            business: { monthly: '$59.99', yearly: '$599.99' }
+            pro: { monthly: '$49', yearly: '$399' },
+            business: { monthly: '$99', yearly: '$799' }
         };
         
         function setPaymentPeriod(period) {
@@ -3335,8 +3335,8 @@
             const existing = document.getElementById('paymentModalTemp');
             if (existing) existing.remove();
             
-            const priceMonthly = plan === 'pro' ? '$9.99' : '$59.99';
-            const priceYearly = plan === 'pro' ? '$99.99' : '$599.99';
+            const priceMonthly = plan === 'pro' ? '$49' : '$99';
+            const priceYearly = plan === 'pro' ? '$399' : '$799';
             const planColor = plan === 'pro' ? '#6366f1' : '#a855f7';
             
             const modal = document.createElement('div');
