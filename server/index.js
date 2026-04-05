@@ -93,6 +93,73 @@ app.get('/api/debug/db', (req, res) => {
     });
 });
 
+// Debug: get recent payments
+app.get('/api/debug/payments', (req, res) => {
+    const db = require('./database');
+    db.all('SELECT payment_id, user_id, plan, period, amount, currency, method, status, created_at FROM payments ORDER BY created_at DESC LIMIT 50', (err, rows) => {
+        if (err) {
+            res.json({ error: err.message });
+        } else {
+            res.json({ 
+                count: rows.length,
+                payments: rows 
+            });
+        }
+    });
+});
+
+// Debug: check NovaPay webhook status
+app.post('/api/debug/test-webhook', async (req, res) => {
+    const db = require('./database');
+    const paymentRoutes = require('./routes/payment');
+    
+    const testPayment = {
+        merchant_id: 2,
+        order_id: 'TEST_' + Date.now(),
+        status: 'success',
+        session_id: 'test_session_' + Date.now(),
+        amount: 1599,
+        currency: 'UAH'
+    };
+    
+    console.log('Test webhook data:', testPayment);
+    
+    res.json({ 
+        received: true, 
+        testPayment,
+        message: 'Check server logs to see webhook processing'
+    });
+});
+
+// Debug: get user's payments (by token)
+app.get('/api/debug/my-payments', (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+    
+    const jwt = require('jsonwebtoken');
+    const token = authHeader.split(' ')[1];
+    
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const db = require('./database');
+        
+        db.all('SELECT payment_id, plan, period, amount, currency, method, status, created_at FROM payments WHERE user_id = ? ORDER BY created_at DESC', [decoded.id], (err, rows) => {
+            if (err) {
+                res.json({ error: err.message });
+            } else {
+                res.json({ 
+                    userId: decoded.id,
+                    payments: rows 
+                });
+            }
+        });
+    } catch (e) {
+        res.status(401).json({ error: 'Invalid token' });
+    }
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Site Doctor running on port ${PORT}`);

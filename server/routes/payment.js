@@ -610,3 +610,5 @@ router.post('/cancel', authenticateToken, (req, res) => {
 });
 
 module.exports = router;
+module.exports.verifyNovaPaySignature = verifyNovaPaySignature;
+module.exports.signNovaPayRequest = signNovaPayRequest;
