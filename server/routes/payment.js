@@ -92,6 +92,10 @@ router.post('/create', authenticateToken, async (req, res) => {
 
             const signature = signNovaPayRequest(sessionBody);
 
+            console.log('NovaPay request to:', `${NOVAPAY_API_URL}/v1/checkout/session`);
+            console.log('NovaPay signature:', signature ? 'present' : 'missing');
+            console.log('NovaPay request body:', JSON.stringify(sessionBody));
+
             const response = await fetch(`${NOVAPAY_API_URL}/v1/checkout/session`, {
                 method: 'POST',
                 headers: {
@@ -103,12 +107,15 @@ router.post('/create', authenticateToken, async (req, res) => {
 
             const data = await response.json();
 
-            if (data.status === 'accept' && data.checkout_url) {
+            console.log('NovaPay response status:', response.status);
+            console.log('NovaPay response:', JSON.stringify(data));
+
+        if (data.status === 'accept' && data.checkout_url) {
                 db.run(
                     'INSERT INTO payments (payment_id, user_id, plan, period, amount, currency, method, status, external_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
                     [paymentId, userId, plan, period, price.amount, 'UAH', 'novapay', 'pending', data.session_id?.toString() || paymentId],
                     (err) => {
-                        if (err) console.error('Payment insert error:', err);
+                        if (err) console.error('NovaPay payment insert error:', err);
                     }
                 );
 
@@ -120,6 +127,17 @@ router.post('/create', authenticateToken, async (req, res) => {
                     checkoutUrl: data.checkout_url,
                     description: `${plan} - ${period}`
                 });
+            } else {
+                console.error('NovaPay error response:', JSON.stringify(data));
+                throw new Error(data.message || data.error || 'Failed to create NovaPay session');
+            }
+        }
+    } catch (error) {
+        console.error('NovaPay create session error:', error);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ success: false, error: error.message, details: error.stack });
+    }
+});
             } else {
                 throw new Error(data.message || 'Failed to create NovaPay session');
             }
