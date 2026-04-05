@@ -56,11 +56,13 @@ app.use('/api/scheduler', schedulerRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
+    const dbModule = require('./database');
+    const dbType = dbModule.pool ? 'PostgreSQL' : 'SQLite';
     res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
         version: '1.0.0',
-        database: 'SQLite'
+        database: dbType
     });
 });
 

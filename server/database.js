@@ -1,16 +1,50 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+let pool = null;
+let usePostgres = false;
 
-pool.on('error', (err) => {
-    console.error('Unexpected database error:', err);
-});
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (DATABASE_URL && DATABASE_URL !== 'placeholder_update_me' && DATABASE_URL.startsWith('postgresql://')) {
+    console.log('Connecting to PostgreSQL...');
+    console.log('DATABASE_URL:', DATABASE_URL.replace(/:[^:@]+@/, ':***@')); // Hide password
+    
+    pool = new Pool({
+        connectionString: DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        },
+        max: 1
+    });
+    
+    pool.on('error', (err) => {
+        console.error('Unexpected database error:', err);
+    });
+    usePostgres = true;
+} else {
+    console.log('DATABASE_URL not set or invalid, falling back to SQLite');
+    console.log('DATABASE_URL value:', DATABASE_URL ? DATABASE_URL.substring(0, 30) + '...' : 'undefined');
+}
 
 async function initializeDatabase() {
-    const client = await pool.connect();
+    if (!usePostgres || !pool) {
+        console.log('Database: SQLite (fallback)');
+        return;
+    }
+    
+    let client;
+    try {
+        console.log('Attempting PostgreSQL connection...');
+        client = await pool.connect();
+        console.log('PostgreSQL connected successfully!');
+    } catch (err) {
+        console.error('PostgreSQL connection failed:', err.message);
+        console.log('Falling back to SQLite...');
+        usePostgres = false;
+        pool = null;
+        return;
+    }
+    
     try {
         // Users table
         await client.query(`
@@ -102,7 +136,9 @@ async function initializeDatabase() {
     } catch (err) {
         console.error('Error creating tables:', err);
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 
@@ -171,3 +207,4 @@ module.exports.getScanLimit = getScanLimit;
 module.exports.getComparisonLimit = getComparisonLimit;
 module.exports.dbReady = dbReady;
 module.exports.pool = pool;
+module.exports.dbType = usePostgres ? 'PostgreSQL' : 'SQLite';
