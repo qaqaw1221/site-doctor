@@ -1237,7 +1237,7 @@
                         </li>
                     </ul>
                     
-                    <button onclick="console.log('Pro button clicked'); alert('TEST: Pro clicked!'); openPaymentModal('pro')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: linear-gradient(to right, #6366f1, #a855f7); color: white; font-weight: 600; border: none; cursor: pointer;">
+                    <button onclick="openPaymentModal('pro')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: linear-gradient(to right, #6366f1, #a855f7); color: white; font-weight: 600; border: none; cursor: pointer;">
                         Выбрать Pro
                     </button>
                 </div>
@@ -3249,22 +3249,8 @@
             document.getElementById('proPeriodText').textContent = period === 'monthly' ? 'месяц' : 'год';
             document.getElementById('businessPeriodText').textContent = period === 'monthly' ? 'месяц' : 'год';
         }
-            if (!btn) return;
-            
-            const methodNames = {
-                'novapay': 'Банковская карта (Visa/MasterCard)',
-                'crypto': 'Криптовалюта',
-                'card': 'Банковская карта',
-                'sbp': 'СБП'
-            };
-            
-            btn.textContent = `Оплатить через ${methodNames[selectedMethod] || 'карту'}`;
-        }
         
         function openPaymentModal(plan) {
-            console.log('openPaymentModal called with plan:', plan);
-            alert('TEST 2: openPaymentModal called!');
-            
             const existing = document.getElementById('paymentModalTemp');
             if (existing) existing.remove();
             
