@@ -2169,67 +2169,13 @@
         let currentScanData = null;
         
         async function applyFix(index) {
-            if (!currentScanData || !currentScanData.fixes) {
-                showNotification('Сначала проведите сканирование', 'error');
-                return;
-            }
-            
-            const user = getCurrentUser();
-            const plan = user?.plan || 'free';
-            if (plan === 'free') {
-                showUpgradeModal('fixes');
-                return;
-            }
+            if (!currentScanData || !currentScanData.fixes) return;
+            if (!userHasFixes()) { showUpgradeModal('fixes'); return; }
             
             const fix = currentScanData.fixes.fixes[index];
             if (!fix) return;
             
-            // Показать детали исправления
-            showFixDetails(fix);
-        }
-        
-        function showFixDetails(fix) {
-            const modal = document.createElement('div');
-            modal.id = 'fixDetailsModal';
-            modal.innerHTML = `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
-                    <div style="background: #111; border: 1px solid #333; border-radius: 20px; padding: 40px; width: 100%; max-width: 600px; color: white;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                            <div>
-                                <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${fix.type === 'seo' ? 'rgba(99,102,241,0.2); color: #818cf8' : fix.type === 'accessibility' ? 'rgba(34,197,94,0.2); color: #4ade80' : 'rgba(245,158,11,0.2); color: #fbbf24'};">${fix.type?.toUpperCase() || 'SEO'}</span>
-                                <span style="margin-left: 10px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${fix.impact === 'Высокий' ? 'rgba(239,68,68,0.2); color: #f87171' : fix.impact === 'Средний' ? 'rgba(245,158,11,0.2); color: #fbbf24' : 'rgba(156,163,175,0.2); color: #9ca3af'};">${fix.impact || 'Средний'} приоритет</span>
-                            </div>
-                            <button onclick="document.getElementById('fixDetailsModal').remove()" style="background: none; border: none; color: #666; font-size: 24px; cursor: pointer;">&times;</button>
-                        </div>
-                        
-                        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">${fix.issue || fix.description}</h2>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h3 style="font-size: 14px; color: #888; margin-bottom: 10px;">КАК ИСПРАВИТЬ:</h3>
-                            <div style="background: #1a1a1a; padding: 20px; border-radius: 12px; font-family: monospace; white-space: pre-wrap; font-size: 14px; color: #4ade80;">${fix.fix || fix.description}</div>
-                        </div>
-                        
-                        <div style="display: flex; gap: 15px;">
-                            <button onclick="copyFixToClipboard()" style="flex: 1; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(to right, #6366f1, #a855f7); color: white; font-weight: 600; cursor: pointer;">
-                                📋 Скопировать код
-                            </button>
-                            <button onclick="document.getElementById('fixDetailsModal').remove()" style="padding: 15px 25px; border-radius: 12px; border: 1px solid #333; background: transparent; color: white; cursor: pointer;">
-                                Закрыть
-                            </button>
-                        </div>
-                        
-                        <script>
-                            function copyFixToClipboard() {
-                                const code = \`${fix.fix || fix.description}\`;
-                                navigator.clipboard.writeText(code).then(() => {
-                                    alert('Скопировано в буфер обмена!');
-                                });
-                            }
-                        </script>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
+            showNotification(`Исправление: ${fix.description}`, 'info');
         }
         
         async function applyAllFixes() {
