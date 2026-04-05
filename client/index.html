@@ -3262,12 +3262,17 @@
         }
         
         function openPaymentModal(plan) {
+            console.log('openPaymentModal called with plan:', plan);
+            alert('TEST 2: openPaymentModal called!');
+            
             const existing = document.getElementById('paymentModalTemp');
             if (existing) existing.remove();
             
             const priceMonthly = plan === 'pro' ? '$15.99' : '$59.99';
             const priceYearly = plan === 'pro' ? '$159.99' : '$599.99';
             const planColor = plan === 'pro' ? '#6366f1' : '#a855f7';
+            
+            alert('Creating modal...');
             
             const modal = document.createElement('div');
             modal.id = 'paymentModalTemp';
