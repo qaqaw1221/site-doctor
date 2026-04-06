@@ -225,7 +225,15 @@ app.get('/payment/cancelled', (req, res) => {
 
 // Serve static files from client directory (but not root)
 app.use(express.static(path.join(__dirname, '../client'), {
-    index: false // Don't serve index.html for root
+    index: false,
+    etag: false,
+    lastModified: false,
+    maxAge: 0,
+    setHeaders: (res, path) => {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+    }
 }));
 
 // Use routes
