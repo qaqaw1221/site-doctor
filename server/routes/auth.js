@@ -7,6 +7,73 @@ const { sendVerificationCode, generateVerificationCode } = require('../utils/ema
 
 const router = express.Router();
 
+router.post('/google', async (req, res) => {
+    const { idToken, firebaseUid, email, name } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({ success: false, error: 'Email required' });
+    }
+    
+    try {
+        db.get('SELECT * FROM users WHERE email = $1', [email], (err, user) => {
+            if (err) {
+                return res.status(500).json({ success: false, error: 'Database error' });
+            }
+            
+            if (user) {
+                const token = generateToken(user);
+                return res.json({
+                    success: true,
+                    token,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        plan: user.plan,
+                        scans_left: user.scans_left
+                    },
+                    isNew: false
+                });
+            }
+            
+            const hashedPassword = bcrypt.hashSync(firebaseUid || 'google_oauth_' + Date.now(), 10);
+            const userName = name || email.split('@')[0];
+            
+            db.runWithReturn(
+                'INSERT INTO users (email, password, name, plan, scans_used, email_verified, firebase_uid) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                [email, hashedPassword, userName, 'free', 0, 1, firebaseUid],
+                function(err, result) {
+                    if (err) {
+                        console.error('Google auth insert error:', err);
+                        return res.status(500).json({ success: false, error: 'Failed to create user' });
+                    }
+                    
+                    const userId = result?.id || 0;
+                    const newUser = {
+                        id: userId,
+                        email,
+                        name: userName,
+                        plan: 'free',
+                        scans_left: 3
+                    };
+                    
+                    const token = generateToken(newUser);
+                    
+                    res.json({
+                        success: true,
+                        token,
+                        user: newUser,
+                        isNew: true
+                    });
+                }
+            );
+        });
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 const validatePassword = (password) => {
     if (password.length < 8) return 'Пароль должен содержать минимум 8 символов';
     if (!/[a-zA-Z]/.test(password)) return 'Пароль должен содержать хотя бы одну букву';
