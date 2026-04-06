@@ -17,6 +17,14 @@ require('./database');
 
 const app = express();
 
+// Disable caching for all responses
+app.use((req, res, next) => {
+    res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    next();
+});
+
 // Middleware
 app.use(cors());
 
