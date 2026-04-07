@@ -203,7 +203,7 @@ router.post('/resend-code', [
 
     const { email } = req.body;
 
-    db.get('SELECT id, email, name, email_verified FROM users WHERE email = ?', [email], async (err, user) => {
+    db.get('SELECT id, email, name, email_verified FROM users WHERE email = $1', [email], async (err, user) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'Database error' });
         }
@@ -219,7 +219,7 @@ router.post('/resend-code', [
         const verificationExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
         db.run(
-            'UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?',
+            'UPDATE users SET verification_code = $1, verification_expires = $2 WHERE id = $3',
             [verificationCode, verificationExpires, user.id],
             async (err) => {
                 if (err) {
@@ -249,7 +249,7 @@ router.post('/login', [
     const { email, password } = req.body;
 
     try {
-        db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+        db.get('SELECT * FROM users WHERE email = $1', [email], async (err, user) => {
             if (err) {
                 return res.status(500).json({ success: false, error: 'Database error' });
             }
@@ -262,7 +262,7 @@ router.post('/login', [
                 return res.status(400).json({ success: false, error: 'Неверный email или пароль' });
             }
 
-            db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
+            db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
 
             const token = generateToken(user);
 
@@ -286,7 +286,7 @@ router.post('/login', [
 });
 
 router.get('/me', authenticateToken, (req, res) => {
-    db.get('SELECT id, email, name, plan, scans_left, created_at, email_verified FROM users WHERE id = ?',
+    db.get('SELECT id, email, name, plan, scans_left, created_at, email_verified FROM users WHERE id = $1',
         [req.user.id],
         (err, user) => {
             if (err || !user) {

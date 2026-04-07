@@ -277,19 +277,30 @@ app.get('/api/test-email', async (req, res) => {
 // Debug: get database schema
 app.get('/api/debug/db', (req, res) => {
     const db = require('./database');
-    db.all("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'", (err, rows) => {
-        if (err) {
-            res.json({ error: err.message });
-        } else {
-            res.json({ usersSchema: rows[0]?.sql });
-        }
-    });
+    const dbModule = require('./database');
+    if (dbModule.dbType === 'PostgreSQL') {
+        db.all("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'users'", [], (err, rows) => {
+            if (err) {
+                res.json({ error: err.message });
+            } else {
+                res.json({ dbType: 'PostgreSQL', usersSchema: rows });
+            }
+        });
+    } else {
+        db.all("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'", [], (err, rows) => {
+            if (err) {
+                res.json({ error: err.message });
+            } else {
+                res.json({ dbType: 'SQLite', usersSchema: rows[0]?.sql });
+            }
+        });
+    }
 });
 
 // Debug: get recent payments
 app.get('/api/debug/payments', (req, res) => {
     const db = require('./database');
-    db.all('SELECT payment_id, user_id, plan, period, amount, currency, method, status, created_at FROM payments ORDER BY created_at DESC LIMIT 50', (err, rows) => {
+    db.all('SELECT payment_id, user_id, plan, period, amount, currency, method, status, created_at FROM payments ORDER BY created_at DESC LIMIT 50', [], (err, rows) => {
         if (err) {
             res.json({ error: err.message });
         } else {
@@ -338,7 +349,7 @@ app.get('/api/debug/my-payments', (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const db = require('./database');
         
-        db.all('SELECT payment_id, plan, period, amount, currency, method, status, created_at FROM payments WHERE user_id = ? ORDER BY created_at DESC', [decoded.id], (err, rows) => {
+        db.all('SELECT payment_id, plan, period, amount, currency, method, status, created_at FROM payments WHERE user_id = $1 ORDER BY created_at DESC', [decoded.id], (err, rows) => {
             if (err) {
                 res.json({ error: err.message });
             } else {

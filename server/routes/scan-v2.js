@@ -82,7 +82,7 @@ router.post('/', authenticateToken, async (req, res) => {
     const email = req.user.email;
 
     // Ensure user exists in database
-    db.get('SELECT id, scans_used, scans_reset_at, plan FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT id, scans_used, scans_reset_at, plan FROM users WHERE id = $1', [userId], (err, user) => {
         if (err) {
             console.error('Database error:', err.message);
         }
@@ -91,7 +91,7 @@ router.post('/', authenticateToken, async (req, res) => {
         if (!user) {
             console.log('User not in DB, creating from JWT:', email);
             db.run(
-                'INSERT OR IGNORE INTO users (id, email, name, password, plan, scans_used) VALUES (?, ?, ?, ?, ?, ?)',
+                'INSERT INTO users (id, email, name, password, plan, scans_used) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING',
                 [userId, email, email.split('@')[0], 'jwt-user', plan, 0],
                 function(insertErr) {
                     if (insertErr) {
@@ -114,7 +114,7 @@ function proceedWithScan(userId, plan, res, req) {
     const now = new Date();
     let scansUsed = 0;
     
-    db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = $1', [userId], (err, user) => {
         if (err) {
             console.error('DB error:', err.message);
         }
@@ -125,7 +125,7 @@ function proceedWithScan(userId, plan, res, req) {
                 const resetDate = new Date(user.scans_reset_at);
                 if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {
                     scansUsed = 0;
-                    db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+                    db.run('UPDATE users SET scans_used = 0, scans_reset_at = CURRENT_TIMESTAMP WHERE id = $1', [userId]);
                 }
             }
         }
@@ -148,7 +148,7 @@ function proceedWithScan(userId, plan, res, req) {
 
             scanner.scan(url, { modules }).then(result => {
                 // Increment scan count
-                db.run('UPDATE users SET scans_used = scans_used + 1 WHERE id = ?', [userId]);
+                db.run('UPDATE users SET scans_used = scans_used + 1 WHERE id = $1', [userId]);
 
                 res.json({
                     success: true,
@@ -182,7 +182,7 @@ router.get('/limits', authenticateToken, (req, res) => {
     const planLimits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
     const limit = planLimits.scans;
 
-    db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT scans_used, scans_reset_at FROM users WHERE id = $1', [userId], (err, user) => {
         if (err) {
             console.error('DB error:', err.message);
         }

@@ -143,7 +143,7 @@ router.post('/compare', authenticateToken, async (req, res) => {
         
         // Save to history and update counter
         db.run(
-            'INSERT INTO comparison_history (user_id, main_url, competitors, results) VALUES (?, ?, ?, ?)',
+            'INSERT INTO comparison_history (user_id, main_url, competitors, results) VALUES ($1, $2, $3, $4)',
             [userId, mainUrl, JSON.stringify(competitors), JSON.stringify({ comparison, summary })],
             (err) => {
                 if (err) console.error('Error saving comparison:', err);
@@ -152,7 +152,7 @@ router.post('/compare', authenticateToken, async (req, res) => {
         
         // Update comparisons used counter
         db.run(
-            'UPDATE users SET comparisons_used = comparisons_used + 1 WHERE id = ?',
+            'UPDATE users SET comparisons_used = comparisons_used + 1 WHERE id = $1',
             [userId],
             (err) => {
                 if (err) console.error('Error updating comparisons counter:', err);
@@ -461,16 +461,32 @@ router.get('/features', (req, res) => {
 
 // Get comparison limits status
 router.get('/limits', authenticateToken, (req, res) => {
-    const userPlan = req.user.plan || 'free';
-    const limit = getComparisonLimit(userPlan);
-    const used = req.user.comparisons_used || 0;
+    const userId = req.user.id;
     
-    res.json({
-        success: true,
-        plan: userPlan,
-        limit: limit,
-        used: used,
-        remaining: Math.max(0, limit - used)
+    db.get('SELECT plan, comparisons_used FROM users WHERE id = $1', [userId], (err, user) => {
+        if (err || !user) {
+            const userPlan = req.user.plan || 'free';
+            const limit = getComparisonLimit(userPlan);
+            return res.json({
+                success: true,
+                plan: userPlan,
+                limit: limit,
+                used: 0,
+                remaining: limit
+            });
+        }
+        
+        const userPlan = user.plan || 'free';
+        const limit = getComparisonLimit(userPlan);
+        const used = user.comparisons_used || 0;
+        
+        res.json({
+            success: true,
+            plan: userPlan,
+            limit: limit,
+            used: used,
+            remaining: Math.max(0, limit - used)
+        });
     });
 });
 
@@ -480,7 +496,7 @@ router.get('/history', authenticateToken, (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     
     db.all(
-        'SELECT * FROM comparison_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
+        'SELECT * FROM comparison_history WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2',
         [userId, limit],
         (err, rows) => {
             if (err) {

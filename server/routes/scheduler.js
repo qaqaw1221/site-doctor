@@ -60,7 +60,7 @@ router.post('/create', authenticateToken, (req, res) => {
 
 router.get('/list', authenticateToken, (req, res) => {
     db.all(
-        `SELECT * FROM scheduled_scans WHERE user_id = ? ORDER BY created_at DESC`,
+        `SELECT * FROM scheduled_scans WHERE user_id = $1 ORDER BY created_at DESC`,
         [req.user.id],
         (err, rows) => {
             if (err) {
@@ -93,7 +93,7 @@ router.put('/:id/toggle', authenticateToken, (req, res) => {
     const { isActive } = req.body;
     
     db.run(
-        `UPDATE scheduled_scans SET is_active = ? WHERE id = ? AND user_id = ?`,
+        `UPDATE scheduled_scans SET is_active = $1 WHERE id = $2 AND user_id = $3`,
         [isActive ? 1 : 0, id, req.user.id],
         function(err) {
             if (err) {
@@ -122,7 +122,7 @@ router.delete('/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
     
     db.run(
-        `DELETE FROM scheduled_scans WHERE id = ? AND user_id = ?`,
+        `DELETE FROM scheduled_scans WHERE id = $1 AND user_id = $2`,
         [id, req.user.id],
         function(err) {
             if (err) {
@@ -151,7 +151,7 @@ router.post('/:id/scan-now', authenticateToken, async (req, res) => {
     const { id } = req.params;
     
     db.get(
-        `SELECT * FROM scheduled_scans WHERE id = ? AND user_id = ?`,
+        `SELECT * FROM scheduled_scans WHERE id = $1 AND user_id = $2`,
         [id, req.user.id],
         async (err, row) => {
             if (err || !row) {
@@ -168,7 +168,7 @@ router.post('/:id/scan-now', authenticateToken, async (req, res) => {
                 const nextScanAt = calculateNextScan(row.frequency);
                 
                 db.run(
-                    `UPDATE scheduled_scans SET last_scan_at = datetime('now'), next_scan_at = ? WHERE id = ?`,
+                    `UPDATE scheduled_scans SET last_scan_at = CURRENT_TIMESTAMP, next_scan_at = $1 WHERE id = $2`,
                     [nextScanAt, id],
                     (err) => {
                         if (err) console.error('Error updating scan time:', err);
@@ -176,7 +176,7 @@ router.post('/:id/scan-now', authenticateToken, async (req, res) => {
                 );
                 
                 db.run(
-                    `INSERT INTO scan_history (user_id, url, results) VALUES (?, ?, ?)`,
+                    `INSERT INTO scan_history (user_id, url, results) VALUES ($1, $2, $3)`,
                     [req.user.id, row.url, JSON.stringify(result)],
                     (err) => {
                         if (err) console.error('Error saving scan history:', err);

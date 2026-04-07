@@ -103,7 +103,7 @@ router.get('/history', authenticateToken, (req, res) => {
 router.get('/stats', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
-    db.get('SELECT plan, scans_left FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT plan, scans_left FROM users WHERE id = $1', [userId], (err, user) => {
         if (err || !user) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
@@ -111,7 +111,7 @@ router.get('/stats', authenticateToken, (req, res) => {
         const plan = user.plan || 'free';
         const scansLeft = user.scans_left ?? (plan === 'free' ? 3 : plan === 'pro' ? 50 : 500);
 
-        db.get('SELECT COUNT(*) as total FROM scan_history WHERE user_id = ?', [userId], (err, count) => {
+        db.get('SELECT COUNT(*) as total FROM scan_history WHERE user_id = $1', [userId], (err, count) => {
             res.json({
                 success: true,
                 plan: plan,

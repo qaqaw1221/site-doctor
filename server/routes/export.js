@@ -15,7 +15,7 @@ router.get('/csv/:scanId', authenticateToken, (req, res) => {
         });
     }
     
-    dbModule.get(`SELECT * FROM scan_history WHERE id = ? AND user_id = ?`, [scanId, req.user.id], (err, row) => {
+    dbModule.get(`SELECT * FROM scan_history WHERE id = $1 AND user_id = $2`, [scanId, req.user.id], (err, row) => {
         if (err || !row) {
             return res.status(404).json({
                 success: false,
@@ -40,7 +40,7 @@ router.get('/history', authenticateToken, (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     
     dbModule.all(
-        `SELECT id, url, created_at FROM scan_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`,
+        `SELECT id, url, created_at FROM scan_history WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2`,
         [userId, limit],
         (err, rows) => {
             if (err) {
