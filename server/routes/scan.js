@@ -29,7 +29,7 @@ router.post('/', authenticateToken, async (req, res) => {
         return res.status(400).json({ success: false, error: 'URL is required' });
     }
 
-    db.get('SELECT plan, scans_left FROM users WHERE id = ?', [userId], async (err, user) => {
+    db.get('SELECT plan, scans_left FROM users WHERE id = $1', [userId], async (err, user) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'Database error' });
         }
@@ -41,7 +41,7 @@ router.post('/', authenticateToken, async (req, res) => {
         const plan = user.plan || 'free';
         const scansLeft = user.scans_left ?? (plan === 'free' ? 3 : plan === 'pro' ? 50 : 500);
 
-        if (plan !== 'business' && scansLeft <= 0) {
+        if (plan !== 'agency' && scansLeft <= 0) {
             return res.status(403).json({ 
                 success: false, 
                 error: 'No scans left. Please upgrade your plan.',
@@ -55,12 +55,12 @@ router.post('/', authenticateToken, async (req, res) => {
             console.log(`Scan complete for: ${url}`);
 
             db.run(
-                'INSERT INTO scan_history (user_id, url, results) VALUES (?, ?, ?)',
+                'INSERT INTO scan_history (user_id, url, results, created_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP)',
                 [userId, url, JSON.stringify(results)]
             );
 
-            if (plan !== 'business') {
-                db.run('UPDATE users SET scans_left = scans_left - 1 WHERE id = ?', [userId]);
+            if (plan !== 'business' && plan !== 'agency') {
+                db.run('UPDATE users SET scans_left = scans_left - 1 WHERE id = $1', [userId]);
             }
 
             res.json({
@@ -81,7 +81,7 @@ router.get('/history', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
     db.all(
-        'SELECT id, url, results, created_at FROM scan_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 50',
+        'SELECT id, url, results, created_at FROM scan_history WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50',
         [userId],
         (err, rows) => {
             if (err) {

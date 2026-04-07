@@ -2600,18 +2600,65 @@
             const HISTORY_KEY = 'siteDoctor_history';
             try {
                 let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-                history.unshift({
+                const newEntry = {
+                    id: Date.now(),
                     url: data.url,
                     score: data.overallScore,
+                    scores: data.scores || {},
+                    issuesCount: data.stats?.totalIssues || 0,
                     fixes: data.fixes ? data.fixes.totalFixes : 0,
-                    timestamp: data.timestamp || Date.now(),
-                    duration: Math.round((data.stats && data.stats.duration) ? data.stats.duration / 1000 : 0)
-                });
-                history = history.slice(0, 20);
+                    timestamp: data.timestamp || new Date().toISOString(),
+                    duration: data.stats?.scanDuration ? Math.round(data.stats.scanDuration / 1000) : 0,
+                    topIssues: (data.issues || []).slice(0, 3).map(i => ({
+                        title: i.title,
+                        severity: i.severity
+                    }))
+                };
+                history.unshift(newEntry);
+                history = history.slice(0, 50);
                 localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+                
+                saveToServerHistory(data);
             } catch (e) {
                 console.error('Failed to save to history:', e);
             }
+        }
+        
+        async function saveToServerHistory(data) {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+            
+            try {
+                await fetch('/api/scan/history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        url: data.url,
+                        score: data.overallScore,
+                        issues: data.issues,
+                        stats: data.stats,
+                        fixes: data.fixes
+                    })
+                });
+            } catch (e) {
+                console.log('Server history save failed (not critical)');
+            }
+        }
+        
+        function getHistory() {
+            try {
+                return JSON.parse(localStorage.getItem('siteDoctor_history') || '[]');
+            } catch {
+                return [];
+            }
+        }
+        
+        function clearHistory() {
+            localStorage.removeItem('siteDoctor_history');
+            showNotification('История очищена', 'success');
         }
         
         function showNotification(message, type = 'info') {
