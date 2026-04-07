@@ -232,10 +232,15 @@
             box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
         }
         
+        /* Smooth transitions globally */
+        * {
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
         /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
             position: relative;
             overflow: hidden;
         }
@@ -248,7 +253,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .btn-primary:hover::before {
@@ -256,8 +261,8 @@
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.5);
         }
         
         /* Cards */
@@ -265,23 +270,23 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
         .card:hover {
-            border-color: rgba(99, 102, 241, 0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
         }
         
         /* Animations */
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(-30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
@@ -315,20 +320,21 @@
             to { opacity: 1; transform: scale(1); }
         }
         
+        /* Smooth animations */
         .animate-slide-up {
-            animation: slideUp 0.5s ease forwards;
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         .animate-slide-down {
-            animation: slideDown 0.5s ease forwards;
+            animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         .animate-slide-in {
-            animation: slideIn 0.3s ease forwards;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         .animate-pulse-soft {
-            animation: pulse 2s ease-in-out infinite;
+            animation: pulse 3s ease-in-out infinite;
         }
         
         .animate-bounce-soft {
@@ -358,6 +364,16 @@
         
         .toast-exit {
             animation: slideIn 0.3s ease reverse forwards;
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
         }
         
         /* Button ripple effect */
@@ -2609,12 +2625,13 @@
             
             const config = configs[type] || configs.info;
             
-            notification.className = `fixed top-24 right-4 z-[100] toast-enter ${config.bg} text-white px-5 py-4 rounded-xl shadow-2xl border ${config.border} flex items-center gap-3 max-w-sm`;
+            notification.className = `fixed top-24 right-4 z-[100] ${config.bg} text-white px-6 py-4 rounded-2xl shadow-2xl border ${config.border} flex items-center gap-4 max-w-md`;
+            notification.style.animation = 'slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
             notification.innerHTML = `
-                <i data-lucide="${config.icon}" class="w-5 h-5 flex-shrink-0 animate-scale-in"></i>
+                <i data-lucide="${config.icon}" class="w-6 h-6 flex-shrink-0"></i>
                 <span class="text-sm font-medium">${message}</span>
-                <button onclick="this.parentElement.remove()" class="ml-2 hover:opacity-70 transition-opacity">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                <button onclick="this.parentElement.style.animation='slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards'; setTimeout(()=>this.parentElement.remove(), 400)" class="ml-2 hover:opacity-70 p-1 rounded-lg hover:bg-white/20 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             `;
             document.body.appendChild(notification);
@@ -2622,11 +2639,10 @@
             
             // Auto remove
             setTimeout(() => {
-                notification.classList.add('toast-exit');
-                notification.style.transform = 'translateX(100%)';
-                notification.style.opacity = '0';
-                notification.style.transition = 'all 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
+                if (notification.parentElement) {
+                    notification.style.animation = 'slideOutRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+                    setTimeout(() => notification.remove(), 500);
+                }
             }, 4000);
         }
         
