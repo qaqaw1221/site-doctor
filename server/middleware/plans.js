@@ -3,7 +3,7 @@ const db = dbModule;
 const PLAN_FEATURES = dbModule.PLAN_FEATURES || {
     free: { autoFixes: false, pdfExport: false, csvExport: false, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false },
     pro: { autoFixes: true, pdfExport: true, csvExport: true, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false },
-    business: { autoFixes: true, pdfExport: true, csvExport: true, apiAccess: true, whiteLabel: true, teamAccess: 5, scheduledScans: true }
+    agency: { autoFixes: true, pdfExport: true, csvExport: true, apiAccess: true, whiteLabel: true, teamAccess: 5, scheduledScans: true }
 };
 
 const PLAN_PRICES = {
@@ -44,7 +44,7 @@ const getUserFeatures = (plan) => {
 };
 
 const getUserPlan = (userId, callback) => {
-    db.get('SELECT plan FROM users WHERE id = ?', [userId], (err, row) => {
+    db.get('SELECT plan FROM users WHERE id = $1', [userId], (err, row) => {
         if (err || !row) {
             return callback(err || new Error('User not found'), null);
         }

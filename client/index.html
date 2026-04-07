@@ -1298,8 +1298,8 @@
                         </li>
                     </ul>
                     
-                    <button onclick="openPaymentModal('business')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: transparent; border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; font-weight: 600; cursor: pointer;">
-                        Выбрать Business
+                    <button onclick="openPaymentModal('agency')" style="width: 100%; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: transparent; border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; font-weight: 600; cursor: pointer;">
+                        Выбрать Agency
                     </button>
                 </div>
             </div>
@@ -1770,7 +1770,7 @@
                 csv: 'Для экспорта CSV необходимо обновить тариф',
                 api: 'API доступ доступен только на тарифе Business',
                 pro: 'Выберите план Pro',
-                business: 'Выберите план Business'
+                business: 'Выберите план Agency'
             };
             
             const modal = document.getElementById('upgradeModal');
@@ -2706,7 +2706,7 @@
                 outOf100: 'из 100',
                 free: 'Бесплатно',
                 pro: 'Профессионал',
-                business: 'Бизнес',
+                business: 'Agency',
                 perMonth: '/месяц',
                 perYear: '/год',
                 getStarted: 'Начать',
@@ -3108,7 +3108,7 @@
                 const planInfo = {
                     'free': { text: 'Free', class: 'bg-gray-500/20 text-gray-400' },
                     'pro': { text: 'Pro', class: 'bg-indigo-500/20 text-indigo-400' },
-                    'business': { text: 'Business', class: 'bg-purple-500/20 text-purple-400' }
+                    'business': { text: 'Agency', class: 'bg-purple-500/20 text-purple-400' }
                 };
                 
                 const info = planInfo[plan] || planInfo['free'];
@@ -3140,7 +3140,7 @@
         
         function updateFeaturesVisibility(plan) {
             const isPro = plan === 'pro' || plan === 'business';
-            const isBusiness = plan === 'business';
+            const isBusiness = plan === 'agency';
             
             // Auto-fixes button
             const fixBtns = document.querySelectorAll('.auto-fix-btn');
@@ -3333,8 +3333,8 @@
                         <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Командный доступ (до 5)</li>
                         <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #d1d5db;"><span style="color: #4ade80;">✓</span> Запланированные сканы</li>
                     </ul>
-                    <button onclick="selectPlan('business')" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background: transparent; border: 1px solid #a855f7; color: #c084fc; font-weight: 600; cursor: pointer;">
-                        Выбрать Business
+                    <button onclick="selectPlan('agency')" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background: transparent; border: 1px solid #a855f7; color: #c084fc; font-weight: 600; cursor: pointer;">
+                        Выбрать Agency
                     </button>
                 </div>
             </div>

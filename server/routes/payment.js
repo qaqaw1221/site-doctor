@@ -44,7 +44,7 @@ router.post('/activate-session', authenticateToken, async (req, res) => {
             db.run('UPDATE payments SET status = $1, completed_at = CURRENT_TIMESTAMP WHERE payment_id = $2', ['completed', payment.payment_id]);
             
             db.run('UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0, scans_left = $3 WHERE id = $4', 
-                [payment.plan, subscriptionEnd, payment.plan === 'business' ? 500 : 50, userId]);
+                [payment.plan, subscriptionEnd, payment.plan === 'agency' ? 500 : 50, userId]);
             
             // Get updated user
             db.get('SELECT id, email, name, plan, scans_left, email_verified FROM users WHERE id = $1', [userId], (err, user) => {
@@ -66,7 +66,7 @@ router.post('/create', authenticateToken, async (req, res) => {
     const { plan, period } = req.body;
     const userId = req.user.id;
 
-    if (!plan || !['pro', 'business'].includes(plan)) {
+    if (!plan || !['pro', 'agency'].includes(plan)) {
         return res.status(400).json({ success: false, error: 'Invalid plan' });
     }
 
@@ -80,11 +80,15 @@ router.post('/create', authenticateToken, async (req, res) => {
     try {
         // Get user info
         const user = await new Promise((resolve, reject) => {
-            db.get('SELECT * FROM users WHERE id = ?', [userId], (err, row) => {
+            db.get('SELECT * FROM users WHERE id = $1', [userId], (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
         });
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
 
         // Create Stripe Checkout Session
         const session = await stripe.checkout.sessions.create({
@@ -100,7 +104,7 @@ router.post('/create', authenticateToken, async (req, res) => {
                             name: `Site Doctor ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`,
                             description: period === 'monthly' ? 'Monthly subscription' : 'Yearly subscription (2 months free!)',
                         },
-                        unit_amount: Math.round(price.amount * 100), // Stripe uses cents
+                        unit_amount: Math.round(price.amount * 100),
                     },
                     quantity: 1,
                 },
@@ -115,9 +119,9 @@ router.post('/create', authenticateToken, async (req, res) => {
             cancel_url: `${process.env.BASE_URL}/scan?payment=cancelled`,
         });
 
-        // Save payment to database
+        // Save payment to database (PostgreSQL syntax)
         db.run(
-            'INSERT INTO payments (payment_id, user_id, plan, period, amount, currency, method, status, external_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
+            'INSERT INTO payments (payment_id, user_id, plan, period, amount, currency, method, status, external_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)',
             [paymentId, userId, plan, period, price.amount, price.currency, 'stripe', 'pending', session.id],
             (err) => {
                 if (err) console.error('Payment insert error:', err);
@@ -144,7 +148,7 @@ router.get('/status/:paymentId', authenticateToken, (req, res) => {
     const { paymentId } = req.params;
     const userId = req.user.id;
 
-    db.get('SELECT * FROM payments WHERE payment_id = ? AND user_id = ?', [paymentId, userId], (err, payment) => {
+    db.get('SELECT * FROM payments WHERE payment_id = $1 AND user_id = $2', [paymentId, userId], (err, payment) => {
         if (err || !payment) {
             return res.status(404).json({ success: false, error: 'Payment not found' });
         }
@@ -173,7 +177,7 @@ router.get('/status-by-session/:sessionId', authenticateToken, async (req, res) 
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         
-        db.get('SELECT * FROM payments WHERE external_id = ? AND user_id = ?', [sessionId, userId], (err, payment) => {
+        db.get('SELECT * FROM payments WHERE external_id = $1 AND user_id = $2', [sessionId, userId], (err, payment) => {
             if (err || !payment) {
                 return res.status(404).json({ success: false, error: 'Payment not found' });
             }
@@ -264,29 +268,30 @@ function handleSuccessfulPayment(session) {
 
     const metadata = session.metadata || {};
 
-    db.get('SELECT * FROM payments WHERE payment_id = ?', [paymentId], (err, payment) => {
+    db.get('SELECT * FROM payments WHERE payment_id = $1', [paymentId], (err, payment) => {
         if (err || !payment) {
             console.error('Payment not found:', paymentId);
             return;
         }
 
         if (payment.status !== 'completed') {
-            db.run('UPDATE payments SET status = ?, completed_at = CURRENT_TIMESTAMP WHERE payment_id = ?',
+            db.run('UPDATE payments SET status = $1, completed_at = CURRENT_TIMESTAMP WHERE payment_id = $2',
                 ['completed', paymentId], (err) => {
                     if (err) console.error('Error updating payment:', err);
                 });
 
             const periodMonths = payment.period === 'yearly' ? 12 : 1;
             const subscriptionEnd = new Date(Date.now() + periodMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
+            const scansLeft = payment.plan === 'agency' ? 500 : 50;
             db.run(
-                'UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0 WHERE id = $3',
-                [payment.plan, subscriptionEnd, payment.user_id],
+                'UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0, scans_left = $3 WHERE id = $4',
+                [payment.plan, subscriptionEnd, scansLeft, payment.user_id],
                 (err) => {
                     if (err) console.error('Error updating user:', err);
                 }
             );
 
-            db.get('SELECT email, name FROM users WHERE id = ?', [payment.user_id], (err, user) => {
+            db.get('SELECT email, name FROM users WHERE id = $1', [payment.user_id], (err, user) => {
                 if (!err && user) {
                     sendPaymentConfirmation(user.email, user.name || 'Пользователь', payment.plan, payment.period);
                 }
@@ -302,7 +307,7 @@ function handleExpiredPayment(session) {
     
     if (!paymentId) return;
 
-    db.run('UPDATE payments SET status = ? WHERE payment_id = ?', ['expired', paymentId], (err) => {
+    db.run('UPDATE payments SET status = $1 WHERE payment_id = $2', ['expired', paymentId], (err) => {
         if (err) console.error('Error updating payment status:', err);
     });
 }
@@ -311,7 +316,7 @@ function handleExpiredPayment(session) {
 router.get('/subscription', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
-    db.get('SELECT plan, subscription_end FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT plan, subscription_end FROM users WHERE id = $1', [userId], (err, user) => {
         if (err || !user) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
@@ -330,7 +335,7 @@ router.get('/subscription', authenticateToken, (req, res) => {
 router.post('/cancel', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
-    db.run('UPDATE users SET subscription_cancelled = 1 WHERE id = ?', [userId], (err) => {
+    db.run('UPDATE users SET subscription_cancelled = 1 WHERE id = $1', [userId], (err) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'Failed to cancel subscription' });
         }
