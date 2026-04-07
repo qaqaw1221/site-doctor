@@ -1452,49 +1452,60 @@
         // Initialize Lucide icons
         lucide.createIcons();
         
-        // Create particles
+        // Create particles (only once)
+        let particlesCreated = false;
         function createParticles() {
+            if (particlesCreated) return;
+            particlesCreated = true;
+            
             const container = document.getElementById('particles');
+            if (!container) return;
+            
             const colors = ['indigo', 'purple', 'pink'];
             const sizes = ['small', 'medium', 'large'];
             
             // Vertical floating particles
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 const size = sizes[Math.floor(Math.random() * sizes.length)];
                 particle.className = `particle ${size} ${color}`;
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 15) + 's';
+                particle.style.animationDuration = (15 + Math.random() * 15) + 's';
                 container.appendChild(particle);
             }
             
-            // Horizontal floating particles
-            for (let i = 0; i < 30; i++) {
+            // Horizontal floating particles (less density)
+            for (let i = 0; i < 15; i++) {
                 const particle = document.createElement('div');
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 const size = sizes[Math.floor(Math.random() * sizes.length)];
                 particle.className = `particle ${size} ${color}`;
                 particle.style.top = (Math.random() * 80 + 10) + '%';
-                particle.style.animation = 'floatSide ' + (18 + Math.random() * 12) + 's linear infinite';
+                particle.style.animation = 'floatSide ' + (25 + Math.random() * 15) + 's linear infinite';
                 particle.style.animationDelay = Math.random() * 20 + 's';
                 container.appendChild(particle);
             }
             
-            // Static glow dots
-            for (let i = 0; i < 15; i++) {
+            // Static glow dots (less density)
+            for (let i = 0; i < 8; i++) {
                 const dot = document.createElement('div');
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 dot.className = `particle medium ${color}`;
                 dot.style.left = Math.random() * 100 + '%';
                 dot.style.top = Math.random() * 100 + '%';
-                dot.style.animation = 'pulse ' + (3 + Math.random() * 4) + 's ease-in-out infinite';
-                dot.style.opacity = '0.3';
+                dot.style.animation = 'pulse ' + (4 + Math.random() * 4) + 's ease-in-out infinite';
+                dot.style.opacity = '0.25';
                 container.appendChild(dot);
             }
         }
-        createParticles();
+        
+        // Wait for DOM and lucide to load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            createParticles();
+        });
         
         // Animate stats on scroll
         function animateValue(id, start, end, duration) {
