@@ -880,35 +880,46 @@
                             <div class="text-center">
                                 <p class="text-lg font-semibold mb-2" data-i18n="scanning">Сканируем ваш сайт<span class="loading-dots text-lg"><span>.</span><span>.</span><span>.</span></span></p>
                                 <p class="text-gray-400 text-sm" id="scanStatus" data-i18n="connecting">Подключение к серверу</p>
+                                <p class="text-gray-500 text-xs mt-1" id="scanDetail" data-i18n="connecting">Пожалуйста, подождите...</p>
                             </div>
                             
                             <!-- Animated progress -->
-                            <div class="w-full max-w-sm">
-                                <div class="h-2 bg-[#222] rounded-full overflow-hidden relative">
-                                    <div id="progressBar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 relative" style="width: 0%">
-                                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg shadow-indigo-500/50"></div>
+                            <div class="w-full max-w-md">
+                                <div class="flex justify-between text-xs text-gray-500 mb-2">
+                                    <span id="progressPercent">0%</span>
+                                    <span id="progressTime">~30 сек</span>
+                                </div>
+                                <div class="h-3 bg-[#222] rounded-full overflow-hidden relative">
+                                    <div id="progressBar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-300 relative" style="width: 0%">
+                                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg shadow-indigo-500/50 animate-pulse"></div>
                                     </div>
-                                    <!-- Shimmer effect -->
-                                    <div class="absolute inset-0 shimmer opacity-50"></div>
                                 </div>
                             </div>
                             
-                            <!-- Status steps -->
-                            <div class="flex items-center gap-4 text-xs text-gray-500">
-                                <div class="flex items-center gap-1" id="stepConnection">
-                                    <div class="w-2 h-2 rounded-full bg-gray-600"></div>
-                                    <span>Подключение</span>
+                            <!-- Detailed steps grid -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl mt-4" id="stepsGrid">
+                                <div class="step-item flex items-center gap-2 p-2 rounded-lg bg-[#0a0a0a] transition-all" id="step-seo">
+                                    <div class="step-dot w-3 h-3 rounded-full bg-gray-600 transition-all"></div>
+                                    <span class="text-xs text-gray-500">SEO анализ</span>
                                 </div>
-                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                <div class="flex items-center gap-1" id="stepAnalysis">
-                                    <div class="w-2 h-2 rounded-full bg-gray-600"></div>
-                                    <span>Анализ</span>
+                                <div class="step-item flex items-center gap-2 p-2 rounded-lg bg-[#0a0a0a] transition-all" id="step-speed">
+                                    <div class="step-dot w-3 h-3 rounded-full bg-gray-600 transition-all"></div>
+                                    <span class="text-xs text-gray-500">Скорость</span>
                                 </div>
-                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                <div class="flex items-center gap-1" id="stepResults">
-                                    <div class="w-2 h-2 rounded-full bg-gray-600"></div>
-                                    <span>Результат</span>
+                                <div class="step-item flex items-center gap-2 p-2 rounded-lg bg-[#0a0a0a] transition-all" id="step-access">
+                                    <div class="step-dot w-3 h-3 rounded-full bg-gray-600 transition-all"></div>
+                                    <span class="text-xs text-gray-500">Доступность</span>
                                 </div>
+                                <div class="step-item flex items-center gap-2 p-2 rounded-lg bg-[#0a0a0a] transition-all" id="step-links">
+                                    <div class="step-dot w-3 h-3 rounded-full bg-gray-600 transition-all"></div>
+                                    <span class="text-xs text-gray-500">Ссылки</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Current check detail -->
+                            <div class="flex items-center gap-2 text-xs text-indigo-400 mt-2" id="currentCheck">
+                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                                <span>Проверяем мета-теги...</span>
                             </div>
                         </div>
                     </div>
@@ -1576,27 +1587,66 @@
         function showLoading() {
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('scanBtn').disabled = true;
+            lucide.createIcons();
             
             const stages = [
-                'Подключение к серверу',
-                'Загрузка страницы',
-                'Анализ SEO',
-                'Проверка скорости',
-                'Оценка доступности',
-                'Финализация результатов'
+                { name: 'Подключение', detail: 'Соединяемся с сервером...', step: null, progress: 10 },
+                { name: 'Загрузка', detail: 'Получаем ваш сайт...', step: null, progress: 20 },
+                { name: 'SEO анализ', detail: 'Проверяем мета-теги...', step: 'step-seo', progress: 35 },
+                { name: 'Анализ контента', detail: 'Ищем заголовки и изображения...', step: 'step-seo', progress: 45 },
+                { name: 'Скорость', detail: 'Измеряем время загрузки...', step: 'step-speed', progress: 55 },
+                { name: 'Доступность', detail: 'Проверяем контраст и навигацию...', step: 'step-access', progress: 70 },
+                { name: 'Ссылки', detail: 'Ищем битые ссылки...', step: 'step-links', progress: 80 },
+                { name: 'Безопасность', detail: 'Проверяем SSL и уязвимости...', step: null, progress: 90 },
+                { name: 'Финализация', detail: 'Собираем результаты...', step: null, progress: 100 }
             ];
             
             let stage = 0;
             const statusEl = document.getElementById('scanStatus');
             const progressEl = document.getElementById('progressBar');
+            const percentEl = document.getElementById('progressPercent');
+            const detailEl = document.getElementById('scanDetail');
+            const currentCheckEl = document.getElementById('currentCheck');
             
             const interval = setInterval(() => {
                 if (stage < stages.length) {
-                    statusEl.textContent = stages[stage];
-                    progressEl.style.width = ((stage + 1) / stages.length * 100) + '%';
+                    const s = stages[stage];
+                    statusEl.textContent = s.name;
+                    detailEl.textContent = s.detail;
+                    progressEl.style.width = s.progress + '%';
+                    percentEl.textContent = s.progress + '%';
+                    
+                    // Update current check
+                    currentCheckEl.querySelector('span').textContent = s.detail;
+                    
+                    // Update step indicators
+                    if (s.step) {
+                        const stepEl = document.getElementById(s.step);
+                        if (stepEl) {
+                            const dot = stepEl.querySelector('.step-dot');
+                            dot.className = 'step-dot w-3 h-3 rounded-full bg-indigo-500 animate-pulse';
+                            stepEl.classList.add('bg-indigo-500/10');
+                            stepEl.classList.add('border', 'border-indigo-500/30');
+                        }
+                    }
+                    
+                    // Mark previous steps as completed
+                    for (let i = 0; i < stage; i++) {
+                        const prevStep = stages[i].step;
+                        if (prevStep) {
+                            const stepEl = document.getElementById(prevStep);
+                            if (stepEl && !stepEl.querySelector('.step-dot').classList.contains('bg-green-500')) {
+                                const dot = stepEl.querySelector('.step-dot');
+                                dot.className = 'step-dot w-3 h-3 rounded-full bg-green-500';
+                                stepEl.classList.remove('bg-indigo-500/10');
+                                stepEl.classList.add('bg-green-500/10');
+                            }
+                        }
+                    }
+                    
                     stage++;
                 }
-            }, 1500);
+            }, 1200);
             
             return interval;
         }
