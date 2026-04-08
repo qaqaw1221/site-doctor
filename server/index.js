@@ -364,6 +364,18 @@ app.post('/api/debug/set-plan', async (req, res) => {
     );
 });
 
+// Debug: get all users with their plans
+app.get('/api/debug/users', async (req, res) => {
+    const db = require('./database');
+    db.all('SELECT id, email, plan, comparisons_used, scans_used FROM users ORDER BY id DESC LIMIT 50', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ success: true, users: rows });
+        }
+    });
+});
+
 // Debug: get user's payments (by token)
 app.get('/api/debug/my-payments', (req, res) => {
     const authHeader = req.headers.authorization;
