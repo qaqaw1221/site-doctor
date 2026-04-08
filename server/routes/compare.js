@@ -191,90 +191,125 @@ router.post('/compare', authenticateToken, async (req, res) => {
 });
 
 function extractSeoDetails(data) {
-    const seo = data.modules?.seo || data.seo || {};
-    const images = seo.images || {};
-    const links = seo.links || {};
-    const headingsCount = seo.headingsCount || {};
-    const imagesWithAlt = (images.total || 0) - (images.withoutAlt || 0);
-    const imageAltRatio = (images.total || 0) > 0 ? Math.round((imagesWithAlt / images.total) * 100) : 100;
+    const seo = data.seo || {};
+    const checks = seo.checks || [];
+    
+    const getCheck = (item) => checks.find(c => c.item === item);
+    const titleCheck = getCheck('Title Tag');
+    const descCheck = getCheck('Meta Description');
+    const h1Check = getCheck('H1 Heading');
+    const viewportCheck = getCheck('Viewport Meta');
+    const canonicalCheck = getCheck('Canonical URL');
+    const ogCheck = getCheck('Open Graph Tags');
+    const langCheck = getCheck('Language Attribute');
+    const faviconCheck = getCheck('Favicon');
     
     return {
-        title: seo.title || '',
-        titleLength: (seo.title || '').length,
-        description: seo.description || '',
-        descriptionLength: (seo.description || '').length,
-        hasViewport: !!seo.viewport,
-        hasCharset: !!seo.charset,
-        h1Count: headingsCount.h1 || seo.h1Count || 0,
-        h2Count: headingsCount.h2 || seo.h2Count || 0,
-        h3Count: headingsCount.h3 || 0,
-        imageAltRatio: imageAltRatio,
-        totalImages: images.total || 0,
-        imagesWithoutAlt: images.withoutAlt || 0,
-        canonicalUrl: seo.canonical || '',
+        title: titleCheck?.message?.replace('✓ ', '').replace('...', '') || '',
+        titleLength: titleCheck?.message ? (titleCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        titleStatus: titleCheck?.status || 'pass',
+        description: descCheck?.message || '',
+        descriptionLength: descCheck?.message ? (descCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        hasViewport: viewportCheck?.status === 'pass',
+        hasCharset: !!data.seo?.charset,
+        h1Count: h1Check?.status === 'pass' ? 1 : (h1Check?.message?.match(/\d+/)?.[0] || 0),
+        h2Count: 0,
+        h3Count: 0,
+        imageAltRatio: 100,
+        totalImages: data.stats?.totalImages || 0,
+        imagesWithoutAlt: 0,
+        canonicalUrl: canonicalCheck?.message?.replace('✓ ', '') || '',
         ogTags: {
-            hasTitle: !!seo.ogTitle,
-            hasDescription: !!seo.ogDescription,
-            hasImage: !!seo.ogImage,
-            hasUrl: !!seo.ogUrl
+            hasTitle: ogCheck?.status === 'pass',
+            hasDescription: !!ogCheck,
+            hasImage: ogCheck?.status === 'pass',
+            hasUrl: !!ogCheck
         },
         twitterTags: {
-            hasCard: !!seo.twitterCard,
-            hasTitle: !!seo.twitterTitle,
-            hasDescription: !!seo.twitterDescription
+            hasCard: !!getCheck('Twitter Card'),
+            hasTitle: false,
+            hasDescription: false
         },
-        keywords: seo.keywords || '',
-        robots: seo.robots || '',
-        totalLinks: links.total || 0,
-        internalLinks: links.internal || 0,
-        externalLinks: links.external || 0
+        keywords: '',
+        robots: getCheck('Robots Meta')?.message || '',
+        totalLinks: data.stats?.totalLinks || 0,
+        internalLinks: 0,
+        externalLinks: 0
     };
 }
 
 function extractPerformanceDetails(data) {
-    const perf = data.modules?.performance || data.performance || {};
+    const perf = data.performance || {};
+    const checks = perf.checks || [];
+    const stats = data.stats || {};
+    
+    const getCheck = (item) => checks.find(c => c.item === item);
+    const htmlSizeCheck = getCheck('HTML Size');
+    const scriptsCheck = getCheck('External Scripts');
+    const cssCheck = getCheck('CSS Files');
+    const lazyCheck = getCheck('Lazy Loading');
+    const domCheck = getCheck('DOM Size');
+    
     return {
-        loadTime: perf.loadTime || 0,
-        pageSize: perf.pageSize || 0,
-        requestCount: perf.requestCount || 0,
-        renderBlocking: perf.renderBlockingResources || 0,
-        imageOptimization: perf.unoptimizedImages || 0,
-        compression: perf.compressionRatio || 0,
-        cacheEnabled: perf.cacheEnabled || false,
-        fcp: perf.firstContentfulPaint || perf.fcp || 0,
-        lcp: perf.largestContentfulPaint || perf.lcp || 0,
-        cls: perf.cumulativeLayoutShift || perf.cls || 0,
-        ttfb: perf.timeToFirstByte || perf.ttfb || 0,
-        domSize: perf.domSize || 0,
-        unusedCss: perf.unusedCss || 0,
-        unusedJs: perf.unusedJs || 0,
-        renderBlockingResources: perf.renderBlockingResources || 0,
-        mainThreadWork: perf.mainThreadWork || 0
+        loadTime: stats.duration ? (stats.duration / 1000).toFixed(2) : 0,
+        pageSize: stats.htmlSize || '0KB',
+        requestCount: (stats.totalScripts || 0) + (stats.totalStyles || 0),
+        renderBlocking: scriptsCheck?.status === 'error' ? (scriptsCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        imageOptimization: lazyCheck?.status === 'warning' ? 1 : 0,
+        compression: 0,
+        cacheEnabled: false,
+        fcp: data.lighthouse?.metrics?.fcp || 0,
+        lcp: data.lighthouse?.metrics?.lcp || 0,
+        cls: data.lighthouse?.metrics?.cls || 0,
+        ttfb: data.lighthouse?.metrics?.ttfb || 0,
+        domSize: stats.totalElements || 0,
+        unusedCss: cssCheck?.status === 'warning' ? 1 : 0,
+        unusedJs: scriptsCheck?.status === 'error' ? 1 : 0,
+        renderBlockingResources: scriptsCheck?.status === 'error' ? 1 : 0,
+        mainThreadWork: 0
     };
 }
 
 function extractAccessibilityDetails(data) {
-    const a11y = data.modules?.accessibility || data.accessibility || {};
+    const a11y = data.accessibility || {};
+    const checks = a11y.checks || [];
+    
+    const getCheck = (item) => checks.find(c => c.item === item);
+    const imagesAltCheck = getCheck('Images Alt Text');
+    const langCheck = getCheck('Page Language');
+    const viewportCheck = getCheck('Viewport Meta');
+    const headingsCheck = getCheck('Heading Structure');
+    const landmarksCheck = getCheck('Landmarks');
+    
     return {
-        contrastRatio: a11y.contrastRatio || 0,
-        hasAriaLabels: a11y.hasAriaLabels || false,
-        hasLangAttribute: a11y.hasLangAttribute || false,
-        hasSkipLink: a11y.hasSkipLink || false,
-        headingHierarchy: a11y.headingHierarchy || 'ok',
-        imageAlts: a11y.missingAlts || 0,
-        linkTexts: a11y.genericLinkTexts || 0
+        contrastRatio: 0,
+        hasAriaLabels: !!getCheck('ARIA Attributes'),
+        hasLangAttribute: langCheck?.status === 'pass',
+        hasSkipLink: getCheck('Skip Link')?.status === 'pass',
+        headingHierarchy: headingsCheck?.status === 'pass' ? 'ok' : 'needs-review',
+        imageAlts: imagesAltCheck?.status === 'error' ? (imagesAltCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        linkTexts: 0
     };
 }
 
 function extractMetaInfo(data) {
+    const seo = data.seo || {};
+    const security = data.security || {};
+    const mobile = data.mobile || {};
+    const checks = seo.checks || [];
+    const securityChecks = security.checks || [];
+    
+    const langCheck = checks.find(c => c.item === 'Language Attribute');
+    const httpsCheck = securityChecks.find(c => c.item === 'HTTPS');
+    
     return {
-        statusCode: data.statusCode || 200,
-        contentType: data.contentType || '',
-        server: data.server || '',
-        domainAge: data.domainAge || '',
-        ssl: data.ssl || false,
-        mobileFriendly: data.mobileFriendly || false,
-        language: data.language || ''
+        statusCode: data.stats?.pageStatus || 200,
+        contentType: 'text/html',
+        server: '',
+        domainAge: '',
+        ssl: httpsCheck?.status === 'pass',
+        mobileFriendly: mobile.score > 70,
+        language: langCheck?.message?.replace('✓ Язык: ', '') || ''
     };
 }
 
