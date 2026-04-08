@@ -335,6 +335,35 @@ app.post('/api/debug/test-webhook', async (req, res) => {
     });
 });
 
+// Debug: set user plan (for testing only)
+app.post('/api/debug/set-plan', async (req, res) => {
+    const { userId, plan } = req.body;
+    const db = require('./database');
+    
+    if (!userId || !plan) {
+        return res.status(400).json({ error: 'userId and plan required' });
+    }
+    
+    if (!['free', 'pro', 'agency'].includes(plan)) {
+        return res.status(400).json({ error: 'Invalid plan. Use: free, pro, agency' });
+    }
+    
+    const subscriptionEnd = plan === 'free' ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const scansLeft = plan === 'free' ? 3 : plan === 'pro' ? 50 : 500;
+    
+    db.run(
+        'UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0, scans_left = $3, comparisons_used = 0 WHERE id = $4',
+        [plan, subscriptionEnd, scansLeft, userId],
+        (err) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+            } else {
+                res.json({ success: true, userId, plan, message: `Plan set to ${plan}` });
+            }
+        }
+    );
+});
+
 // Debug: get user's payments (by token)
 app.get('/api/debug/my-payments', (req, res) => {
     const authHeader = req.headers.authorization;
