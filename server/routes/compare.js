@@ -50,64 +50,83 @@ function checkSiteExists(url) {
 router.post('/compare', authenticateToken, async (req, res) => {
     const { mainUrl, competitors } = req.body;
     const userId = req.user.id;
-    const userPlan = req.user.plan || 'free';
     
-    // Check comparison limits
-    const limit = getComparisonLimit(userPlan);
-    const comparisonsUsed = req.user.comparisons_used || 0;
-    
-    if (comparisonsUsed >= limit) {
-        return res.status(403).json({
-            success: false,
-            error: 'Лимит сравнений исчерпан',
-            upgrade: true,
-            required: 'comparisons',
-            limit: limit,
-            used: comparisonsUsed
+    // Get user data from database (not JWT) for accurate limits
+    const getUser = () => new Promise((resolve, reject) => {
+        db.get('SELECT plan, comparisons_used FROM users WHERE id = $1', [userId], (err, user) => {
+            if (err) reject(err);
+            else resolve(user);
         });
-    }
+    });
     
-    if (!mainUrl || !competitors || !Array.isArray(competitors) || competitors.length === 0) {
-        return res.status(400).json({
-            success: false,
-            error: 'Укажите основной URL и минимум 1 конкурент'
+    const runQuery = (sql, params) => new Promise((resolve, reject) => {
+        db.run(sql, params, (err) => {
+            if (err) reject(err);
+            else resolve();
         });
-    }
-    
-    if (competitors.length > 5) {
-        return res.status(400).json({
-            success: false,
-            error: 'Максимум 5 конкурентов'
-        });
-    }
-    
-    if (!isValidUrl(mainUrl)) {
-        return res.status(400).json({
-            success: false,
-            error: 'Некорректный URL основного сайта'
-        });
-    }
-    
-    for (const comp of competitors) {
-        if (!isValidUrl(comp)) {
-            return res.status(400).json({
-                success: false,
-                error: `Некорректный URL конкурента: ${comp}`
-            });
-        }
-    }
-    
-    const mainCheck = await checkSiteExists(mainUrl);
-    if (!mainCheck.exists) {
-        return res.status(400).json({
-            success: false,
-            error: `Основной сайт: ${mainCheck.error}`
-        });
-    }
-    
-    const allUrls = [mainUrl, ...competitors];
+    });
     
     try {
+        const user = await getUser();
+        
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        
+        const userPlan = user.plan || 'free';
+        const limit = getComparisonLimit(userPlan);
+        const comparisonsUsed = user.comparisons_used || 0;
+        
+        if (comparisonsUsed >= limit) {
+            return res.status(403).json({
+                success: false,
+                error: 'Лимит сравнений исчерпан',
+                upgrade: true,
+                required: 'comparisons',
+                limit: limit,
+                used: comparisonsUsed
+            });
+        }
+        
+        if (!mainUrl || !competitors || !Array.isArray(competitors) || competitors.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Укажите основной URL и минимум 1 конкурент'
+            });
+        }
+        
+        if (competitors.length > 5) {
+            return res.status(400).json({
+                success: false,
+                error: 'Максимум 5 конкурентов'
+            });
+        }
+        
+        if (!isValidUrl(mainUrl)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Некорректный URL основного сайта'
+            });
+        }
+        
+        for (const comp of competitors) {
+            if (!isValidUrl(comp)) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Некорректный URL конкурента: ${comp}`
+                });
+            }
+        }
+        
+        const mainCheck = await checkSiteExists(mainUrl);
+        if (!mainCheck.exists) {
+            return res.status(400).json({
+                success: false,
+                error: `Основной сайт: ${mainCheck.error}`
+            });
+        }
+        
+        const allUrls = [mainUrl, ...competitors];
         const results = [];
         
         for (const url of allUrls) {
@@ -142,21 +161,15 @@ router.post('/compare', authenticateToken, async (req, res) => {
         const summary = generateSummary(results, mainUrl);
         
         // Save to history and update counter
-        db.run(
+        await runQuery(
             'INSERT INTO comparison_history (user_id, main_url, competitors, results) VALUES ($1, $2, $3, $4)',
-            [userId, mainUrl, JSON.stringify(competitors), JSON.stringify({ comparison, summary })],
-            (err) => {
-                if (err) console.error('Error saving comparison:', err);
-            }
+            [userId, mainUrl, JSON.stringify(competitors), JSON.stringify({ comparison, summary })]
         );
         
         // Update comparisons used counter
-        db.run(
+        await runQuery(
             'UPDATE users SET comparisons_used = comparisons_used + 1 WHERE id = $1',
-            [userId],
-            (err) => {
-                if (err) console.error('Error updating comparisons counter:', err);
-            }
+            [userId]
         );
         
         res.json({

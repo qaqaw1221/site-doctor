@@ -220,13 +220,13 @@ const dbModule = {
 const PLAN_LIMITS = {
     free: { scans: 3, comparisons: 1 },
     pro: { scans: 50, comparisons: 50 },
-    business: { scans: 500, comparisons: 500 }
+    agency: { scans: 500, comparisons: 500 }
 };
 
 const PLAN_FEATURES = {
     free: { scans: 3, comparisons: 1, autoFixes: false, pdfExport: false, csvExport: false, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false, history: 1 },
     pro: { scans: 50, comparisons: 50, autoFixes: true, pdfExport: true, csvExport: true, apiAccess: false, whiteLabel: false, teamAccess: false, scheduledScans: false, history: 90 },
-    business: { scans: 500, comparisons: 500, autoFixes: true, pdfExport: true, csvExport: true, apiAccess: true, whiteLabel: true, teamAccess: 5, scheduledScans: true, history: 365 }
+    agency: { scans: 500, comparisons: 500, autoFixes: true, pdfExport: true, csvExport: true, apiAccess: true, whiteLabel: true, teamAccess: 5, scheduledScans: true, history: 365 }
 };
 
 function getScanLimit(plan) {
