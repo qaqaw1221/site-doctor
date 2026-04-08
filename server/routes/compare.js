@@ -204,12 +204,30 @@ function extractSeoDetails(data) {
     const langCheck = getCheck('Language Attribute');
     const faviconCheck = getCheck('Favicon');
     
+    let title = titleCheck?.message || '';
+    if (title.includes('✓')) {
+        const parts = title.split('✓');
+        title = parts[1]?.trim() || title.replace(/[^\w\s\-.,!?]/g, '').trim();
+    }
+    
+    let description = descCheck?.message || '';
+    if (description.includes('✓')) {
+        const parts = description.split('✓');
+        description = parts[1]?.trim() || description.replace(/[^\w\s\-.,!?]/g, '').trim();
+    }
+    
+    let canonicalUrl = canonicalCheck?.message || '';
+    if (canonicalUrl.includes('✓')) {
+        const parts = canonicalUrl.split('✓');
+        canonicalUrl = parts[1]?.trim() || '';
+    }
+    
     return {
-        title: titleCheck?.message?.replace('✓ ', '').replace('...', '') || '',
-        titleLength: titleCheck?.message ? (titleCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        title: title.substring(0, 100),
+        titleLength: title.length,
         titleStatus: titleCheck?.status || 'pass',
-        description: descCheck?.message || '',
-        descriptionLength: descCheck?.message ? (descCheck.message.match(/\d+/)?.[0] || 0) : 0,
+        description: description.substring(0, 200),
+        descriptionLength: description.length,
         hasViewport: viewportCheck?.status === 'pass',
         hasCharset: !!data.seo?.charset,
         h1Count: h1Check?.status === 'pass' ? 1 : (h1Check?.message?.match(/\d+/)?.[0] || 0),
@@ -218,7 +236,7 @@ function extractSeoDetails(data) {
         imageAltRatio: 100,
         totalImages: data.stats?.totalImages || 0,
         imagesWithoutAlt: 0,
-        canonicalUrl: canonicalCheck?.message?.replace('✓ ', '') || '',
+        canonicalUrl: canonicalUrl,
         ogTags: {
             hasTitle: ogCheck?.status === 'pass',
             hasDescription: !!ogCheck,
@@ -231,7 +249,7 @@ function extractSeoDetails(data) {
             hasDescription: false
         },
         keywords: '',
-        robots: getCheck('Robots Meta')?.message || '',
+        robots: langCheck?.message || '',
         totalLinks: data.stats?.totalLinks || 0,
         internalLinks: 0,
         externalLinks: 0
