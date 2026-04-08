@@ -41,34 +41,34 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <nav class="border-b border-[#1f1f1f] px-6 py-4">
+    <nav class="border-b border-[#1f1f1f] px-4 py-3">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <a href="/" class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
                     <i data-lucide="stethoscope" class="w-5 h-5 text-white"></i>
                 </div>
-                <span class="font-bold text-lg">Site Doctor</span>
+                <span class="font-bold text-lg hidden sm:inline">Site Doctor</span>
             </a>
-            <div class="flex items-center gap-4">
-                <a href="/" class="text-gray-400 hover:text-white transition-colors">Главная</a>
-                <a href="/dashboard.html" class="text-gray-400 hover:text-white transition-colors">История</a>
-                <span class="text-white font-medium">Аккаунт</span>
+            <div class="flex items-center gap-2 sm:gap-4 text-sm sm:text-base">
+                <a href="/" class="text-gray-400 hover:text-white transition-colors px-2 py-1">Главная</a>
+                <a href="/dashboard.html" class="text-gray-400 hover:text-white transition-colors px-2 py-1 hidden sm:inline">История</a>
+                <span class="text-white font-medium px-2 py-1">Аккаунт</span>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-6 py-12">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-12">
         <!-- Profile Header -->
-        <div id="profileHeader" class="card p-8 mb-8 flex items-center gap-6">
-            <div id="avatar" class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-3xl font-bold">
+        <div id="profileHeader" class="card p-4 sm:p-6 md:p-8 mb-6 md:mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6">
+            <div id="avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl sm:text-3xl font-bold shrink-0">
                 U
             </div>
-            <div class="flex-1">
-                <h1 id="profileName" class="text-2xl font-bold mb-1">Загрузка...</h1>
-                <p id="profileEmail" class="text-gray-400"></p>
-                <div id="memberSince" class="text-sm text-gray-500 mt-1"></div>
+            <div class="flex-1 text-center sm:text-left w-full">
+                <h1 id="profileName" class="text-xl sm:text-2xl font-bold mb-1">Загрузка...</h1>
+                <p id="profileEmail" class="text-gray-400 text-sm sm:text-base"></p>
+                <div id="memberSince" class="text-xs sm:text-sm text-gray-500 mt-1"></div>
             </div>
-            <div class="text-right">
+            <div class="sm:text-right w-full sm:w-auto flex sm:block justify-center sm:justify-end">
                 <div id="planBadge" class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-indigo-500/20 text-indigo-400">
                     Free
                 </div>
@@ -76,60 +76,60 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-3 gap-4 mb-8">
-            <div class="card p-6 text-center">
-                <div class="text-4xl font-bold text-indigo-400 mb-2" id="totalScansStat">0</div>
-                <div class="text-gray-400 text-sm">Всего сканирований</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="card p-4 sm:p-6 text-center">
+                <div class="text-2xl sm:text-4xl font-bold text-indigo-400 mb-1 sm:mb-2" id="totalScansStat">0</div>
+                <div class="text-gray-400 text-xs sm:text-sm">Всего сканирований</div>
             </div>
-            <div class="card p-6 text-center">
-                <div class="text-4xl font-bold text-green-400 mb-2" id="avgScoreStat">0</div>
-                <div class="text-gray-400 text-sm">Средний балл</div>
+            <div class="card p-4 sm:p-6 text-center">
+                <div class="text-2xl sm:text-4xl font-bold text-green-400 mb-1 sm:mb-2" id="avgScoreStat">0</div>
+                <div class="text-gray-400 text-xs sm:text-sm">Средний балл</div>
             </div>
-            <div class="card p-6 text-center">
-                <div class="text-4xl font-bold text-yellow-400 mb-2" id="fixesAppliedStat">0</div>
-                <div class="text-gray-400 text-sm">Исправлений</div>
+            <div class="card p-4 sm:p-6 text-center">
+                <div class="text-2xl sm:text-4xl font-bold text-yellow-400 mb-1 sm:mb-2" id="fixesAppliedStat">0</div>
+                <div class="text-gray-400 text-xs sm:text-sm">Исправлений</div>
             </div>
         </div>
 
         <!-- Subscription Section (Test Mode) -->
-        <div class="card p-6 mb-8 border-yellow-500/30 bg-yellow-500/5">
+        <div class="card p-4 sm:p-6 mb-6 md:mb-8 border-yellow-500/30 bg-yellow-500/5">
             <div class="flex items-center gap-2 mb-4">
                 <i data-lucide="flask-conical" class="w-5 h-5 text-yellow-400"></i>
-                <h2 class="text-xl font-bold text-yellow-400">Тестовый режим</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-yellow-400">Тестовый режим</h2>
             </div>
-            <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <p class="text-gray-400 text-sm">Текущий план</p>
-                    <select id="planSelector" onchange="changePlan(this.value)">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between gap-4">
+                <div class="w-full sm:w-auto">
+                    <p class="text-gray-400 text-sm mb-2 sm:mb-1">Текущий план</p>
+                    <select id="planSelector" onchange="changePlan(this.value)" class="w-full sm:w-auto">
                         <option value="free">Free</option>
                         <option value="pro">Pro</option>
                         <option value="agency">Agency</option>
                     </select>
                 </div>
-                <div class="text-right">
-                    <p class="text-gray-400 text-sm">Сканирований</p>
+                <div class="text-center sm:text-right w-full sm:w-auto">
+                    <p class="text-gray-400 text-sm mb-1">Сканирований</p>
                     <p class="text-2xl font-bold" id="scansLeft">—</p>
                 </div>
-                <div class="text-gray-500 text-sm">
+                <div class="text-gray-500 text-sm text-center sm:text-right w-full sm:w-auto hidden sm:block">
                     Выберите план для тестирования
                 </div>
             </div>
         </div>
 
         <!-- Plan Features -->
-        <div class="card p-6 mb-8" id="planFeaturesSection">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <div class="card p-4 sm:p-6 mb-6 md:mb-8" id="planFeaturesSection">
+            <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
                 <i data-lucide="package" class="w-5 h-5 text-indigo-400"></i>
                 Возможности плана
             </h2>
-            <div id="planFeaturesList" class="grid md:grid-cols-2 gap-4">
+            <div id="planFeaturesList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="text-center py-4 text-gray-500">Загрузка...</div>
             </div>
         </div>
 
         <!-- Recent Scans -->
-        <div class="card p-6 mb-8">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <div class="card p-4 sm:p-6 mb-6 md:mb-8">
+            <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
                 <i data-lucide="history" class="w-5 h-5 text-indigo-400"></i>
                 Последние сканирования
             </h2>
@@ -142,13 +142,13 @@
         </div>
 
         <!-- Scheduled Scans (Business only) -->
-        <div id="scheduledScansSection" class="card p-6 mb-8 hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold flex items-center gap-2">
+        <div id="scheduledScansSection" class="card p-4 sm:p-6 mb-6 md:mb-8 hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2">
                     <i data-lucide="calendar-clock" class="w-5 h-5 text-purple-400"></i>
                     Запланированные сканы
                 </h2>
-                <button onclick="showAddScheduledScanModal()" class="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors flex items-center gap-2">
+                <button onclick="showAddScheduledScanModal()" class="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Добавить
                 </button>
@@ -162,26 +162,26 @@
 
         <!-- Add Scheduled Scan Modal -->
         <div id="addScheduledModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-            <div class="card p-8 w-full max-w-md">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold">Новый запланированный скан</h2>
-                    <button onclick="closeScheduledModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold">&times;</button>
+            <div class="card p-4 sm:p-6 md:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold">Новый запланированный скан</h2>
+                    <button onclick="closeScheduledModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xl font-bold shrink-0">&times;</button>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm text-gray-400 mb-2">URL сайта</label>
                         <input type="url" id="scheduleUrl" placeholder="https://example.com" 
-                               class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors">
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors text-sm sm:text-base">
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-2">Название (необязательно)</label>
                         <input type="text" id="scheduleName" placeholder="Мой сайт" 
-                               class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors">
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors text-sm sm:text-base">
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-2">Частота</label>
-                        <select id="scheduleFrequency" class="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors">
+                        <select id="scheduleFrequency" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-[#0a0a0a] border border-[#333] focus:border-purple-500 focus:outline-none transition-colors text-sm sm:text-base">
                             <option value="daily">Раз в день</option>
                             <option value="weekly">Раз в неделю</option>
                             <option value="hourly">Каждый час</option>
@@ -189,42 +189,42 @@
                     </div>
                 </div>
                 
-                <button onclick="addScheduledScan()" class="w-full mt-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 font-semibold hover:opacity-90 transition-opacity">
+                <button onclick="addScheduledScan()" class="w-full mt-4 sm:mt-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 font-semibold hover:opacity-90 transition-opacity text-sm sm:text-base">
                     Добавить
                 </button>
             </div>
         </div>
 
         <!-- Settings -->
-        <div class="card p-6">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <div class="card p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
                 <i data-lucide="settings" class="w-5 h-5 text-indigo-400"></i>
                 Настройки
             </h2>
             <div class="space-y-4">
-                <div class="flex items-center justify-between py-3 border-b border-[#1f1f1f]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 border-b border-[#1f1f1f]">
                     <div>
-                        <p class="font-medium">Email уведомления</p>
-                        <p class="text-sm text-gray-500">Получать отчеты на почту</p>
+                        <p class="font-medium text-sm sm:text-base">Email уведомления</p>
+                        <p class="text-xs sm:text-sm text-gray-500">Получать отчеты на почту</p>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
                         <input type="checkbox" class="sr-only peer" checked>
                         <div class="w-11 h-6 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                     </label>
                 </div>
-                <div class="flex items-center justify-between py-3 border-b border-[#1f1f1f]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 border-b border-[#1f1f1f]">
                     <div>
-                        <p class="font-medium">Публичные отчеты</p>
-                        <p class="text-sm text-gray-500">Позволить другим просматривать ваши отчеты</p>
+                        <p class="font-medium text-sm sm:text-base">Публичные отчеты</p>
+                        <p class="text-xs sm:text-sm text-gray-500">Позволить другим просматривать ваши отчеты</p>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
                         <input type="checkbox" class="sr-only peer">
                         <div class="w-11 h-6 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                     </label>
                 </div>
                 <div class="pt-4">
-                    <button onclick="logout()" class="px-6 py-3 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors">
-                        <i data-lucide="log-out" class="w-4 h-4 inline mr-2"></i>
+                    <button onclick="logout()" class="w-full sm:w-auto px-4 sm:px-6 py-3 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
                         Выйти из аккаунта
                     </button>
                 </div>
@@ -344,22 +344,22 @@
                 `;
             } else {
                 scansContainer.innerHTML = history.slice(0, 5).map(item => `
-                    <div class="flex items-center justify-between py-3 border-b border-[#1f1f1f] last:border-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-b border-[#1f1f1f] last:border-0">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
                                 <i data-lucide="globe" class="w-5 h-5 text-indigo-400"></i>
                             </div>
-                            <div>
-                                <p class="font-medium truncate max-w-md">${item.url}</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium truncate text-sm sm:text-base">${item.url}</p>
                                 <p class="text-xs text-gray-500">${formatDate(item.timestamp)}</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3 sm:gap-4 justify-between sm:justify-end">
                             <div class="text-right">
                                 <span class="text-lg font-bold ${getScoreColor(item.score)}">${item.score}</span>
-                                <span class="text-gray-500 text-sm ml-1">балл</span>
+                                <span class="text-gray-500 text-xs sm:text-sm ml-1">балл</span>
                             </div>
-                            <span class="text-yellow-400 text-sm">${item.fixes || 0} испр.</span>
+                            <span class="text-yellow-400 text-xs sm:text-sm">${item.fixes || 0} испр.</span>
                         </div>
                     </div>
                 `).join('');
@@ -413,26 +413,28 @@
                         `;
                     } else {
                         container.innerHTML = data.schedules.map(s => `
-                            <div class="flex items-center justify-between py-4 border-b border-[#1f1f1f] last:border-0">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg ${s.isActive ? 'bg-green-500/10' : 'bg-gray-500/10'} flex items-center justify-center">
+                            <div class="flex flex-col gap-3 py-4 border-b border-[#1f1f1f] last:border-0">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-lg ${s.isActive ? 'bg-green-500/10' : 'bg-gray-500/10'} flex items-center justify-center shrink-0">
                                         <i data-lucide="${s.isActive ? 'check-circle' : 'pause-circle'}" class="w-5 h-5 ${s.isActive ? 'text-green-400' : 'text-gray-400'}"></i>
                                     </div>
-                                    <div>
-                                        <p class="font-medium">${s.name || new URL(s.url).hostname}</p>
-                                        <p class="text-xs text-gray-500 truncate max-w-xs">${s.url}</p>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium truncate">${s.name || new URL(s.url).hostname}</p>
+                                        <p class="text-xs text-gray-500 truncate">${s.url}</p>
                                         <p class="text-xs text-gray-600 mt-1">${s.frequencyText} · Следующий: ${s.nextScanAt ? new Date(s.nextScanAt).toLocaleString('ru-RU') : '—'}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="runScheduledScan(${s.id})" class="px-3 py-1 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors text-sm">
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="runScheduledScan(${s.id})" class="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors text-xs sm:text-sm flex items-center gap-1">
+                                        <i data-lucide="play" class="w-3 h-3"></i>
                                         Сканировать
                                     </button>
-                                    <button onclick="toggleScheduledScan(${s.id}, ${!s.isActive})" class="px-3 py-1 rounded-lg ${s.isActive ? 'bg-yellow-500/20 text-yellow-400' : 'bg-green-500/20 text-green-400'} hover:opacity-80 transition-colors text-sm">
-                                        ${s.isActive ? 'Пауза' : 'Старт'}
+                                    <button onclick="toggleScheduledScan(${s.id}, ${!s.isActive})" class="px-3 py-1.5 rounded-lg ${s.isActive ? 'bg-yellow-500/20 text-yellow-400' : 'bg-green-500/20 text-green-400'} hover:opacity-80 transition-colors text-xs sm:text-sm">
+                                        ${s.isActive ? '⏸ Пауза' : '▶ Старт'}
                                     </button>
-                                    <button onclick="deleteScheduledScan(${s.id})" class="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors text-sm">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <button onclick="deleteScheduledScan(${s.id})" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors text-xs sm:text-sm flex items-center gap-1">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        Удалить
                                     </button>
                                 </div>
                             </div>
