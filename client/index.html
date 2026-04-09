@@ -3642,7 +3642,8 @@
             showNotification('Создание платежа...', 'info');
             
             try {
-                const response = await fetch(`${API_URL}/api/payment/create`, {
+                // Try FreeKassa first (simpler, more payment methods)
+                const response = await fetch(`${API_URL}/api/payment/create-freekassa`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3656,20 +3657,39 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success && data.checkoutUrl) {
                     // Close modal
                     const modal = document.getElementById('paymentModalTemp');
                     if (modal) modal.remove();
                     
-                    if (data.checkoutUrl) {
-                        showNotification('Перенаправляем на оплату...', 'info');
-                        // Redirect to Stripe Checkout
-                        window.location.href = data.checkoutUrl;
-                    } else {
-                        showNotification('Ошибка: не получен URL для оплаты', 'error');
-                    }
+                    showNotification('Перенаправляем на оплату...', 'info');
+                    window.location.href = data.checkoutUrl;
                 } else {
-                    showNotification(data.error || 'Ошибка при создании платежа', 'error');
+                    // Fallback to Stripe
+                    console.log('FreeKassa not available, trying Stripe...');
+                    const stripeResponse = await fetch(`${API_URL}/api/payment/create`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                        },
+                        body: JSON.stringify({
+                            plan: plan,
+                            period: selectedPeriod
+                        })
+                    });
+                    
+                    const stripeData = await stripeResponse.json();
+                    
+                    if (stripeData.success && stripeData.checkoutUrl) {
+                        const modal = document.getElementById('paymentModalTemp');
+                        if (modal) modal.remove();
+                        
+                        showNotification('Перенаправляем на оплату...', 'info');
+                        window.location.href = stripeData.checkoutUrl;
+                    } else {
+                        showNotification(stripeData.error || data.error || 'Ошибка при создании платежа', 'error');
+                    }
                 }
             } catch (error) {
                 console.error('Payment error:', error);

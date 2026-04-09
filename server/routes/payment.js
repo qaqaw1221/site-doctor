@@ -10,6 +10,16 @@ const { sendPaymentConfirmation } = require('../utils/email');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+// FreeKassa API
+const FREEKASSA_MERCHANT_ID = process.env.FREEKASSA_MERCHANT_ID || '';
+const FREEKASSA_SECRET_KEY = process.env.FREEKASSA_SECRET_KEY || '';
+const FREEKASSA_SECRET_KEY_2 = process.env.FREEKASSA_SECRET_KEY_2 || '';
+const FREEKASSA_API_KEY = process.env.FREEKASSA_API_KEY || '';
+
+// FreeKassa payment URL
+const FREEKASSA_URL = 'https://pay.freekassa.ru/';
+const FREEKASSA_IPN_URL = process.env.BASE_URL + '/api/payment/freekassa-ipn';
+
 // Activate plan by Stripe session ID
 router.post('/activate-session', authenticateToken, async (req, res) => {
     const { session_id } = req.body;
@@ -344,6 +354,171 @@ router.post('/cancel', authenticateToken, (req, res) => {
             success: true,
             message: 'Подписка отменена. План будет активен до конца оплаченного периода.'
         });
+    });
+});
+
+// =====================
+// FREEKASSA INTEGRATION
+// =====================
+
+// Create FreeKassa payment
+router.post('/create-freekassa', authenticateToken, (req, res) => {
+    const { plan, period } = req.body;
+    const userId = req.user.id;
+
+    if (!plan || !['pro', 'agency'].includes(plan)) {
+        return res.status(400).json({ success: false, error: 'Invalid plan' });
+    }
+
+    if (!FREEKASSA_MERCHANT_ID || !FREEKASSA_SECRET_KEY) {
+        return res.status(500).json({ success: false, error: 'FreeKassa not configured' });
+    }
+
+    const price = PLAN_PRICES[plan][period];
+    const paymentId = `FK_${Date.now()}_${userId}`;
+    const amount = price.amount;
+
+    // Save payment to database
+    db.run(
+        'INSERT INTO payments (payment_id, user_id, plan, period, amount, currency, method, status, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)',
+        [paymentId, userId, plan, period, amount, 'USD', 'freekassa', 'pending'],
+        (err) => {
+            if (err) console.error('FreeKassa payment insert error:', err);
+        }
+    );
+
+    // Create signature for FreeKassa (lowercase MD5)
+    const sign = require('crypto').createHash('md5').update(
+        `${FREEKASSA_MERCHANT_ID}:${amount}:${FREEKASSA_SECRET_KEY_2}:${paymentId}`
+    ).digest('hex').toLowerCase();
+
+    // Build FreeKassa payment URL
+    const checkoutUrl = `${FREEKASSA_URL}?` + new URLSearchParams({
+        m: FREEKASSA_MERCHANT_ID,
+        oa: amount.toString(),
+        o: paymentId,
+        s: sign,
+        us_user_id: userId.toString(),
+        us_plan: plan,
+        us_period: period,
+        currency: 'USD',
+        success_url: `${process.env.BASE_URL}/payment/success?payment_id=${paymentId}`,
+        fail_url: `${process.env.BASE_URL}/payment/cancelled`,
+        callback_url: FREEKASSA_IPN_URL
+    }).toString();
+
+    res.json({
+        success: true,
+        paymentId,
+        amount,
+        currency: 'USD',
+        checkoutUrl,
+        method: 'freekassa'
+    });
+});
+
+// FreeKassa IPN (Instant Payment Notification)
+router.post('/freekassa-ipn', express.urlencoded({ extended: true }), (req, res) => {
+    const {
+        AMOUNT,
+        ORDER_ID,
+        SIGN
+    } = req.body;
+
+    console.log('FreeKassa IPN received:', req.body);
+
+    // Verify signature
+    const expectedSign = require('crypto').createHash('md5').update(
+        `${AMOUNT}:${FREEKASSA_SECRET_KEY_2}:${ORDER_ID}`
+    ).digest('hex');
+
+    if (SIGN !== expectedSign) {
+        console.error('FreeKassa signature verification failed');
+        return res.status(400).send('bad sign');
+    }
+
+    // Find payment
+    db.get('SELECT * FROM payments WHERE payment_id = $1', [ORDER_ID], (err, payment) => {
+        if (err || !payment) {
+            console.error('Payment not found:', ORDER_ID);
+            return res.status(404).send('Payment not found');
+        }
+
+        if (payment.status === 'completed') {
+            console.log('Payment already completed:', ORDER_ID);
+            return res.send('OK');
+        }
+
+        // Update payment status
+        db.run('UPDATE payments SET status = $1, completed_at = CURRENT_TIMESTAMP WHERE payment_id = $2',
+            ['completed', ORDER_ID], (err) => {
+                if (err) console.error('Error updating payment:', err);
+            });
+
+        // Activate user plan
+        const periodMonths = payment.period === 'yearly' ? 12 : 1;
+        const subscriptionEnd = new Date(Date.now() + periodMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
+        const scansLeft = payment.plan === 'agency' ? 500 : 50;
+
+        db.run(
+            'UPDATE users SET plan = $1, subscription_end = $2, subscription_cancelled = 0, scans_used = 0, scans_left = $3, comparisons_used = 0 WHERE id = $4',
+            [payment.plan, subscriptionEnd, scansLeft, payment.user_id],
+            (err) => {
+                if (err) console.error('Error updating user:', err);
+                else console.log(`FreeKassa payment completed: ${ORDER_ID} - User: ${payment.user_id}`);
+            }
+        );
+
+        res.send('OK');
+    });
+});
+
+// Get FreeKassa payment status
+router.get('/freekassa-status/:paymentId', authenticateToken, (req, res) => {
+    const { paymentId } = req.params;
+    const userId = req.user.id;
+
+    db.get('SELECT * FROM payments WHERE payment_id = $1 AND user_id = $2', [paymentId, userId], (err, payment) => {
+        if (err || !payment) {
+            return res.status(404).json({ success: false, error: 'Payment not found' });
+        }
+
+        res.json({
+            success: true,
+            status: payment.status,
+            plan: payment.plan,
+            amount: payment.amount
+        });
+    });
+});
+
+// Get available payment methods (updated for FreeKassa)
+router.get('/methods', (req, res) => {
+    const methods = [
+        {
+            id: 'freekassa',
+            name: 'Банковская карта / СБП / Крипта',
+            nameEn: 'Card / SBP / Crypto',
+            currencies: ['USD', 'RUB', 'EUR'],
+            gateway: 'freekassa',
+            icon: 'wallet'
+        }
+    ];
+
+    if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('placeholder')) {
+        methods.push({
+            id: 'stripe',
+            name: 'Банковская карта (Stripe)',
+            nameEn: 'Credit/Debit Card (Stripe)',
+            currencies: ['USD'],
+            gateway: 'stripe',
+            icon: 'credit-card'
+        });
+    }
+
+    res.json({
+        success: true,
+        methods
     });
 });
 
