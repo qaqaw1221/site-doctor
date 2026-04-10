@@ -27,25 +27,6 @@
         }
         body { background: var(--bg-primary); color: white; }
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
-        
-        #planSelector {
-            background: #1a1a1a;
-            color: white;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        #planSelector:focus {
-            outline: none;
-            border-color: #6366f1;
-        }
-        #planSelector option {
-            background: #1a1a1a;
-            color: white;
-            padding: 8px;
-        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -275,10 +256,6 @@
             document.getElementById('profileName').textContent = user.name || 'Пользователь';
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('avatar').textContent = (user.name || user.email)[0].toUpperCase();
-            document.getElementById('planSelector').value = user.plan || 'free';
-            const scansLimit = user.plan === 'free' ? 3 : user.plan === 'pro' ? 50 : 500;
-            const scansLeft = (typeof user.scans_left === 'number' && user.scans_left > 0) ? user.scans_left : scansLimit;
-            document.getElementById('scansLeft').textContent = scansLeft;
 
             // Member since
             if (user.created_at) {
@@ -287,7 +264,7 @@
 
             // Update plan badge
             const planBadge = document.getElementById('planBadge');
-            planBadge.textContent = user.plan === 'free' ? 'Free' : user.plan === 'pro' ? 'Pro' : 'Business';
+            planBadge.textContent = user.plan === 'free' ? 'Free' : user.plan === 'pro' ? 'Pro' : 'Agency';
             planBadge.className = 'inline-block px-3 py-1 rounded-full text-sm font-semibold ' + 
                 (user.plan === 'agency' ? 'bg-purple-500/20 text-purple-400' : 
                  user.plan === 'pro' ? 'bg-indigo-500/20 text-indigo-400' : 
@@ -356,21 +333,7 @@
             window.location.href = '/#pricing';
         }
         
-        function changePlan(plan) {
-            const user = getUser();
-            if (!user) return;
-            
-            const limit = plan === 'free' ? 3 : plan === 'pro' ? 50 : 500;
-            
-            user.plan = plan;
-            user.scans_left = limit; // Все сканы доступны при смене плана
-            user.scans_used = 0; // Сброс использованных
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            document.getElementById('scansLeft').textContent = limit;
-            loadProfile();
-            showNotification(`План изменён на ${plan}`, 'success');
-        }
+
 
         // Scheduled Scans
         function loadScheduledScans() {
