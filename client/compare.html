@@ -830,7 +830,7 @@
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> Авто-исправления</li>
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> PDF экспорт</li>
                             </ul>
-                            <button onclick="selectPlan('pro')" class="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold hover:opacity-90 transition-opacity">Выбрать Pro</button>
+                            <button onclick="contactForPayment('pro')" class="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold hover:opacity-90 transition-opacity">📧 Связаться для оплаты</button>
                         </div>
                         <div class="border border-purple-500/30 rounded-xl p-6 relative bg-gradient-to-br from-purple-500/5 to-transparent">
                             <div class="absolute -top-3 left-4 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-semibold text-white">BEST VALUE</div>
@@ -842,7 +842,7 @@
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> API доступ</li>
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> White-label</li>
                             </ul>
-                            <button onclick="selectPlan('agency')" class="w-full py-3 rounded-lg border border-purple-500 font-semibold hover:bg-purple-500/10 transition-colors">Выбрать Agency</button>
+                            <button onclick="contactForPayment('agency')" class="w-full py-3 rounded-lg border border-purple-500 font-semibold hover:bg-purple-500/10 transition-colors">📧 Связаться для оплаты</button>
                         </div>
                     </div>
                 </div>
@@ -888,6 +888,30 @@
         }
         
         let selectedPeriod = 'monthly';
+        
+        function contactForPayment(plan) {
+            const user = getCurrentUser();
+            if (!user || !localStorage.getItem('auth_token')) {
+                openLoginModal();
+                return;
+            }
+            
+            const price = plan === 'pro' ? '$39' : '$99';
+            const subject = encodeURIComponent(`Запрос на оплату - ${plan.toUpperCase()} план`);
+            const body = encodeURIComponent(
+`Здравствуйте!
+
+Хочу приобрести ${plan.toUpperCase()} план для аккаунта: ${user.email}
+
+Выбранный план: ${plan.toUpperCase()} - ${price}/${selectedPeriod === 'monthly' ? 'месяц' : 'год'}
+
+Пожалуйста, пришлите реквизиты для оплаты.
+`
+            );
+            
+            window.location.href = `mailto:guseinaga.jabiev@yandex.com?subject=${subject}&body=${body}`;
+            showNotification('Напишите нам, мы поможем с оплатой!', 'success');
+        }
         
         async function selectPlan(plan) {
             const user = getCurrentUser();

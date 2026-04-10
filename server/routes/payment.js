@@ -387,25 +387,26 @@ router.post('/create-freekassa', authenticateToken, (req, res) => {
         }
     );
 
-    // Create signature for FreeKassa (lowercase MD5)
+    // Create signature for FreeKassa (UPPERCASE MD5)
     const sign = require('crypto').createHash('md5').update(
         `${FREEKASSA_MERCHANT_ID}:${amount}:${FREEKASSA_SECRET_KEY_2}:${paymentId}`
-    ).digest('hex').toLowerCase();
+    ).digest('hex').toUpperCase();
 
-    // Build FreeKassa payment URL
-    const checkoutUrl = `${FREEKASSA_URL}?` + new URLSearchParams({
-        m: FREEKASSA_MERCHANT_ID,
-        oa: amount.toString(),
-        o: paymentId,
-        s: sign,
-        us_user_id: userId.toString(),
-        us_plan: plan,
-        us_period: period,
-        currency: 'USD',
-        success_url: `${process.env.BASE_URL}/payment/success?payment_id=${paymentId}`,
-        fail_url: `${process.env.BASE_URL}/payment/cancelled`,
-        callback_url: FREEKASSA_IPN_URL
-    }).toString();
+    // Build FreeKassa payment URL with proper encoding
+    const params = new URLSearchParams();
+    params.append('m', FREEKASSA_MERCHANT_ID);
+    params.append('oa', amount.toString());
+    params.append('o', paymentId);
+    params.append('s', sign);
+    params.append('currency', 'USD');
+    params.append('success_url', encodeURIComponent(`${process.env.BASE_URL}/payment/success?payment_id=${paymentId}`));
+    params.append('fail_url', encodeURIComponent(`${process.env.BASE_URL}/payment/cancelled`));
+    params.append('callback_url', encodeURIComponent(FREEKASSA_IPN_URL));
+
+    const checkoutUrl = `${FREEKASSA_URL}?${params.toString()}`;
+
+    console.log('FreeKassa checkout URL:', checkoutUrl);
+    console.log('Signature:', sign);
 
     res.json({
         success: true,

@@ -3566,12 +3566,12 @@
                         </div>
                         
                         <!-- Pay Button -->
-                        <button onclick="selectPlan('${plan}')" id="payButton" style="width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(to right, ${planColor}, #ec4899); color: white; font-size: 18px; font-weight: bold; cursor: pointer;">
-                            Оплатить картой (Visa, MasterCard)
+                        <button onclick="contactForPayment('${plan}')" id="payButton" style="width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(to right, ${planColor}, #ec4899); color: white; font-size: 18px; font-weight: bold; cursor: pointer;">
+                            📧 Связаться для оплаты
                         </button>
                         
                         <p style="text-align: center; color: #666; font-size: 12px; margin-top: 15px;">
-                            🔒 Безопасная оплата через Stripe
+                            💬 Напишите нам и мы поможем с оплатой
                         </p>
                     </div>
                 </div>
@@ -3605,6 +3605,34 @@
         function closePaymentModal() {
             const modal = document.getElementById('paymentModalTemp');
             if (modal) modal.remove();
+        }
+        
+        function contactForPayment(plan) {
+            const user = getCurrentUser();
+            if (!user || !localStorage.getItem('auth_token')) {
+                closePaymentModal();
+                openLoginModal();
+                return;
+            }
+            
+            const price = plan === 'pro' ? '$39' : '$99';
+            const period = selectedPeriod === 'monthly' ? 'месяц' : 'год';
+            const subject = encodeURIComponent(`Запрос на оплату - ${plan.toUpperCase()} план`);
+            const body = encodeURIComponent(
+`Здравствуйте!
+
+Хочу приобрести ${plan.toUpperCase()} план для аккаунта: ${user.email}
+
+Выбранный план: ${plan.toUpperCase()} - ${price}/${period}
+
+Пожалуйста, пришлите реквизиты для оплаты.
+`
+            );
+            
+            window.location.href = `mailto:guseinaga.jabiev@yandex.com?subject=${subject}&body=${body}`;
+            
+            closePaymentModal();
+            showNotification('Напишите нам, мы поможем с оплатой!', 'success');
         }
         
         async function selectPlan(plan) {
