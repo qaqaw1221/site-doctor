@@ -282,24 +282,30 @@
             // Display plan features
             const featuresList = document.getElementById('planFeaturesList');
             const features = getPlanFeatures(user.plan);
-            featuresList.innerHTML = features.map(f => `
-                <div class="flex items-center gap-3 p-3 rounded-lg ${f.enabled ? 'bg-green-500/5' : 'bg-red-500/5'}">
-                    <i data-lucide="${f.enabled ? 'check' : 'x'}" class="w-5 h-5 ${f.enabled ? 'text-green-400' : 'text-red-400'}"></i>
-                    <div>
-                        <p class="font-medium ${f.enabled ? 'text-white' : 'text-gray-500'}">${f.name}</p>
-                        <p class="text-xs ${f.enabled ? 'text-gray-400' : 'text-gray-600'}">${f.description}</p>
+            if (featuresList) {
+                featuresList.innerHTML = features.map(f => `
+                    <div class="flex items-center gap-3 p-3 rounded-lg ${f.enabled ? 'bg-green-500/5' : 'bg-red-500/5'}">
+                        <svg class="w-5 h-5 ${f.enabled ? 'text-green-400' : 'text-red-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${f.enabled ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
+                        </svg>
+                        <div>
+                            <p class="font-medium ${f.enabled ? 'text-white' : 'text-gray-500'}">${f.name}</p>
+                            <p class="text-xs ${f.enabled ? 'text-gray-400' : 'text-gray-600'}">${f.description}</p>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
 
             // Render recent scans
             const scansContainer = document.getElementById('recentScans');
             if (history.length === 0) {
                 scansContainer.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
-                        <i data-lucide="search" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        <svg class="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                         <p>Пока нет сканирований</p>
-                        <a href="/" class="text-indigo-400 hover:underline mt-2 inline-block">Провести первое</a>
+                        <a href="/scan" class="text-indigo-400 hover:underline mt-2 inline-block">Провести первое</a>
                     </div>
                 `;
             } else {
@@ -307,7 +313,9 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-b border-[#1f1f1f] last:border-0">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
-                                <i data-lucide="globe" class="w-5 h-5 text-indigo-400"></i>
+                                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                </svg>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-medium truncate text-sm sm:text-base">${item.url}</p>
@@ -337,9 +345,12 @@
 
         // Scheduled Scans
         function loadScheduledScans() {
+            const scheduledSection = document.getElementById('scheduledScansSection');
+            if (!scheduledSection) return;
+            
             const user = getUser();
-            if (user?.plan !== 'business') {
-                document.getElementById('scheduledScansSection').classList.add('hidden');
+            if (user?.plan !== 'agency') {
+                scheduledSection.classList.add('hidden');
                 return;
             }
             
@@ -489,13 +500,13 @@
             const allFeatures = [
                 { key: 'scans', name: 'Сканирования', description: plan === 'free' ? '3 в месяц' : plan === 'pro' ? '50 в месяц' : '500 в месяц', enabled: true },
                 { key: 'comparisons', name: 'Сравнения', description: plan === 'free' ? '1 в месяц' : plan === 'pro' ? '50 в месяц' : '500 в месяц', enabled: true },
-                { key: 'autoFixes', name: 'Авто-исправления', description: 'Автоматическое исправление ошибок', enabled: plan === 'pro' || plan === 'business' },
-                { key: 'pdfExport', name: 'PDF экспорт', description: 'Скачивание отчётов в PDF', enabled: plan === 'pro' || plan === 'business' },
-                { key: 'csvExport', name: 'CSV экспорт', description: 'Экспорт данных в CSV', enabled: plan === 'pro' || plan === 'business' },
-                { key: 'apiAccess', name: 'API доступ', description: 'Программный доступ к функциям', enabled: plan === 'business' },
-                { key: 'whiteLabel', name: 'White-label', description: 'Без логотипа Site Doctor', enabled: plan === 'business' },
-                { key: 'teamAccess', name: 'Командный доступ', description: plan === 'business' ? 'До 5 пользователей' : 'Недоступно', enabled: plan === 'business' },
-                { key: 'scheduledScans', name: 'Запланированные сканы', description: 'Автоматическая проверка по расписанию', enabled: plan === 'business' }
+                { key: 'autoFixes', name: 'Авто-исправления', description: 'Автоматическое исправление ошибок', enabled: plan === 'pro' || plan === 'agency' },
+                { key: 'pdfExport', name: 'PDF экспорт', description: 'Скачивание отчётов в PDF', enabled: plan === 'pro' || plan === 'agency' },
+                { key: 'csvExport', name: 'CSV экспорт', description: 'Экспорт данных в CSV', enabled: plan === 'pro' || plan === 'agency' },
+                { key: 'apiAccess', name: 'API доступ', description: 'Программный доступ к функциям', enabled: plan === 'agency' },
+                { key: 'whiteLabel', name: 'White-label', description: 'Без логотипа Site Doctor', enabled: plan === 'agency' },
+                { key: 'teamAccess', name: 'Командный доступ', description: plan === 'agency' ? 'До 5 пользователей' : 'Недоступно', enabled: plan === 'agency' },
+                { key: 'scheduledScans', name: 'Запланированные сканы', description: 'Автоматическая проверка по расписанию', enabled: plan === 'agency' }
             ];
             return allFeatures;
         }
