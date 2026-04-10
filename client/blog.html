@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Блог - Site Doctor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background: #0a0a0a; color: #fff; }
+        .card { background: #141414; border: 1px solid #222; border-radius: 16px; }
+        .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="border-b border-[#1f1f1f] px-6 py-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <a href="/scan" class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <span class="text-white text-sm">🔍</span>
+                </div>
+                <span class="font-bold text-lg">Site Doctor</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/scan" class="text-gray-400 hover:text-white">Сканер</a>
+                <span class="text-white font-medium">Блог</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Блог</h1>
+        <p class="text-gray-400 mb-8">Советы по SEO, оптимизации и продвижению сайтов</p>
+
+        <div class="space-y-6">
+            <!-- Article 4 -->
+            <a href="#article4" class="card p-6 block hover:border-yellow-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Оптимизация</span>
+                    <span class="text-gray-500 text-sm">8 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Что такое Core Web Vitals и почему они важны</h2>
+                <p class="text-gray-400 mb-4">Разбираемся в метриках Google которые влияют на ранжирование.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">8 Января 2026</span>
+                    <span class="text-yellow-400 text-sm">Читать →</span>
+                </div>
+            </a>
+
+            <!-- Article 5 -->
+            <a href="#article5" class="card p-6 block hover:border-red-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full">Безопасность</span>
+                    <span class="text-gray-500 text-sm">6 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">10 ошибок которые убивают ваш сайт</h2>
+                <p class="text-gray-400 mb-4">Эти проблемы встречаются на большинстве сайтов и сильно вредят.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">3 Января 2026</span>
+                    <span class="text-red-400 text-sm">Читать →</span>
+                </div>
+            </a>
+
+            <!-- Article 6 -->
+            <a href="#article6" class="card p-6 block hover:border-blue-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Инструменты</span>
+                    <span class="text-gray-500 text-sm">4 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Бесплатные инструменты для SEO-анализа</h2>
+                <p class="text-gray-400 mb-4">Подборка бесплатных сервисов для проверки сайта.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">1 Января 2026</span>
+                    <span class="text-blue-400 text-sm">Читать →</span>
+                </div>
+            </a>
+
+            <!-- Article 1 -->
+            <a href="#article1" class="card p-6 block hover:border-indigo-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs rounded-full">SEO</span>
+                    <span class="text-gray-500 text-sm">5 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Как проверить сайт на ошибки SEO за 5 минут</h2>
+                <p class="text-gray-400 mb-4">Узнайте какие ошибки мешают вашему сайту попасть в топ поисковиков и как их исправить.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">12 Января 2026</span>
+                    <span class="text-indigo-400 text-sm">Читать →</span>
+                </div>
+            </a>
+
+            <!-- Article 2 -->
+            <a href="#article2" class="card p-6 block hover:border-indigo-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Скорость</span>
+                    <span class="text-gray-500 text-sm">4 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">5 причин медленной загрузки сайта</h2>
+                <p class="text-gray-400 mb-4">Почему ваш сайт грузится медленно и как это влияет на посещаемость и продажи.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">10 Января 2026</span>
+                    <span class="text-indigo-400 text-sm">Читать →</span>
+                </div>
+            </a>
+
+            <!-- Article 3 -->
+            <a href="#article3" class="card p-6 block hover:border-indigo-500/30 transition-all">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">Доступность</span>
+                    <span class="text-gray-500 text-sm">3 мин</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Чек-лист технического аудита сайта</h2>
+                <p class="text-gray-400 mb-4">Полный список того, что нужно проверить на вашем сайте прямо сейчас.</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">5 Января 2026</span>
+                    <span class="text-indigo-400 text-sm">Читать →</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Article 1 Content -->
+        <div id="article1" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs rounded-full">SEO</span>
+                <span class="text-gray-500 text-sm">12 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">Как проверить сайт на ошибки SEO за 5 минут</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">SEO-ошибки могут стоить вам половины потенциальных посетителей. Вот как найти и исправить главные проблемы.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">1. Проверьте Title и Description</h3>
+                <p class="text-gray-400 mb-4">Title — это заголовок страницы в поиске. Он должен быть:</p>
+                <ul class="list-disc list-inside text-gray-400 mb-6 space-y-2">
+                    <li>Длиной 50-60 символов</li>
+                    <li>Содержать главное ключевое слово</li>
+                    <li>Уникальным для каждой страницы</li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">2. Посмотрите на H1 заголовки</h3>
+                <p class="text-gray-400 mb-4">На странице должен быть только один H1. Это главный заголовок страницы.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">3. Проверьте изображения</h3>
+                <p class="text-gray-400 mb-4">У каждого изображения должен быть alt-текст. Это помогает поисковикам понять что на картинке.</p>
+                
+                <div class="card p-6 bg-indigo-500/10 border-indigo-500/30 mt-8">
+                    <h4 class="font-bold mb-2">🚀 Быстрая проверка</h4>
+                    <p class="text-gray-400 mb-4">Введите URL вашего сайта в наш сканер и получите полный отчёт об SEO за 30 секунд.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-semibold transition-colors">
+                        Проверить сайт бесплатно →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 2 Content -->
+        <div id="article2" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Скорость</span>
+                <span class="text-gray-500 text-sm">10 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">5 причин медленной загрузки сайта</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">Каждая секунда загрузки = потеря 7% конверсии. Вот главные причины медленной работы.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">1. Большие изображения</h3>
+                <p class="text-gray-400 mb-4">Изображения обычно занимают 60-80% веса страницы. Сжимайте их и используйте формат WebP.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">2. Много JavaScript</h3>
+                <p class="text-gray-400 mb-4">Скрипты блокируют отображение контента. Используйте отложенную загрузку.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">3. Нет кэширования</h3>
+                <p class="text-gray-400 mb-4">Браузер должен запоминать статические файлы. Настройте Cache-Control.</p>
+                
+                <div class="card p-6 bg-green-500/10 border-green-500/30 mt-8">
+                    <h4 class="font-bold mb-2">🔧 Проверьте скорость</h4>
+                    <p class="text-gray-400 mb-4">Узнайте что замедляет ваш сайт за 30 секунд.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold transition-colors">
+                        Анализировать скорость →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 3 Content -->
+        <div id="article3" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">Доступность</span>
+                <span class="text-gray-500 text-sm">5 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">Чек-лист технического аудита сайта</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">Используйте этот список чтобы проверить свой сайт.</p>
+                
+                <div class="space-y-4">
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-2">✅ Базовая оптимизация</h4>
+                        <ul class="text-gray-400 space-y-1 text-sm">
+                            <li>□ Title и Description заполнены</li>
+                            <li>□ H1 заголовок присутствует</li>
+                            <li>□ Favicon настроен</li>
+                            <li>□ HTTPS работает</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-2">⚡ Скорость</h4>
+                        <ul class="text-gray-400 space-y-1 text-sm">
+                            <li>□ Изображения оптимизированы</li>
+                            <li>□ CSS минифицирован</li>
+                            <li>□ Кэширование включено</li>
+                            <li>□ Lazy loading для картинок</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-2">♿ Доступность</h4>
+                        <ul class="text-gray-400 space-y-1 text-sm">
+                            <li>□ Alt-тексты у изображений</li>
+                            <li>□ Контраст цветов достаточный</li>
+                            <li>□ Навигация клавиатурой работает</li>
+                            <li>□ Размер шрифта читаемый</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card p-6 bg-purple-500/10 border-purple-500/30 mt-8">
+                    <h4 class="font-bold mb-2">📊 Автоматическая проверка</h4>
+                    <p class="text-gray-400 mb-4">Наш сканер проверит все пункты автоматически.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-purple-500 hover:bg-purple-600 rounded-lg font-semibold transition-colors">
+                        Запустить аудит →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 4 -->
+        <div id="article4" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Оптимизация</span>
+                <span class="text-gray-500 text-sm">8 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">Что такое Core Web Vitals и почему они важны</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">Google официально учитывает скорость и удобство сайта в ранжировании. Разбираемся что это значит.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">LCP (Largest Contentful Paint)</h3>
+                <p class="text-gray-400 mb-4">Время загрузки самого большого элемента на странице. Хороший показатель — менее 2.5 секунд.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">FID (First Input Delay)</h3>
+                <p class="text-gray-400 mb-4">Время отклика страницы на действия пользователя. Должно быть менее 100 миллисекунд.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">CLS (Cumulative Layout Shift)</h3>
+                <p class="text-gray-400 mb-4">Стабильность расположения элементов. Сайт не должен "прыгать" при загрузке.</p>
+                
+                <div class="card p-6 bg-yellow-500/10 border-yellow-500/30 mt-8">
+                    <h4 class="font-bold mb-2">📊 Измерьте свои показатели</h4>
+                    <p class="text-gray-400 mb-4">Узнайте свои Core Web Vitals за 30 секунд.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-semibold transition-colors">
+                        Измерить →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 5 -->
+        <div id="article5" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full">Безопасность</span>
+                <span class="text-gray-500 text-sm">3 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">10 ошибок которые убивают ваш сайт</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">Эти ошибки встречаются на большинстве сайтов и сильно влияют на успех.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">1. Нет мобильной версии</h3>
+                <p class="text-gray-400 mb-4">Более 60% трафика — мобильные устройства. Сайт должен работать на телефонах.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">2. Слабый хостинг</h3>
+                <p class="text-gray-400 mb-4">Дешёвый хостинг = медленная загрузка = потеря посетителей.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">3. Нет SSL сертификата</h3>
+                <p class="text-gray-400 mb-4">Без HTTPS браузеры показывают предупреждение. Пользователи уходят.</p>
+                
+                <h3 class="text-xl font-bold mt-8 mb-4">4. Плохие мета-теги</h3>
+                <p class="text-gray-400 mb-4">Title и Description — первое что видит пользователь в поиске.</p>
+                
+                <div class="card p-6 bg-red-500/10 border-red-500/30 mt-8">
+                    <h4 class="font-bold mb-2">🔍 Найдите свои ошибки</h4>
+                    <p class="text-gray-400 mb-4">Бесплатный аудит сайта за 30 секунд.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition-colors">
+                        Проверить →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 6 -->
+        <div id="article6" class="mt-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Инструменты</span>
+                <span class="text-gray-500 text-sm">1 Января 2026</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">Бесплатные инструменты для SEO-анализа</h2>
+            
+            <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-lg mb-6">Эти инструменты помогут найти проблемы на сайте без затрат.</p>
+                
+                <div class="grid gap-4 mt-6">
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-1">Google Search Console</h4>
+                        <p class="text-gray-400 text-sm">Бесплатно. Показывает позиции в поиске и ошибки индексации.</p>
+                    </div>
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-1">Google PageSpeed Insights</h4>
+                        <p class="text-gray-400 text-sm">Бесплатно. Анализ скорости на мобильных и десктопе.</p>
+                    </div>
+                    <div class="card p-4">
+                        <h4 class="font-bold mb-1">Site Doctor</h4>
+                        <p class="text-gray-400 text-sm">Бесплатно. Полный аудит SEO, скорости и доступности.</p>
+                    </div>
+                </div>
+                
+                <div class="card p-6 bg-blue-500/10 border-blue-500/30 mt-8">
+                    <h4 class="font-bold mb-2">💡 Сравните все инструменты</h4>
+                    <p class="text-gray-400 mb-4">Запустите полный аудит сайта и получите рекомендации.</p>
+                    <a href="/scan" class="inline-block px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition-colors">
+                        Начать аудит →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-16 text-center">
+            <a href="/scan" class="inline-block px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity">
+                🚀 Проверить свой сайт бесплатно
+            </a>
+            <p class="text-gray-500 mt-4">Анализ за 30 секунд • Без регистрации</p>
+        </div>
+    </main>
+</body>
+</html>
